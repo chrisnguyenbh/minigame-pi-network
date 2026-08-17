@@ -3,20 +3,20 @@
 <title>Tìm điểm khác nhau · Lão làng</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(#9385d8,#b7aaec);font-family:system-ui,Segoe UI,Arial;color:#28231f}
-.game{width:min(780px,100%);margin:auto;padding:7px}header,.foot{background:#fff;border-radius:15px;padding:10px 12px}
+.game{width:min(1380px,100%);margin:auto;padding:7px}header,.foot{background:#fff;border-radius:15px;padding:10px 12px}
 header{display:grid;grid-template-columns:70px 1fr 70px;align-items:center;border-radius:15px 15px 0 0}header a{text-decoration:none;font-weight:800}
 .center{text-align:center}h2{font-size:19px;margin:0}#level{font-weight:900}#score{text-align:right;font-weight:900}
 .dots{display:flex;justify-content:center;gap:5px;margin-top:5px}.dot{width:15px;height:15px;border-radius:50%;background:#d7d1ca;border:2px solid #a59d96}.dot.done{background:#3bb561;border-color:#218543}
-.stage{background:#48423f;padding:7px}.pic{position:relative;margin-bottom:7px;background:#171514;overflow:hidden;border:2px solid #312c29;cursor:crosshair;text-align:center}
-.pic img{display:block;max-width:100%;width:auto;max-height:72vh;margin:auto}.mark{position:absolute;width:34px;height:34px;border:3px solid #ffe66b;border-radius:50%;box-shadow:0 0 0 3px #e83d38;transform:translate(-50%,-50%);pointer-events:none}
-.hint{animation:pulse .55s infinite alternate;background:#fff5}@keyframes pulse{to{scale:1.25}}
+.stage{background:#48423f;padding:7px;display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center}.pic{position:relative;margin:0;background:#171514;overflow:hidden;border:2px solid #312c29;cursor:crosshair;text-align:center;display:flex;align-items:center;justify-content:center}
+.pic img{display:block;max-width:100%;width:auto;height:auto;max-height:76vh;margin:auto;object-fit:contain}.mark{position:absolute;width:34px;height:34px;border:3px solid #ffe66b;border-radius:50%;box-shadow:0 0 0 3px #e83d38;transform:translate(-50%,-50%);pointer-events:none}
+.tag{position:absolute;z-index:3;left:8px;top:8px;background:#0009;color:#fff;padding:4px 8px;border-radius:7px;font-size:12px;pointer-events:none}.hint{animation:pulse .55s infinite alternate;background:#fff5}@keyframes pulse{to{scale:1.25}}
 .foot{border-radius:0 0 15px 15px;display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}button{border:0;border-radius:11px;padding:9px 15px;font-weight:900;cursor:pointer}
 #hint{background:#078c3a;color:white}#next{justify-self:end;background:#6652c6;color:white}#next:disabled{opacity:.35}#msg{font-size:12px;font-weight:700;color:#6b625b}
 .wrong:after{content:'✕';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:70px;color:#ef3030;font-weight:1000;animation:f .35s;pointer-events:none}@keyframes f{to{opacity:0;scale:1.4}}
-@media(max-width:600px){.game{padding:3px}.pic img{max-height:none;width:100%}.mark{width:29px;height:29px}}
+@media(max-width:600px){.game{padding:3px}.stage{gap:3px;padding:3px}.pic{border-width:1px}.pic img{width:100%;height:auto;max-height:70vh;object-fit:contain}.mark{width:24px;height:24px;border-width:2px}}
 </style></head><body><div class="game">
 <header><a href="../">← Hub</a><div class="center"><h2>🔎 Tìm Điểm Khác Biệt</h2><div id="level"></div><div class="dots" id="dots"></div></div><div id="score"></div></header>
-<div class="stage"><div class="pic" id="A"><img></div><div class="pic" id="B"><img></div></div>
+<div class="stage"><div class="pic" id="A"><b class="tag">HÌNH A</b><img></div><div class="pic" id="B"><b class="tag">HÌNH B</b><img></div></div>
 <div class="foot"><div id="msg"></div><button id="hint">Gợi ý 💡</button><button id="next" disabled>Level tiếp →</button></div>
 </div><script>
 const levels=[{a:'assets/find-difference/hard_01_a.webp',b:'assets/find-difference/hard_01_b.webp',spots:[[18,22],[43,15],[59,28],[76,19],[32,46],[53,54],[71,69],[25,78]]},
@@ -28,7 +28,7 @@ const levels=[{a:'assets/find-difference/hard_01_a.webp',b:'assets/find-differen
 {a:'assets/find-difference/hard_07_a.webp',b:'assets/find-difference/hard_07_b.webp',spots:[[17,29],[42,15],[58,23],[78,18],[30,43],[51,53],[72,62],[44,76]]},
 {a:'assets/find-difference/hard_08_a.webp',b:'assets/find-difference/hard_08_b.webp',spots:[[14,25],[37,13],[54,22],[76,17],[29,43],[48,55],[69,63],[82,76]]}];
 let L=0,found=new Set(); const A=document.querySelector('#A'),B=document.querySelector('#B');
-function load(i){L=i;found=new Set();A.innerHTML='<img src="'+levels[L].a+'">';B.innerHTML='<img src="'+levels[L].b+'">';next.disabled=true;ui()}
+function load(i){L=i;found=new Set();A.innerHTML='<b class="tag">HÌNH A</b><img src="'+levels[L].a+'">';B.innerHTML='<b class="tag">HÌNH B</b><img src="'+levels[L].b+'">';next.disabled=true;ui()}
 function ui(){const n=levels[L].spots.length;level.textContent='Lão làng · Level '+(L+1)+' / '+levels.length;score.textContent=found.size+'/'+n;dots.innerHTML=levels[L].spots.map((_,i)=>'<i class="dot '+(found.has(i)?'done':'')+'"></i>').join('');msg.textContent=found.size===n?'🏆 Hoàn thành!':'Còn '+(n-found.size)+' điểm — khác biệt rất nhỏ.';next.disabled=found.size!==n}
 function posInImage(pic,e){const im=pic.querySelector('img'),r=im.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)return null;return [(e.clientX-r.left)/r.width*100,(e.clientY-r.top)/r.height*100,r,pic.getBoundingClientRect()]}
 function mark(i,cl=''){const [x,y]=levels[L].spots[i];[A,B].forEach(p=>{const im=p.querySelector('img'),ir=im.getBoundingClientRect(),pr=p.getBoundingClientRect(),m=document.createElement('i');m.className='mark '+cl;m.style.left=((ir.left-pr.left)+ir.width*x/100)+'px';m.style.top=((ir.top-pr.top)+ir.height*y/100)+'px';m.dataset.i=i;p.appendChild(m)})}
