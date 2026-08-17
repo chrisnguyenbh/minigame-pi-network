@@ -1,18 +1,273 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#090713"><title>Cờ Tỉ Phú — MiniGame</title><link rel="stylesheet" href="_base.css"><style>
-:root{--bg:#080611;--panel:#141021;--line:#2a2139;--text:#fff;--muted:#a99db7;--gold:#ffd76a;--pink:#d85cff;--green:#61e7a2}.wrap{max-width:1000px;margin:auto;padding:14px}.top{display:flex;align-items:center;gap:12px;margin-bottom:12px}.top a{color:#d8b6ff;text-decoration:none}.top h2{margin:0;flex:1}.score{color:var(--gold);font-weight:900}.hero{padding:16px;border:1px solid var(--line);background:linear-gradient(135deg,#1a1127,#0f0b18);border-radius:22px;box-shadow:0 18px 50px #0008;margin-bottom:12px}.hero h1{margin:0;font-size:28px}.hero p{margin:5px 0 0;color:var(--muted)}.wallet{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.stat{background:#0e0a16;border:1px solid #2c223b;border-radius:14px;padding:10px 13px;min-width:120px}.stat small{display:block;color:var(--muted);font-size:11px}.stat b{font-size:19px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:12px}.board-card,.side{border:1px solid var(--line);background:#110c1b;border-radius:22px;padding:12px;box-shadow:0 15px 45px #0007}.board{display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);aspect-ratio:1;gap:4px;max-width:700px;margin:auto}.tile{position:relative;min-width:0;border-radius:8px;padding:5px;background:linear-gradient(145deg,#f4e1b7,#c7a768);color:#17101e;box-shadow:inset 0 0 0 1px #fff6,0 3px 7px #0005;display:flex;flex-direction:column;justify-content:space-between;font-size:clamp(7px,1.5vw,12px);font-weight:900;overflow:hidden}.tile .bar{height:6px;margin:-5px -5px 2px;background:#7c45a7}.tile:nth-child(2n) .bar{background:#3a9bdc}.tile:nth-child(3n) .bar{background:#eb6a7e}.tile:nth-child(4n) .bar{background:#4cc88a}.tile.me{outline:3px solid var(--gold);transform:translateY(-2px)}.token{font-size:18px;position:absolute;right:3px;bottom:2px}.owner{font-size:9px}.center{grid-column:2/8;grid-row:2/8;border-radius:18px;background:radial-gradient(circle at 50% 30%,#4d2766,#181023 60%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:1px solid #8b4cc066;box-shadow:inset 0 0 40px #0008}.center .dice{font-size:52px;filter:drop-shadow(0 8px 12px #000)}.center h2{margin:2px 0;color:#fff}.center p{margin:0;color:#c8b9d3;font-size:12px}.side h3{margin:4px 0 12px}.btn{width:100%;border:0;border-radius:14px;padding:13px 12px;margin:5px 0;font-weight:900;color:#fff;background:linear-gradient(135deg,#8d45b8,#d24ee8);cursor:pointer}.btn.alt{background:#272033}.btn.gold{background:linear-gradient(135deg,#c58a22,#ffd968);color:#24180a}.btn:disabled{opacity:.5}.log{background:#0b0811;border:1px solid #241a30;border-radius:14px;padding:10px;margin-top:10px;min-height:88px;color:#cfc2d8;font-size:12px;line-height:1.45}.properties{margin-top:10px}.prop{display:flex;justify-content:space-between;gap:5px;padding:8px;border-bottom:1px solid #251c30;font-size:12px}.note{font-size:11px;color:var(--muted);line-height:1.4;margin-top:12px}.modal{position:fixed;inset:0;background:#000b;display:none;align-items:flex-end;justify-content:center;padding:12px;z-index:5}.modal.show{display:flex}.sheet{width:min(600px,100%);background:#171020;border:1px solid #38264b;border-radius:24px;padding:18px;box-shadow:0 -10px 50px #000}.sheet h3{margin-top:0}.pack{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pack button{border:1px solid #3b2a4d;background:#21162d;color:#fff;border-radius:15px;padding:12px;font-weight:800}.pack b{display:block;color:var(--gold);font-size:16px}@media(max-width:720px){.layout{grid-template-columns:1fr}.board{max-width:650px}.side{order:-1}.stat{flex:1}.pack{grid-template-columns:1fr 1fr}}@media(max-width:430px){.tile{font-size:7px}.owner{font-size:7px}.token{font-size:14px}.center .dice{font-size:40px}}
-</style></head><body><main class="wrap"><div class="top"><a href="../">← Hub</a><h2>🎲 Cờ Tỉ Phú</h2><span class="score" id="score">0 XP</span></div>
-<section class="hero"><h1>Property Empire</h1><p>Chơi vui, mua đất, xây tài sản và trở thành ông trùm bất động sản.</p><div class="wallet"><div class="stat"><small>Game Coin</small><b id="coins">10,000</b></div><div class="stat"><small>Tài sản</small><b id="wealth">10,000</b></div><div class="stat"><small>Đất sở hữu</small><b id="owned">0</b></div></div></section>
-<div class="layout"><section class="board-card"><div id="board" class="board"></div></section><aside class="side"><h3>🎮 Điều khiển</h3><button class="btn gold" id="roll">🎲 Đổ 2 xúc xắc</button><button class="btn" id="buy">🏠 Mua đất</button><button class="btn alt" id="upgrade">🏗️ Nâng cấp</button><button class="btn alt" id="reset">↻ Chơi lại</button><div class="log" id="log">Chào mừng! Đổ xúc xắc để bắt đầu.</div><div class="properties"><h3>🏘️ Bất động sản</h3><div id="props"></div></div><p class="note">Game Coin chỉ là tiền ảo dùng trong MiniGame. Không có chức năng đổi Coin thành Pi.</p></aside></div></main>
-<div class="modal" id="modal"><div class="sheet"><h3>🪙 Game Coin</h3><p>Coin dùng để chơi và mua tài sản trong game. Bản này không quy đổi Coin → Pi.</p><div class="pack"><button data-add="1000">+1.000 <b>Coin</b></button><button data-add="5000">+5.000 <b>Coin</b></button><button data-add="10000">+10.000 <b>Coin</b></button></div><button class="btn alt" id="close">Đóng</button></div></div>
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Monopoly Mini</title>
+<style>
+:root{--bg:#0e1b27;--panel:#162838;--soft:#20394d;--ink:#f5f6f7;--gold:#ffd166;--green:#2fbf71;--red:#ef476f}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#1b3b50,#0b1721 70%);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;padding:14px}
+.app{width:min(1220px,100%);margin:auto}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.top h1{margin:0;font-size:30px}.top a{color:#cfe9ff;text-decoration:none;font-weight:800}
+.setup,.side,.log{background:rgba(18,38,52,.94);border:1px solid #ffffff18;border-radius:16px;padding:13px;box-shadow:0 12px 30px #0005}
+.setup{margin-bottom:12px;display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+select,input,button{border:0;border-radius:10px;padding:9px 11px;font:inherit;font-weight:750}
+button{cursor:pointer;background:#e7edf3;color:#172533}button.primary{background:var(--green);color:#fff}button.danger{background:var(--red);color:#fff}button:disabled{opacity:.4;cursor:not-allowed}
+.layout{display:grid;grid-template-columns:minmax(650px,1fr) 330px;gap:14px;align-items:start}
+.board{display:grid;grid-template-columns:repeat(11,1fr);grid-template-rows:repeat(11,1fr);aspect-ratio:1;background:#d9e6d1;border:7px solid #24382b;border-radius:10px;overflow:hidden;position:relative}
+.tile{position:relative;border:1px solid #6b7b6a;background:#f7f5e8;color:#1d2a1f;padding:3px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;overflow:hidden}
+.tile .name{font-size:9px;font-weight:850;line-height:1.05;text-align:center}.tile .price{font-size:8px;text-align:center;opacity:.7}
+.tile .bar{height:7px;margin:-3px -3px 3px;background:#bbb}.tile.corner{background:#e9ead8;justify-content:center}
+.tokens{display:flex;flex-wrap:wrap;gap:2px;justify-content:center}.token{width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px #0007}
+.owner{position:absolute;right:2px;bottom:2px;width:7px;height:7px;border-radius:50%}.houses{font-size:9px;text-align:center;color:#0b7a3a;font-weight:900}
+.center{position:absolute;inset:17%;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.center-card{background:#fff9;color:#203020;border:2px solid #57715c;padding:18px 25px;border-radius:15px;transform:rotate(-12deg);font-size:32px;font-weight:1000;letter-spacing:2px}
+.side{display:flex;flex-direction:column;gap:10px;position:sticky;top:10px}.turn{font-size:18px;font-weight:900;padding:10px;background:#ffffff0d;border-radius:10px}
+.players{display:grid;gap:7px}.player{padding:8px 9px;border-radius:10px;background:#ffffff0b;border-left:5px solid var(--pc)}.player.active{outline:2px solid var(--gold)}.player.bankrupt{opacity:.4;text-decoration:line-through}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.actions button{width:100%}.dice{font-size:34px;text-align:center;min-height:48px}
+.property{padding:9px;background:#ffffff0a;border-radius:10px;font-size:13px;line-height:1.45}
+.log{margin-top:12px;max-height:180px;overflow:auto;font-size:12px;line-height:1.45}.entry{padding:3px 0;border-bottom:1px solid #ffffff0d}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.side{position:static}.board{min-width:680px}.board-wrap{overflow:auto}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top"><div><h1>🎩 Monopoly Mini</h1><div>Dựa trên dữ liệu và luật chính của source Monopoly bạn gửi.</div></div><a href="../">← MiniGame Hub</a></div>
+
+  <div class="setup" id="setup">
+    <b>Số người:</b>
+    <select id="playerCount"><option>2</option><option>3</option><option selected>4</option></select>
+    <b>Chế độ:</b>
+    <select id="gameMode"><option value="endless">Endless</option><option value="turns">Giới hạn 30 vòng</option><option value="networth">Đạt $5000</option></select>
+    <button class="primary" onclick="startGame()">Bắt đầu</button>
+  </div>
+
+  <div class="layout">
+    <div class="board-wrap"><div class="board" id="board"><div class="center"><div class="center-card">MONOPOLY</div></div></div></div>
+    <aside class="side">
+      <div class="turn" id="turn">Chưa bắt đầu</div>
+      <div class="players" id="players"></div>
+      <div class="dice" id="dice">🎲 🎲</div>
+      <div class="actions">
+        <button class="primary" id="rollBtn" onclick="rollDice()" disabled>🎲 Xúc xắc</button>
+        <button id="buyBtn" onclick="buyProperty()" disabled>💰 Mua đất</button>
+        <button id="buildBtn" onclick="buildHouse()" disabled>🏠 Xây nhà</button>
+        <button class="danger" id="endBtn" onclick="endTurn()" disabled>➡ Hết lượt</button>
+      </div>
+      <div class="property" id="property">Chọn Bắt đầu để chơi.</div>
+    </aside>
+  </div>
+  <div class="log" id="log"></div>
+</div>
+
 <script>
-const names=['GO','Phố Hồng','Quỹ Cộng Đồng','Phố Lam','Thuế','Ga Trung Tâm','Phố Xanh','Cơ Hội','Phố Tím','Nhà Tù','Phố Cam','Công Viên','Phố Đỏ','Cơ Hội','Phố Vàng','Bãi Đỗ','Phố Ngọc','Quỹ Cộng Đồng','Phố Bạc','Đi Tù','Phố Ruby','Cơ Hội','Phố Kim Cương','Phố Hoàng Gia'];
-const price=200, rent=45;let pos=0,coins=+(localStorage.mg_coins||10000),xp=+(localStorage.mg_monopoly_xp||0),props=JSON.parse(localStorage.mg_props||'{}');
-const $=s=>document.querySelector(s);const board=$('#board');
-function save(){localStorage.mg_coins=coins;localStorage.mg_monopoly_xp=xp;localStorage.mg_props=JSON.stringify(props)}
-function draw(){board.innerHTML='';for(let i=0;i<24;i++){const t=document.createElement('div');t.className='tile '+(i===pos?'me':'');t.dataset.i=i;t.innerHTML=`<div class="bar"></div><span>${names[i]}</span><span class="owner">${props[i]?`🏠 Lv.${props[i]}`:`${i===0?'START':'$'+price}`}</span>${i===pos?'<span class="token">🧑</span>':''}`;board.appendChild(t)}$('#coins').textContent=coins.toLocaleString();$('#owned').textContent=Object.keys(props).length;$('#wealth').textContent=(coins+Object.values(props).reduce((s,v)=>s+price*v,0)).toLocaleString();$('#score').textContent=xp+' XP';$('#props').innerHTML=Object.keys(props).length?Object.keys(props).map(i=>`<div class="prop"><span>${names[i]}</span><b>Lv.${props[i]}</b></div>`).join(''):'<div class="note">Chưa có đất.</div>';save()}
-function log(s){$('#log').textContent=s}
-$('#roll').onclick=()=>{const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6),d=a+b;pos=(pos+d)%24;xp+=d*3;if(pos===0){coins+=500;log(`🎉 Về GO! Bạn nhận 500 Coin.`)}else if(props[pos]){const pay=rent*props[pos];coins=Math.max(0,coins-pay);log(`💸 Bạn trả ${pay} Coin tiền thuê cho ${names[pos]}.`)}else log(`🎲 Bạn đổ ${a}+${b} = ${d}. Đến ${names[pos]}.`);draw()};
-$('#buy').onclick=()=>{if(pos===0||props[pos])return log('⚠️ Ô này không thể mua hoặc bạn đã sở hữu.');if(coins<price)return log('🪙 Không đủ Coin để mua đất.');coins-=price;props[pos]=1;xp+=30;log(`🏠 Chúc mừng! Bạn đã mua ${names[pos]} với ${price} Coin.`);draw()};
-$('#upgrade').onclick=()=>{if(!props[pos])return log('⚠️ Bạn phải sở hữu ô này trước.');const lv=props[pos],cost=price*lv;if(coins<cost)return log(`🪙 Cần ${cost} Coin để nâng cấp.`);coins-=cost;props[pos]=lv+1;xp+=20;log(`🏗️ ${names[pos]} đã lên Lv.${lv+1}. Tiền thuê tăng!`);draw()};
-$('#reset').onclick=()=>{if(confirm('Xóa tài sản và bắt đầu lại?')){pos=0;coins=10000;xp=0;props={};draw();log('🔄 Đã bắt đầu ván mới.')}};draw();
-</script></body></html>
+const LOCATIONS=[{"id": 1, "type": "FREE", "name": "Start", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 2, "type": "PROPERTY", "name": "Meditterranean Avenue", "setId": 1, "cost": 60, "rent": 2, "house": [10, 30, 90, 160], "hotel": 250, "buildCost": 50}, {"id": 3, "type": "CHEST", "name": "Community Chest", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 4, "type": "PROPERTY", "name": "Baltic Avenue", "setId": 1, "cost": 60, "rent": 4, "house": [20, 60, 180, 320], "hotel": 450, "buildCost": 50}, {"id": 5, "type": "TAX", "name": "Income Tax", "setId": null, "cost": 0, "rent": 200, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 6, "type": "RAIL", "name": "Reading Railroad", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 7, "type": "PROPERTY", "name": "Oriental Avenue", "setId": 2, "cost": 100, "rent": 6, "house": [30, 90, 270, 400], "hotel": 550, "buildCost": 50}, {"id": 8, "type": "CHANCE", "name": "Chance", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 9, "type": "PROPERTY", "name": "Vermont Avenue", "setId": 2, "cost": 100, "rent": 6, "house": [30, 90, 270, 400], "hotel": 550, "buildCost": 50}, {"id": 10, "type": "PROPERTY", "name": "Connecticut Avenue", "setId": 2, "cost": 120, "rent": 8, "house": [40, 100, 300, 450], "hotel": 600, "buildCost": 50}, {"id": 11, "type": "FREE", "name": "Just Visiting Jail", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 12, "type": "PROPERTY", "name": "St. Charles Place", "setId": 3, "cost": 140, "rent": 10, "house": [50, 150, 450, 625], "hotel": 750, "buildCost": 100}, {"id": 13, "type": "UTILITY", "name": "Electric Company", "setId": null, "cost": 150, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 14, "type": "PROPERTY", "name": "States Avenue", "setId": 3, "cost": 140, "rent": 10, "house": [50, 150, 450, 625], "hotel": 750, "buildCost": 100}, {"id": 15, "type": "PROPERTY", "name": "Virgnia Avenue", "setId": 3, "cost": 160, "rent": 12, "house": [60, 180, 500, 700], "hotel": 900, "buildCost": 100}, {"id": 16, "type": "RAIL", "name": "Pennsylvania Railroad", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 17, "type": "PROPERTY", "name": "St. James Place", "setId": 4, "cost": 180, "rent": 14, "house": [70, 200, 550, 750], "hotel": 950, "buildCost": 100}, {"id": 18, "type": "CHEST", "name": "Community Chest", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 19, "type": "PROPERTY", "name": "Tennessee Avenue", "setId": 4, "cost": 180, "rent": 14, "house": [70, 200, 550, 750], "hotel": 950, "buildCost": 100}, {"id": 20, "type": "PROPERTY", "name": "New York Avenue", "setId": 4, "cost": 200, "rent": 16, "house": [80, 220, 600, 800], "hotel": 1000, "buildCost": 100}, {"id": 21, "type": "FREE", "name": "Free Parking", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 22, "type": "PROPERTY", "name": "Kentucky Avenue", "setId": 5, "cost": 220, "rent": 18, "house": [90, 250, 700, 875], "hotel": 1050, "buildCost": 150}, {"id": 23, "type": "CHANCE", "name": "Chance", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 24, "type": "PROPERTY", "name": "Indiana Avenue", "setId": 5, "cost": 220, "rent": 18, "house": [90, 250, 700, 875], "hotel": 1050, "buildCost": 150}, {"id": 25, "type": "PROPERTY", "name": "Illinois Avenue", "setId": 5, "cost": 240, "rent": 20, "house": [100, 300, 750, 925], "hotel": 1100, "buildCost": 150}, {"id": 26, "type": "RAIL", "name": "B. & O. Railroad", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 27, "type": "PROPERTY", "name": "Atlantic Avenue", "setId": 6, "cost": 260, "rent": 22, "house": [110, 330, 800, 925], "hotel": 1150, "buildCost": 150}, {"id": 28, "type": "PROPERTY", "name": "Ventnor Avenue", "setId": 6, "cost": 260, "rent": 22, "house": [110, 330, 800, 925], "hotel": 1150, "buildCost": 150}, {"id": 29, "type": "UTILITY", "name": "Water Works", "setId": null, "cost": 150, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 30, "type": "PROPERTY", "name": "Marvin Gardens", "setId": 6, "cost": 280, "rent": 24, "house": [120, 360, 850, 1025], "hotel": 1200, "buildCost": 150}, {"id": 31, "type": "JAIL", "name": "Go To Jail", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 32, "type": "PROPERTY", "name": "Pacific Avenue", "setId": 7, "cost": 300, "rent": 26, "house": [130, 390, 900, 1100], "hotel": 1275, "buildCost": 200}, {"id": 33, "type": "PROPERTY", "name": "North Carolina Avenue", "setId": 7, "cost": 300, "rent": 26, "house": [130, 390, 900, 1100], "hotel": 1275, "buildCost": 200}, {"id": 34, "type": "CHEST", "name": "Community Chest", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 35, "type": "PROPERTY", "name": "Pennsylvania Avenue", "setId": 7, "cost": 320, "rent": 28, "house": [150, 450, 1000, 1200], "hotel": 1400, "buildCost": 200}, {"id": 36, "type": "RAIL", "name": "Short Line", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 37, "type": "CHANCE", "name": "Chance", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 38, "type": "PROPERTY", "name": "Park Place", "setId": 8, "cost": 350, "rent": 35, "house": [175, 500, 1100, 1300], "hotel": 1500, "buildCost": 200}, {"id": 39, "type": "TAX", "name": "Luxury Tax", "setId": null, "cost": 0, "rent": 100, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 40, "type": "PROPERTY", "name": "Boardwalk", "setId": 8, "cost": 400, "rent": 35, "house": [200, 600, 1400, 1700], "hotel": 2000, "buildCost": 200}];
+const SET_COLORS={1:'#6b4b3e',2:'#8bd3e6',3:'#d789d7',4:'#f4d35e',5:'#ef6f6c',6:'#f4a261',7:'#55a868',8:'#4b7bec'};
+const PLAYER_COLORS=['#e63946','#2a9d8f','#457b9d','#9b5de5','#ff9f1c','#00b4d8','#f15bb5','#84a98c'];
+
+let state=null;
+
+function money(n){return '$'+Math.round(n)}
+function log(msg){const e=document.createElement('div');e.className='entry';e.textContent=msg;document.getElementById('log').prepend(e)}
+function locByPos(pos){return LOCATIONS[pos%40]}
+function current(){return state.players[state.current]}
+
+function startGame(){
+  const n=+playerCount.value, mode=gameMode.value;
+  state={mode,round:1,current:0,rolled:false,doubleCount:0,pendingBuy:false,gameOver:false,properties:{},players:[]};
+  for(let i=0;i<n;i++)state.players.push({name:'Người '+(i+1),cash:1500,pos:0,jail:0,bankrupt:false,color:PLAYER_COLORS[i],laps:0});
+  setup.style.display='none';logEl='';document.getElementById('log').innerHTML='';
+  renderBoard();renderAll();log('🎩 Ván Monopoly bắt đầu!');
+}
+
+function boardIndexStyle(i){
+  // positions 0..39 clockwise: bottom-right -> bottom-left -> top-left -> top-right -> bottom-right
+  if(i<=10) return {row:11,col:11-i};
+  if(i<=20) return {row:11-(i-10),col:1};
+  if(i<=30) return {row:1,col:i-20+1};
+  return {row:i-30+1,col:11};
+}
+
+function renderBoard(){
+  const b=document.getElementById('board');
+  b.querySelectorAll('.tile').forEach(x=>x.remove());
+  for(let i=0;i<40;i++){
+    const loc=LOCATIONS[i],st=boardIndexStyle(i),d=document.createElement('div');
+    d.className='tile'+([0,10,20,30].includes(i)?' corner':'');
+    d.style.gridRow=st.row;d.style.gridColumn=st.col;d.dataset.i=i;
+    if(loc.setId) d.innerHTML+=`<div class="bar" style="background:${SET_COLORS[loc.setId]}"></div>`;
+    d.innerHTML+=`<div class="name">${loc.name}</div>`;
+    if(loc.cost)d.innerHTML+=`<div class="price">${money(loc.cost)}</div>`;
+    d.innerHTML+=`<div class="houses"></div><div class="tokens"></div>`;
+    b.appendChild(d);
+  }
+}
+
+function renderAll(){
+  if(!state)return;
+  document.querySelectorAll('.tokens').forEach(x=>x.innerHTML='');
+  document.querySelectorAll('.owner').forEach(x=>x.remove());
+  document.querySelectorAll('.houses').forEach(x=>x.textContent='');
+
+  state.players.forEach((p,idx)=>{
+    if(p.bankrupt)return;
+    const tile=document.querySelector(`.tile[data-i="${p.pos}"] .tokens`);
+    if(tile)tile.innerHTML+=`<i class="token" style="background:${p.color}"></i>`;
+  });
+
+  Object.entries(state.properties).forEach(([pos,pr])=>{
+    const tile=document.querySelector(`.tile[data-i="${pos}"]`);
+    if(!tile)return;
+    const owner=state.players[pr.owner];
+    const dot=document.createElement('i');dot.className='owner';dot.style.background=owner.color;tile.appendChild(dot);
+    if(pr.houses)tile.querySelector('.houses').textContent=pr.houses>=5?'🏨':'🏠'.repeat(pr.houses);
+  });
+
+  players.innerHTML=state.players.map((p,i)=>`<div class="player ${i===state.current?'active':''} ${p.bankrupt?'bankrupt':''}" style="--pc:${p.color}"><b>${p.name}</b> · ${p.cash} · Ô ${p.pos+1}${p.jail?' · 🔒 Jail':''}</div>`).join('');
+  const p=current(),loc=locByPos(p.pos);
+  turn.textContent=state.gameOver?'Ván đã kết thúc':`Vòng ${state.round} · ${p.name}`;
+  property.innerHTML=`<b>${loc.name}</b><br>Loại: ${loc.type}${loc.cost?` · Giá ${money(loc.cost)}`:''}${loc.rent?` · Thuê gốc ${money(loc.rent)}`:''}`;
+
+  rollBtn.disabled=state.gameOver||state.rolled||p.bankrupt;
+  buyBtn.disabled=!state.pendingBuy||p.cash<loc.cost;
+  buildBtn.disabled=!canBuild(p,loc);
+  endBtn.disabled=state.gameOver||!state.rolled;
+}
+
+function rollDice(){
+  if(!state||state.gameOver||state.rolled)return;
+  const p=current();
+  if(p.jail>0){
+    const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);dice.textContent=`🎲 ${a} + 🎲 ${b}`;
+    if(a===b){p.jail=0;log(`${p.name} tung đôi và ra khỏi tù!`)}
+    else{p.jail--;state.rolled=true;log(`${p.name} còn ${p.jail} lượt trong tù.`);renderAll();return}
+  }
+
+  const d1=1+Math.floor(Math.random()*6),d2=1+Math.floor(Math.random()*6),sum=d1+d2;
+  dice.textContent=`🎲 ${d1} + 🎲 ${d2} = ${sum}`;state.rolled=true;
+  const old=p.pos,pNew=(p.pos+sum)%40;
+  if(p.pos+sum>=40){p.cash+=200;p.laps++;log(`${p.name} qua START và nhận $200.`)}
+  p.pos=pNew;log(`${p.name} đi ${sum} ô tới ${locByPos(p.pos).name}.`);
+  resolveLanding();
+}
+
+function resolveLanding(){
+  const p=current(),loc=locByPos(p.pos);state.pendingBuy=false;
+  const owned=state.properties[p.pos];
+
+  if(loc.type==='PROPERTY'||loc.type==='RAIL'||loc.type==='UTILITY'){
+    if(!owned){state.pendingBuy=true;log(`${loc.name} chưa có chủ. Có thể mua với ${loc.cost}.`)}
+    else if(owned.owner!==state.current){
+      let rent=calcRent(p.pos,owned);
+      payTo(state.current,owned.owner,rent);
+      log(`${p.name} trả ${rent} tiền thuê cho ${state.players[owned.owner].name}.`);
+    }
+  } else if(loc.type==='TAX'){
+    const amt=loc.rent||100;p.cash-=amt;log(`${p.name} nộp thuế ${amt}.`);
+  } else if(loc.type==='CHANCE'||loc.type==='CHEST'){
+    drawCard(loc.type);
+  } else if(loc.type==='JAIL'){
+    p.pos=10;p.jail=3;log(`${p.name} bị đưa vào tù trong tối đa 3 lượt.`);
+  }
+  checkBankruptcy(p);checkWin();renderAll();
+}
+
+function calcRent(pos,pr){
+  const loc=LOCATIONS[pos];
+  if(loc.type==='PROPERTY'){
+    if(pr.houses>=5)return loc.hotel||loc.rent*25;
+    if(pr.houses>0)return loc.house[pr.houses-1]||loc.rent;
+    if(ownsFullSet(pr.owner,loc.setId))return loc.rent*2;
+  }
+  if(loc.type==='RAIL'){
+    const count=Object.entries(state.properties).filter(([k,v])=>v.owner===pr.owner&&LOCATIONS[k].type==='RAIL').length;
+    return 25*Math.pow(2,Math.max(0,count-1));
+  }
+  if(loc.type==='UTILITY')return 50;
+  return loc.rent;
+}
+
+function buyProperty(){
+  const p=current(),loc=locByPos(p.pos);
+  if(!state.pendingBuy||p.cash<loc.cost)return;
+  p.cash-=loc.cost;state.properties[p.pos]={owner:state.current,houses:0};
+  state.pendingBuy=false;log(`${p.name} mua ${loc.name} với ${loc.cost}.`);renderAll();
+}
+
+function ownsFullSet(owner,setId){
+  if(!setId)return false;
+  const ids=LOCATIONS.map((x,i)=>x.setId===setId?i:null).filter(x=>x!==null);
+  return ids.every(i=>state.properties[i]&&state.properties[i].owner===owner);
+}
+
+function canBuild(p,loc){
+  if(!state||state.gameOver||!state.rolled||loc.type!=='PROPERTY')return false;
+  const pr=state.properties[p.pos];
+  return !!(pr&&pr.owner===state.current&&ownsFullSet(state.current,loc.setId)&&pr.houses<5&&p.cash>=loc.buildCost);
+}
+
+function buildHouse(){
+  const p=current(),loc=locByPos(p.pos),pr=state.properties[p.pos];
+  if(!canBuild(p,loc))return;
+  p.cash-=loc.buildCost;pr.houses++;
+  log(`${p.name} xây ${pr.houses===5?'khách sạn':'nhà'} tại ${loc.name}.`);
+  renderAll();
+}
+
+function drawCard(type){
+  const p=current();
+  const cards=[
+    {t:'Nhận $100',fn:()=>p.cash+=100},
+    {t:'Trả $50',fn:()=>p.cash-=50},
+    {t:'Nhận $200',fn:()=>p.cash+=200},
+    {t:'Đi tới START, nhận $200',fn:()=>{p.pos=0;p.cash+=200}},
+    {t:'Đi tù',fn:()=>{p.pos=10;p.jail=3}},
+    {t:'Trả $100',fn:()=>p.cash-=100},
+    {t:'Nhận $50',fn:()=>p.cash+=50},
+  ];
+  const c=cards[Math.floor(Math.random()*cards.length)];c.fn();log(`${type}: ${c.t}.`);
+}
+
+function payTo(from,to,amt){
+  const a=state.players[from],b=state.players[to];
+  a.cash-=amt;b.cash+=amt;checkBankruptcy(a);
+}
+
+function checkBankruptcy(p){
+  if(p.cash>=-500||p.bankrupt)return;
+  p.bankrupt=true;log(`💥 ${p.name} phá sản!`);
+  Object.keys(state.properties).forEach(k=>{if(state.properties[k].owner===state.players.indexOf(p))delete state.properties[k]});
+}
+
+function endTurn(){
+  if(!state||state.gameOver||!state.rolled)return;
+  state.rolled=false;state.pendingBuy=false;
+  let next=state.current,loops=0;
+  do{next=(next+1)%state.players.length;if(next===0)state.round++;loops++}while(state.players[next].bankrupt&&loops<=state.players.length);
+  state.current=next;dice.textContent='🎲 🎲';checkWin();renderAll();
+}
+
+function checkWin(){
+  const active=state.players.filter(p=>!p.bankrupt);
+  if(state.mode==='endless'&&active.length===1)finish(`${active[0].name} là người sống sót cuối cùng!`);
+  if(state.mode==='turns'&&state.round>30){
+    const w=[...active].sort((a,b)=>netWorth(b)-netWorth(a))[0];finish(`Hết 30 vòng. ${w.name} thắng với tài sản ${money(netWorth(w))}.`);
+  }
+  if(state.mode==='networth'){
+    const w=active.find(p=>netWorth(p)>=5000);if(w)finish(`${w.name} đạt tài sản $5000 và chiến thắng!`);
+  }
+}
+
+function netWorth(p){
+  let v=p.cash,idx=state.players.indexOf(p);
+  Object.entries(state.properties).forEach(([k,pr])=>{if(pr.owner===idx){const l=LOCATIONS[k];v+=l.cost+(pr.houses||0)*l.buildCost}});
+  return v;
+}
+
+function finish(msg){state.gameOver=true;log('🏆 '+msg);turn.textContent='🏆 '+msg}
+
+renderBoard();
+</script>
+</body>
+</html>
