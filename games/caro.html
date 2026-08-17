@@ -1,254 +1,137 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Game Caro AI Smart</title>
-    
-    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-    <script src="assets/pi.js"></script>
-
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: Arial, sans-serif;
-            background: #1a1a2e;
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 10px;
-        }
-        h1 { color: #00d2d3; margin-bottom: 10px; font-size: 24px; }
-        .status { font-size: 16px; margin-bottom: 15px; color: #ff9ff3; font-weight: bold; }
-        .board-container {
-            overflow: auto;
-            max-width: 100%;
-            border: 2px solid #00d2d3;
-            border-radius: 8px;
-            background-color: #feca57;
-            padding: 5px;
-            -webkit-overflow-scrolling: touch;
-        }
-        .board {
-            display: grid;
-            grid-template-columns: repeat(15, 34px);
-            grid-template-rows: repeat(15, 34px);
-            gap: 1px;
-            background-color: #54a0ff;
-        }
-        .cell {
-            width: 34px;
-            height: 34px;
-            background-color: #ffda79;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            font-weight: bold;
-            cursor: pointer;
-            user-select: none;
-        }
-        .cell:hover { background-color: #f7b731; }
-        .cell.x { color: #ee5253; }
-        .cell.o { color: #10ac84; }
-        .controls { margin-top: 15px; display: flex; gap: 10px; }
-        button {
-            padding: 10px 18px;
-            font-size: 15px;
-            font-weight: bold;
-            color: #fff;
-            background-color: #ff4757;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        button:hover { background-color: #ff6b81; }
-        button.mode-btn { background-color: #2ed573; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Cờ Caro</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<script src="assets/pi.js"></script>
+<style>
+*{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:radial-gradient(circle at top,#26365c,#101426 65%);color:#fff;padding:20px 12px}
+.app{width:min(760px,100%);margin:auto;text-align:center}
+h1{margin:0 0 6px;font-size:30px}.sub{opacity:.72;margin-bottom:14px}
+.panel{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px;margin-bottom:12px}
+.modes,.actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+button{border:0;border-radius:11px;padding:10px 15px;font-weight:800;font-size:14px;cursor:pointer;background:#e9edf8;color:#18203a}
+button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:#fff}
+.status{font-weight:850;font-size:17px;margin-top:11px;min-height:24px}
+.board-wrap{overflow:auto;max-width:100%;border-radius:14px;padding:7px;background:#9b622e;box-shadow:0 14px 35px rgba(0,0,0,.3);-webkit-overflow-scrolling:touch}
+.board{display:grid;grid-template-columns:repeat(15,34px);grid-template-rows:repeat(15,34px);gap:1px;width:max-content;margin:auto;background:#6e421f}
+.cell{width:34px;height:34px;background:#e7bd72;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:900;cursor:pointer;user-select:none}
+.cell:hover{background:#f2cb82}.cell.x{color:#c82732;text-shadow:0 1px #fff}.cell.o{color:#163d8c;text-shadow:0 1px #fff}.cell.last{box-shadow:inset 0 0 0 3px rgba(255,255,255,.72)}
+.legend{font-size:12px;opacity:.72;margin-top:9px}
+@media(max-width:560px){body{padding:12px 7px}.board{grid-template-columns:repeat(15,30px);grid-template-rows:repeat(15,30px)}.cell{width:30px;height:30px;font-size:22px}}
+</style>
 </head>
 <body>
+<div class="app">
+<h1>⭕ CỜ CARO ❌</h1>
+<div class="sub">5 quân liên tiếp để chiến thắng</div>
+<div class="panel">
+  <div class="modes">
+    <button id="pvpBtn" onclick="setMode('pvp')">👥 Người vs Người</button>
+    <button id="aiBtn" class="active" onclick="setMode('ai')">👤 Người vs 🤖 Máy</button>
+  </div>
+  <div class="status" id="status"></div>
+</div>
+<div class="board-wrap"><div class="board" id="board"></div></div>
+<div class="panel actions"><button class="new" onclick="resetGame()">↻ Ván mới</button></div>
+<div class="legend">Bạn đánh X khi chơi với máy. Máy đánh O.</div>
+</div>
+<script>
+const N=15;
+let board,currentPlayer,gameOver,mode='ai',aiThinking=false,lastMove=null;
+const boardEl=document.getElementById('board'), statusEl=document.getElementById('status');
 
-    <h1>CỜ CARO (AI ĐÔI THỦ)</h1>
-    <div class="status" id="status">Lượt đi: X (Bạn)</div>
-
-    <div class="board-container">
-        <div class="board" id="board"></div>
-    </div>
-
-    <div class="controls">
-        <button onclick="resetGame()">Ván Mới</button>
-        <button class="mode-btn" id="modeBtn" onclick="toggleMode()">Chế độ: Đấu với AI</button>
-    </div>
-
-    <script>
-        const BOARD_SIZE = 15;
-        let boardState = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
-        let currentPlayer = 'X';
-        let isVsAI = true;
-        let gameOver = false;
-
-        const boardEl = document.getElementById('board');
-        const statusEl = document.getElementById('status');
-        const modeBtn = document.getElementById('modeBtn');
-
-        function createBoard() {
-            boardEl.innerHTML = '';
-            for (let r = 0; r < BOARD_SIZE; r++) {
-                for (let c = 0; c < BOARD_SIZE; c++) {
-                    const cell = document.createElement('div');
-                    cell.classList.add('cell');
-                    cell.dataset.row = r;
-                    cell.dataset.col = c;
-                    cell.addEventListener('click', () => handleCellClick(r, c));
-                    boardEl.appendChild(cell);
-                }
-            }
-        }
-
-        function handleCellClick(r, c) {
-            if (gameOver || boardState[r][c] !== null) return;
-
-            makeMove(r, c, currentPlayer);
-
-            if (checkWin(r, c, currentPlayer)) {
-                statusEl.innerText = `${currentPlayer === 'X' ? 'Người chơi' : 'AI'} chiến thắng! 🎉`;
-                gameOver = true;
-                return;
-            }
-
-            if (isBoardFull()) {
-                statusEl.innerText = "Hòa cờ!";
-                gameOver = true;
-                return;
-            }
-
-            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-            statusEl.innerText = `Lượt đi: ${currentPlayer === 'X' ? 'X (Bạn)' : 'O (AI)'}`;
-
-            if (isVsAI && currentPlayer === 'O' && !gameOver) {
-                setTimeout(aiSmartMove, 250);
-            }
-        }
-
-        function makeMove(r, c, player) {
-            boardState[r][c] = player;
-            const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
-            cell.innerText = player;
-            cell.classList.add(player.toLowerCase());
-        }
-
-        // AI Chấm điểm vị trí thông minh
-        function aiSmartMove() {
-            let bestScore = -Infinity;
-            let bestMove = null;
-
-            for (let r = 0; r < BOARD_SIZE; r++) {
-                for (let c = 0; c < BOARD_SIZE; c++) {
-                    if (boardState[r][c] === null) {
-                        let attackScore = evaluatePoint(r, c, 'O');
-                        let defenseScore = evaluatePoint(r, c, 'X');
-                        let score = attackScore + defenseScore * 1.2;
-
-                        if (score > bestScore) {
-                            bestScore = score;
-                            bestMove = { r, c };
-                        }
-                    }
-                }
-            }
-
-            if (bestMove) {
-                handleCellClick(bestMove.r, bestMove.c);
-            }
-        }
-
-        function evaluatePoint(r, c, player) {
-            const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
-            let totalScore = 0;
-
-            directions.forEach(([dr, dc]) => {
-                let count = 1;
-                let openEnds = 0;
-
-                let step = 1;
-                while (true) {
-                    let nr = r + dr * step;
-                    let nc = c + dc * step;
-                    if (nr < 0 || nr >= BOARD_SIZE || nc < 0 || nc >= BOARD_SIZE) break;
-                    if (boardState[nr][nc] === player) count++;
-                    else if (boardState[nr][nc] === null) { openEnds++; break; }
-                    else break;
-                    step++;
-                }
-
-                step = 1;
-                while (true) {
-                    let nr = r - dr * step;
-                    let nc = c - dc * step;
-                    if (nr < 0 || nr >= BOARD_SIZE || nc < 0 || nc >= BOARD_SIZE) break;
-                    if (boardState[nr][nc] === player) count++;
-                    else if (boardState[nr][nc] === null) { openEnds++; break; }
-                    else break;
-                    step++;
-                }
-
-                if (count >= 5) totalScore += 100000;
-                else if (count === 4 && openEnds === 2) totalScore += 10000;
-                else if (count === 4 && openEnds === 1) totalScore += 2000;
-                else if (count === 3 && openEnds === 2) totalScore += 1000;
-                else if (count === 3 && openEnds === 1) totalScore += 200;
-                else if (count === 2 && openEnds === 2) totalScore += 100;
-                else if (count === 2) totalScore += 10;
-            });
-
-            return totalScore;
-        }
-
-        function checkWin(r, c, player) {
-            const directions = [[[0, 1], [0, -1]], [[1, 0], [-1, 0]], [[1, 1], [-1, -1]], [[1, -1], [-1, 1]]];
-            return directions.some(dir => {
-                let count = 1;
-                dir.forEach(([dr, dc]) => {
-                    let nr = r + dr, nc = c + dc;
-                    while (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE && boardState[nr][nc] === player) {
-                        count++;
-                        nr += dr;
-                        nc += dc;
-                    }
-                });
-                return count >= 5;
-            });
-        }
-
-        function isBoardFull() {
-            return boardState.every(row => row.every(cell => cell !== null));
-        }
-
-        function resetGame() {
-            boardState = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
-            currentPlayer = 'X';
-            gameOver = false;
-            statusEl.innerText = `Lượt đi: X (Bạn)`;
-            createBoard();
-        }
-
-        function toggleMode() {
-            isVsAI = !isVsAI;
-            modeBtn.innerText = isVsAI ? "Chế độ: Đấu với AI" : "Chế độ: 2 Người chơi";
-            resetGame();
-        }
-
-        createBoard();
-
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.MiniPi) {
-                window.MiniPi.init().then(() => console.log("Pi SDK loaded!")).catch(err => console.warn(err));
-            }
-        });
-    </script>
+function emptyBoard(){return Array.from({length:N},()=>Array(N).fill(null))}
+function setMode(m){
+  mode=m;
+  document.getElementById('pvpBtn').classList.toggle('active',m==='pvp');
+  document.getElementById('aiBtn').classList.toggle('active',m==='ai');
+  resetGame();
+}
+function resetGame(){
+  board=emptyBoard();currentPlayer='X';gameOver=false;aiThinking=false;lastMove=null;
+  render();updateStatus();
+}
+function render(){
+  boardEl.innerHTML='';
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const d=document.createElement('div');d.className='cell';
+    if(board[r][c]){d.textContent=board[r][c];d.classList.add(board[r][c].toLowerCase())}
+    if(lastMove&&lastMove.r===r&&lastMove.c===c)d.classList.add('last');
+    d.onclick=()=>humanClick(r,c);boardEl.appendChild(d);
+  }
+}
+function updateStatus(msg){
+  if(msg){statusEl.textContent=msg;return}
+  if(gameOver)return;
+  if(aiThinking){statusEl.textContent='🤖 Máy đang suy nghĩ…';return}
+  if(mode==='ai') statusEl.textContent=currentPlayer==='X'?'Lượt bạn — X':'Lượt máy — O';
+  else statusEl.textContent=`Lượt người chơi ${currentPlayer}`;
+}
+function humanClick(r,c){
+  if(gameOver||aiThinking||board[r][c])return;
+  if(mode==='ai'&&currentPlayer!=='X')return;
+  play(r,c,currentPlayer);
+}
+function play(r,c,p){
+  board[r][c]=p;lastMove={r,c};render();
+  if(checkWin(r,c,p)){
+    gameOver=true;
+    updateStatus(mode==='ai'?(p==='X'?'🏆 Bạn thắng!':'🤖 Máy thắng!'):`🏆 Người chơi ${p} thắng!`);
+    return;
+  }
+  if(board.every(row=>row.every(Boolean))){gameOver=true;updateStatus('🤝 Hòa cờ!');return}
+  currentPlayer=p==='X'?'O':'X';updateStatus();
+  if(mode==='ai'&&currentPlayer==='O'){aiThinking=true;updateStatus();setTimeout(aiMove,180)}
+}
+function countDir(r,c,dr,dc,p){
+  let n=0;r+=dr;c+=dc;
+  while(r>=0&&r<N&&c>=0&&c<N&&board[r][c]===p){n++;r+=dr;c+=dc}
+  return n;
+}
+function checkWin(r,c,p){
+  return [[1,0],[0,1],[1,1],[1,-1]].some(([dr,dc])=>1+countDir(r,c,dr,dc,p)+countDir(r,c,-dr,-dc,p)>=5)
+}
+function lineScore(r,c,p){
+  let score=0;
+  for(const [dr,dc] of [[1,0],[0,1],[1,1],[1,-1]]){
+    let a=countDir(r,c,dr,dc,p),b=countDir(r,c,-dr,-dc,p),n=1+a+b;
+    let r1=r+(a+1)*dr,c1=c+(a+1)*dc,r2=r-(b+1)*dr,c2=c-(b+1)*dc;
+    let open=(r1>=0&&r1<N&&c1>=0&&c1<N&&!board[r1][c1]?1:0)+(r2>=0&&r2<N&&c2>=0&&c2<N&&!board[r2][c2]?1:0);
+    if(n>=5)score+=1000000;else if(n===4&&open===2)score+=80000;else if(n===4)score+=15000;
+    else if(n===3&&open===2)score+=6000;else if(n===3)score+=800;else if(n===2&&open===2)score+=250;else score+=n*8;
+  } return score;
+}
+function candidateCells(){
+  const out=[];let any=false;
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c]){
+    any=true;
+    for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++){
+      let rr=r+dr,cc=c+dc;if(rr>=0&&rr<N&&cc>=0&&cc<N&&!board[rr][cc])out.push(rr*N+cc)
+    }
+  }
+  if(!any)return[{r:7,c:7}];
+  return [...new Set(out)].map(v=>({r:Math.floor(v/N),c:v%N}));
+}
+function aiMove(){
+  if(gameOver||mode!=='ai'){aiThinking=false;return}
+  let best=null,bestScore=-Infinity;
+  for(const m of candidateCells()){
+    board[m.r][m.c]='O';let attack=lineScore(m.r,m.c,'O');let win=checkWin(m.r,m.c,'O');board[m.r][m.c]=null;
+    if(win){best=m;break}
+    board[m.r][m.c]='X';let defense=lineScore(m.r,m.c,'X');let lose=checkWin(m.r,m.c,'X');board[m.r][m.c]=null;
+    let center=20-(Math.abs(m.r-7)+Math.abs(m.c-7));
+    let score=attack*1.12+defense*1.25+center+Math.random()*3;
+    if(lose)score+=900000;
+    if(score>bestScore){bestScore=score;best=m}
+  }
+  aiThinking=false;
+  if(best)play(best.r,best.c,'O');
+}
+resetGame();
+document.addEventListener('DOMContentLoaded',()=>{if(window.MiniPi)window.MiniPi.init().catch(()=>{})});
+</script>
 </body>
 </html>
