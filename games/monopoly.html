@@ -33,18 +33,18 @@ button{cursor:pointer;background:#e7edf3;color:#172533}button.primary{background
 </head>
 <body>
 <div class="app">
-  <div class="top"><div><h1>🎩 Monopoly Mini</h1><div>Dựa trên dữ liệu và luật chính của source Monopoly bạn gửi.</div></div><a href="../">← MiniGame Hub</a></div>
+  <div class="top"><div><h1>🏙️ Cờ Tỷ Phú Sài Gòn</h1><div>Phiên bản Việt hóa với các khu vực quen thuộc tại TP.HCM.</div></div><a href="../">← MiniGame Hub</a></div>
 
   <div class="setup" id="setup">
-    <b>Số người:</b>
+    <b>Số người chơi:</b>
     <select id="playerCount"><option>2</option><option>3</option><option selected>4</option></select>
-    <b>Chế độ:</b>
-    <select id="gameMode"><option value="endless">Endless</option><option value="turns">Giới hạn 30 vòng</option><option value="networth">Đạt $5000</option></select>
+    <b>Luật chơi:</b>
+    <select id="gameMode"><option value="endless">Chơi đến khi còn 1 người</option><option value="turns">Giới hạn 30 vòng</option><option value="networth">Đạt tài sản $5000</option></select>
     <button class="primary" onclick="startGame()">Bắt đầu</button>
   </div>
 
   <div class="layout">
-    <div class="board-wrap"><div class="board" id="board"><div class="center"><div class="center-card">MONOPOLY</div></div></div></div>
+    <div class="board-wrap"><div class="board" id="board"><div class="center"><div class="center-card">SÀI GÒN</div></div></div></div>
     <aside class="side">
       <div class="turn" id="turn">Chưa bắt đầu</div>
       <div class="players" id="players"></div>
@@ -62,7 +62,7 @@ button{cursor:pointer;background:#e7edf3;color:#172533}button.primary{background
 </div>
 
 <script>
-const LOCATIONS=[{"id": 1, "type": "FREE", "name": "Start", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 2, "type": "PROPERTY", "name": "Meditterranean Avenue", "setId": 1, "cost": 60, "rent": 2, "house": [10, 30, 90, 160], "hotel": 250, "buildCost": 50}, {"id": 3, "type": "CHEST", "name": "Community Chest", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 4, "type": "PROPERTY", "name": "Baltic Avenue", "setId": 1, "cost": 60, "rent": 4, "house": [20, 60, 180, 320], "hotel": 450, "buildCost": 50}, {"id": 5, "type": "TAX", "name": "Income Tax", "setId": null, "cost": 0, "rent": 200, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 6, "type": "RAIL", "name": "Reading Railroad", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 7, "type": "PROPERTY", "name": "Oriental Avenue", "setId": 2, "cost": 100, "rent": 6, "house": [30, 90, 270, 400], "hotel": 550, "buildCost": 50}, {"id": 8, "type": "CHANCE", "name": "Chance", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 9, "type": "PROPERTY", "name": "Vermont Avenue", "setId": 2, "cost": 100, "rent": 6, "house": [30, 90, 270, 400], "hotel": 550, "buildCost": 50}, {"id": 10, "type": "PROPERTY", "name": "Connecticut Avenue", "setId": 2, "cost": 120, "rent": 8, "house": [40, 100, 300, 450], "hotel": 600, "buildCost": 50}, {"id": 11, "type": "FREE", "name": "Just Visiting Jail", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 12, "type": "PROPERTY", "name": "St. Charles Place", "setId": 3, "cost": 140, "rent": 10, "house": [50, 150, 450, 625], "hotel": 750, "buildCost": 100}, {"id": 13, "type": "UTILITY", "name": "Electric Company", "setId": null, "cost": 150, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 14, "type": "PROPERTY", "name": "States Avenue", "setId": 3, "cost": 140, "rent": 10, "house": [50, 150, 450, 625], "hotel": 750, "buildCost": 100}, {"id": 15, "type": "PROPERTY", "name": "Virgnia Avenue", "setId": 3, "cost": 160, "rent": 12, "house": [60, 180, 500, 700], "hotel": 900, "buildCost": 100}, {"id": 16, "type": "RAIL", "name": "Pennsylvania Railroad", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 17, "type": "PROPERTY", "name": "St. James Place", "setId": 4, "cost": 180, "rent": 14, "house": [70, 200, 550, 750], "hotel": 950, "buildCost": 100}, {"id": 18, "type": "CHEST", "name": "Community Chest", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 19, "type": "PROPERTY", "name": "Tennessee Avenue", "setId": 4, "cost": 180, "rent": 14, "house": [70, 200, 550, 750], "hotel": 950, "buildCost": 100}, {"id": 20, "type": "PROPERTY", "name": "New York Avenue", "setId": 4, "cost": 200, "rent": 16, "house": [80, 220, 600, 800], "hotel": 1000, "buildCost": 100}, {"id": 21, "type": "FREE", "name": "Free Parking", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 22, "type": "PROPERTY", "name": "Kentucky Avenue", "setId": 5, "cost": 220, "rent": 18, "house": [90, 250, 700, 875], "hotel": 1050, "buildCost": 150}, {"id": 23, "type": "CHANCE", "name": "Chance", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 24, "type": "PROPERTY", "name": "Indiana Avenue", "setId": 5, "cost": 220, "rent": 18, "house": [90, 250, 700, 875], "hotel": 1050, "buildCost": 150}, {"id": 25, "type": "PROPERTY", "name": "Illinois Avenue", "setId": 5, "cost": 240, "rent": 20, "house": [100, 300, 750, 925], "hotel": 1100, "buildCost": 150}, {"id": 26, "type": "RAIL", "name": "B. & O. Railroad", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 27, "type": "PROPERTY", "name": "Atlantic Avenue", "setId": 6, "cost": 260, "rent": 22, "house": [110, 330, 800, 925], "hotel": 1150, "buildCost": 150}, {"id": 28, "type": "PROPERTY", "name": "Ventnor Avenue", "setId": 6, "cost": 260, "rent": 22, "house": [110, 330, 800, 925], "hotel": 1150, "buildCost": 150}, {"id": 29, "type": "UTILITY", "name": "Water Works", "setId": null, "cost": 150, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 30, "type": "PROPERTY", "name": "Marvin Gardens", "setId": 6, "cost": 280, "rent": 24, "house": [120, 360, 850, 1025], "hotel": 1200, "buildCost": 150}, {"id": 31, "type": "JAIL", "name": "Go To Jail", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 32, "type": "PROPERTY", "name": "Pacific Avenue", "setId": 7, "cost": 300, "rent": 26, "house": [130, 390, 900, 1100], "hotel": 1275, "buildCost": 200}, {"id": 33, "type": "PROPERTY", "name": "North Carolina Avenue", "setId": 7, "cost": 300, "rent": 26, "house": [130, 390, 900, 1100], "hotel": 1275, "buildCost": 200}, {"id": 34, "type": "CHEST", "name": "Community Chest", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 35, "type": "PROPERTY", "name": "Pennsylvania Avenue", "setId": 7, "cost": 320, "rent": 28, "house": [150, 450, 1000, 1200], "hotel": 1400, "buildCost": 200}, {"id": 36, "type": "RAIL", "name": "Short Line", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 37, "type": "CHANCE", "name": "Chance", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 38, "type": "PROPERTY", "name": "Park Place", "setId": 8, "cost": 350, "rent": 35, "house": [175, 500, 1100, 1300], "hotel": 1500, "buildCost": 200}, {"id": 39, "type": "TAX", "name": "Luxury Tax", "setId": null, "cost": 0, "rent": 100, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 40, "type": "PROPERTY", "name": "Boardwalk", "setId": 8, "cost": 400, "rent": 35, "house": [200, 600, 1400, 1700], "hotel": 2000, "buildCost": 200}];
+const LOCATIONS=[{"id": 0, "type": "START", "name": "KHỞI HÀNH", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 1, "type": "Đất", "name": "Bình Tây", "setId": 1, "cost": 60, "rent": 2, "house": [10, 30, 90, 160], "hotel": 250, "buildCost": 50}, {"id": 2, "type": "Quỹ cộng đồng", "name": "QUỸ CỘNG ĐỒNG", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 3, "type": "Đất", "name": "Chợ Lớn", "setId": 1, "cost": 60, "rent": 4, "house": [20, 60, 180, 320], "hotel": 500, "buildCost": 50}, {"id": 4, "type": "Thuế", "name": "THUẾ ĐÔ THỊ", "setId": null, "cost": 0, "rent": 200, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 5, "type": "Bến/Ga", "name": "Bến xe Miền Tây", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 6, "type": "Đất", "name": "Tân Phú", "setId": 2, "cost": 100, "rent": 6, "house": [30, 90, 270, 480], "hotel": 750, "buildCost": 50}, {"id": 7, "type": "Cơ hội", "name": "CƠ HỘI", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 8, "type": "Đất", "name": "Bình Tân", "setId": 2, "cost": 100, "rent": 6, "house": [30, 90, 270, 480], "hotel": 750, "buildCost": 50}, {"id": 9, "type": "Đất", "name": "Gò Vấp", "setId": 2, "cost": 120, "rent": 8, "house": [40, 120, 360, 640], "hotel": 1000, "buildCost": 50}, {"id": 10, "type": "Thăm nhà giam", "name": "THĂM NHÀ GIAM", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 11, "type": "Đất", "name": "Phú Nhuận", "setId": 3, "cost": 140, "rent": 10, "house": [50, 150, 450, 800], "hotel": 1250, "buildCost": 100}, {"id": 12, "type": "Tiện ích", "name": "Điện lực TP.HCM", "setId": null, "cost": 150, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 13, "type": "Đất", "name": "Tân Bình", "setId": 3, "cost": 140, "rent": 10, "house": [50, 150, 450, 800], "hotel": 1250, "buildCost": 100}, {"id": 14, "type": "Đất", "name": "Bình Thạnh", "setId": 3, "cost": 160, "rent": 12, "house": [60, 180, 540, 960], "hotel": 1500, "buildCost": 100}, {"id": 15, "type": "Bến/Ga", "name": "Ga Sài Gòn", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 16, "type": "Đất", "name": "Tân Định", "setId": 4, "cost": 180, "rent": 14, "house": [70, 210, 630, 1120], "hotel": 1750, "buildCost": 100}, {"id": 17, "type": "Quỹ cộng đồng", "name": "QUỸ CỘNG ĐỒNG", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 18, "type": "Đất", "name": "Đa Kao", "setId": 4, "cost": 180, "rent": 14, "house": [70, 210, 630, 1120], "hotel": 1750, "buildCost": 100}, {"id": 19, "type": "Đất", "name": "Bến Nghé", "setId": 4, "cost": 200, "rent": 16, "house": [80, 240, 720, 1280], "hotel": 2000, "buildCost": 100}, {"id": 20, "type": "Nghỉ miễn phí", "name": "CÔNG VIÊN 23/9", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 21, "type": "Đất", "name": "An Phú", "setId": 5, "cost": 220, "rent": 18, "house": [90, 270, 810, 1440], "hotel": 2250, "buildCost": 150}, {"id": 22, "type": "Cơ hội", "name": "CƠ HỘI", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 23, "type": "Đất", "name": "Thảo Điền", "setId": 5, "cost": 220, "rent": 18, "house": [90, 270, 810, 1440], "hotel": 2250, "buildCost": 150}, {"id": 24, "type": "Đất", "name": "Thủ Thiêm", "setId": 5, "cost": 240, "rent": 20, "house": [100, 300, 900, 1600], "hotel": 2500, "buildCost": 150}, {"id": 25, "type": "Bến/Ga", "name": "Bến xe Miền Đông", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 26, "type": "Đất", "name": "Nguyễn Huệ", "setId": 6, "cost": 260, "rent": 22, "house": [110, 330, 990, 1760], "hotel": 2750, "buildCost": 150}, {"id": 27, "type": "Đất", "name": "Bùi Viện", "setId": 6, "cost": 260, "rent": 22, "house": [110, 330, 990, 1760], "hotel": 2750, "buildCost": 150}, {"id": 28, "type": "Tiện ích", "name": "Cấp nước TP.HCM", "setId": null, "cost": 150, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 29, "type": "Đất", "name": "Bến Thành", "setId": 6, "cost": 280, "rent": 24, "house": [120, 360, 1080, 1920], "hotel": 3000, "buildCost": 150}, {"id": 30, "type": "Nhà giam", "name": "VÀO NHÀ GIAM", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 31, "type": "Đất", "name": "Phú Mỹ Hưng", "setId": 7, "cost": 300, "rent": 26, "house": [130, 390, 1170, 2080], "hotel": 3250, "buildCost": 200}, {"id": 32, "type": "Đất", "name": "Nguyễn Văn Linh", "setId": 7, "cost": 300, "rent": 26, "house": [130, 390, 1170, 2080], "hotel": 3250, "buildCost": 200}, {"id": 33, "type": "Quỹ cộng đồng", "name": "QUỸ CỘNG ĐỒNG", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 34, "type": "Đất", "name": "Sala Đại Quang Minh", "setId": 7, "cost": 320, "rent": 28, "house": [140, 420, 1260, 2240], "hotel": 3500, "buildCost": 200}, {"id": 35, "type": "Bến/Ga", "name": "Bến Bạch Đằng", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 36, "type": "Cơ hội", "name": "CƠ HỘI", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 37, "type": "Đất", "name": "Đồng Khởi", "setId": 8, "cost": 350, "rent": 35, "house": [175, 525, 1575, 2800], "hotel": 4375, "buildCost": 200}, {"id": 38, "type": "Thuế", "name": "THUẾ TÀI SẢN", "setId": null, "cost": 0, "rent": 100, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 39, "type": "Đất", "name": "Lê Lợi", "setId": 8, "cost": 400, "rent": 50, "house": [250, 750, 2250, 4000], "hotel": 6250, "buildCost": 200}];
 const SET_COLORS={1:'#6b4b3e',2:'#8bd3e6',3:'#d789d7',4:'#f4d35e',5:'#ef6f6c',6:'#f4a261',7:'#55a868',8:'#4b7bec'};
 const PLAYER_COLORS=['#e63946','#2a9d8f','#457b9d','#9b5de5','#ff9f1c','#00b4d8','#f15bb5','#84a98c'];
 
@@ -127,7 +127,12 @@ function renderAll(){
   players.innerHTML=state.players.map((p,i)=>`<div class="player ${i===state.current?'active':''} ${p.bankrupt?'bankrupt':''}" style="--pc:${p.color}"><b>${p.name}</b> · ${p.cash} · Ô ${p.pos+1}${p.jail?' · 🔒 Jail':''}</div>`).join('');
   const p=current(),loc=locByPos(p.pos);
   turn.textContent=state.gameOver?'Ván đã kết thúc':`Vòng ${state.round} · ${p.name}`;
-  property.innerHTML=`<b>${loc.name}</b><br>Loại: ${loc.type}${loc.cost?` · Giá ${money(loc.cost)}`:''}${loc.rent?` · Thuê gốc ${money(loc.rent)}`:''}`;
+  const typeLabel={
+    START:'Khởi hành',PROPERTY:'Bất động sản',RAIL:'Bến / Ga',
+    UTILITY:'Tiện ích',TAX:'Thuế',CHANCE:'Cơ hội',CHEST:'Quỹ cộng đồng',
+    JAIL:'Nhà giam',FREE:'Nghỉ miễn phí',VISIT:'Thăm nhà giam'
+  }[loc.type]||loc.type;
+  property.innerHTML=`<b>${loc.name}</b><br>Loại ô: ${typeLabel}${loc.cost?` · Giá ${money(loc.cost)}`:''}${loc.rent?` · Thuê gốc ${money(loc.rent)}`:''}`;
 
   rollBtn.disabled=state.gameOver||state.rolled||p.bankrupt;
   buyBtn.disabled=!state.pendingBuy||p.cash<loc.cost;
@@ -147,7 +152,7 @@ function rollDice(){
   const d1=1+Math.floor(Math.random()*6),d2=1+Math.floor(Math.random()*6),sum=d1+d2;
   dice.textContent=`🎲 ${d1} + 🎲 ${d2} = ${sum}`;state.rolled=true;
   const old=p.pos,pNew=(p.pos+sum)%40;
-  if(p.pos+sum>=40){p.cash+=200;p.laps++;log(`${p.name} qua START và nhận $200.`)}
+  if(p.pos+sum>=40){p.cash+=200;p.laps++;log(`${p.name} qua KHỞI HÀNH và nhận $200.`)}
   p.pos=pNew;log(`${p.name} đi ${sum} ô tới ${locByPos(p.pos).name}.`);
   resolveLanding();
 }
@@ -156,18 +161,18 @@ function resolveLanding(){
   const p=current(),loc=locByPos(p.pos);state.pendingBuy=false;
   const owned=state.properties[p.pos];
 
-  if(loc.type==='PROPERTY'||loc.type==='RAIL'||loc.type==='UTILITY'){
+  if(loc.type==='Đất'||loc.type==='Bến/Ga'||loc.type==='Tiện ích'){
     if(!owned){state.pendingBuy=true;log(`${loc.name} chưa có chủ. Có thể mua với ${loc.cost}.`)}
     else if(owned.owner!==state.current){
       let rent=calcRent(p.pos,owned);
       payTo(state.current,owned.owner,rent);
       log(`${p.name} trả ${rent} tiền thuê cho ${state.players[owned.owner].name}.`);
     }
-  } else if(loc.type==='TAX'){
+  } else if(loc.type==='Thuế'){
     const amt=loc.rent||100;p.cash-=amt;log(`${p.name} nộp thuế ${amt}.`);
-  } else if(loc.type==='CHANCE'||loc.type==='CHEST'){
+  } else if(loc.type==='Cơ hội'||loc.type==='Quỹ cộng đồng'){
     drawCard(loc.type);
-  } else if(loc.type==='JAIL'){
+  } else if(loc.type==='Nhà giam'){
     p.pos=10;p.jail=3;log(`${p.name} bị đưa vào tù trong tối đa 3 lượt.`);
   }
   checkBankruptcy(p);checkWin();renderAll();
@@ -175,16 +180,16 @@ function resolveLanding(){
 
 function calcRent(pos,pr){
   const loc=LOCATIONS[pos];
-  if(loc.type==='PROPERTY'){
+  if(loc.type==='Đất'){
     if(pr.houses>=5)return loc.hotel||loc.rent*25;
     if(pr.houses>0)return loc.house[pr.houses-1]||loc.rent;
     if(ownsFullSet(pr.owner,loc.setId))return loc.rent*2;
   }
-  if(loc.type==='RAIL'){
-    const count=Object.entries(state.properties).filter(([k,v])=>v.owner===pr.owner&&LOCATIONS[k].type==='RAIL').length;
+  if(loc.type==='Bến/Ga'){
+    const count=Object.entries(state.properties).filter(([k,v])=>v.owner===pr.owner&&LOCATIONS[k].type==='Bến/Ga').length;
     return 25*Math.pow(2,Math.max(0,count-1));
   }
-  if(loc.type==='UTILITY')return 50;
+  if(loc.type==='Tiện ích')return 50;
   return loc.rent;
 }
 
@@ -202,7 +207,7 @@ function ownsFullSet(owner,setId){
 }
 
 function canBuild(p,loc){
-  if(!state||state.gameOver||!state.rolled||loc.type!=='PROPERTY')return false;
+  if(!state||state.gameOver||!state.rolled||loc.type!=='Đất')return false;
   const pr=state.properties[p.pos];
   return !!(pr&&pr.owner===state.current&&ownsFullSet(state.current,loc.setId)&&pr.houses<5&&p.cash>=loc.buildCost);
 }
@@ -221,7 +226,7 @@ function drawCard(type){
     {t:'Nhận $100',fn:()=>p.cash+=100},
     {t:'Trả $50',fn:()=>p.cash-=50},
     {t:'Nhận $200',fn:()=>p.cash+=200},
-    {t:'Đi tới START, nhận $200',fn:()=>{p.pos=0;p.cash+=200}},
+    {t:'Về KHỞI HÀNH, nhận $200',fn:()=>{p.pos=0;p.cash+=200}},
     {t:'Đi tù',fn:()=>{p.pos=10;p.jail=3}},
     {t:'Trả $100',fn:()=>p.cash-=100},
     {t:'Nhận $50',fn:()=>p.cash+=50},
