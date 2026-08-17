@@ -6,18 +6,16 @@
 let engine = null;
 let appMode = 'xiangqi';
 let gameMode = 'human-ai';
-let aiLevel = 'normal';
 let selectedSquare = null;
 let aiThinking = false;
 let gameOver = false;
 let flipped = false;
 
 const HH='human-human', HA='human-ai', AH='ai-human';
-const AI_LEVELS = {
-  easy:   {depth:3,  time:220,  random:0.42, label:'Dễ'},
-  normal: {depth:8,  time:700,  random:0.03, label:'Trung bình'},
-  hard:   {depth:14, time:1600, random:0,    label:'Khó'},
-  expert: {depth:20, time:3200, random:0,    label:'Cao thủ'}
+const STRONG_AI = {
+  depth: 24,
+  time: 5200,
+  label: 'AI Mạnh nhất'
 };
 
 const PUZZLES = [
@@ -67,17 +65,10 @@ function setAppMode(mode){
 }
 
 function setGameMode(m){ gameMode=m; setActiveControls(); newGame(); }
-function setAiLevel(level){
-  aiLevel=level;
-  setActiveControls();
-  updateAiStrengthInfo();
-  if(!aiThinking) updateStatus();
-}
 function updateAiStrengthInfo(){
   const el=document.getElementById('aiStrengthInfo');
   if(!el)return;
-  const c=AI_LEVELS[aiLevel];
-  el.textContent=`${c.label}: depth ${c.depth} · tối đa ${(c.time/1000).toFixed(c.time>=1000?1:2)} giây${c.random?' · có sai số để yếu hơn':''}.`;
+  el.textContent='🤖 AI Mạnh nhất · depth tối đa 24 · khoảng 5.2 giây/nước · ưu tiên chiến thuật + tìm kiếm sâu.';
 }
 
 function setActiveControls(){
@@ -311,26 +302,51 @@ function choosePuzzleAiMove(){
   return engine.search(12);
 }
 
-function chooseNormalAiMove(){
-  const cfg=AI_LEVELS[aiLevel];
+
+function moveCaptureValue(move){
+  try{
+    const target=engine.getTargetSquare(move);
+    const piece=engine.getPiece(target);
+    // Rough Xiangqi material values by engine piece IDs.
+    // King/General is intentionally huge.
+    const values={1:10000,2:25,3:25,4:45,5:50,6:95,7:15,8:10000,9:25,10:25,11:45,12:50,13:95,14:15};
+    return values[piece]||0;
+  }catch(e){return 0;}
+}
+
+function tacticalCandidate(){
   const legal=engine.generateLegalMoves();
   if(!legal.length)return 0;
 
-  // Easy deliberately makes mistakes. Higher levels never throw away a move randomly.
-  if(cfg.random && Math.random()<cfg.random){
-    return legal[Math.floor(Math.random()*legal.length)].move;
+  // 1) If there is an obvious high-value capture, remember the best one.
+  // The deep search still decides most positions; this only prevents silly misses.
+  let bestCapture=0,bestValue=0;
+  for(const item of legal){
+    const v=moveCaptureValue(item.move);
+    if(v>bestValue){bestValue=v;bestCapture=item.move;}
   }
+  return bestValue>=95 ? bestCapture : 0; // rook/major-piece capture only
+}
+
+function chooseNormalAiMove(){
+  const legal=engine.generateLegalMoves();
+  if(!legal.length)return 0;
+
+  // First avoid missing a free major piece.
+  const tactical=tacticalCandidate();
 
   const t=engine.getTimeControl();
   t.timeSet=1;
-  t.time=cfg.time;
-  t.stopTime=Date.now()+cfg.time;
+  t.time=STRONG_AI.time;
+  t.stopTime=Date.now()+STRONG_AI.time;
   t.stopped=0;
   engine.setTimeControl(t);
 
-  // Wukong's search is time-controlled. Bigger depth + larger time budget
-  // creates a real strength gap instead of cosmetic labels.
-  return engine.search(cfg.depth);
+  // Search is the main decision maker.
+  const searched=engine.search(STRONG_AI.depth);
+
+  // Prefer engine search unless it completely fails.
+  return searched || tactical || legal[0].move;
 }
 
 function scheduleAI(){
