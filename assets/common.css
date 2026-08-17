@@ -1,0 +1,28 @@
+
+:root{
+  --bg:#0c0615;--panel:#181023;--panel2:#21152f;--text:#fff;--muted:#bcaec9;
+  --accent:#b35cff;--accent2:#6dcbff;--good:#55df9f;--danger:#ff607d;--gold:#ffd55c;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% 0,#29113c 0,#0c0615 42%,#08030d 100%);color:var(--text);font-family:Inter,Segoe UI,Roboto,Arial,sans-serif}
+body{min-height:100dvh}
+button,a{font:inherit}
+button{cursor:pointer}
+.app-shell{width:min(100%,560px);margin:0 auto;min-height:100dvh;padding:max(12px,env(safe-area-inset-top)) 14px max(18px,env(safe-area-inset-bottom))}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.brand{font-weight:900;letter-spacing:.7px;font-size:22px;color:#f2ddff;text-shadow:0 0 16px rgba(179,92,255,.45)}
+.pill{padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:var(--muted);font-size:12px}
+.panel{background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.045));border:1px solid rgba(255,255,255,.09);border-radius:18px;box-shadow:0 12px 35px rgba(0,0,0,.18)}
+.btn{border:0;border-radius:13px;padding:11px 14px;color:#fff;font-weight:800;background:linear-gradient(135deg,#8e42cf,#b661f0)}
+.btn.secondary{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12)}
+.btn.good{background:linear-gradient(135deg,#2daf78,#55df9f)}
+.btn.danger{background:linear-gradient(135deg,#ce405d,#ff607d)}
+.game-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.game-title{font-weight:900;font-size:20px}
+.back{color:#fff;text-decoration:none;padding:8px 11px;border-radius:11px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1)}
+.hud{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:10px}
+.stat{padding:8px 6px;text-align:center;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:12px}
+.stat small{display:block;color:var(--muted);font-size:10px;margin-bottom:2px}.stat strong{font-size:15px}
+canvas{display:block;max-width:100%;touch-action:none}
+.game-card{padding:14px}
+.help{color:var(--muted);font-size:12px;line-height:1.45;margin-top:8px}

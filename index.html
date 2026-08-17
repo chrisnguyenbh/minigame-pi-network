@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#090611">
+  <title>MiniGame Hub — Pi Mainnet</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <link rel="stylesheet" href="assets/common.css">
+  <style>
+    body { background: radial-gradient(circle at 15% 0, #3d1760 0, transparent 34%), radial-gradient(circle at 100% 10%, #153a54 0, transparent 28%), #090611; }
+    .hero { padding: 20px; position: relative; overflow: hidden; }
+    .hero:after { content: '🎮'; position: absolute; right: 18px; bottom: -15px; font-size: 110px; opacity: .08; }
+    .hero h1 { font-size: 36px; }
+    .hero p { max-width: 620px; }
+    .profile { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+    .avatar { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: linear-gradient(135deg, #8d45b8, #d34ee8); font-size: 24px; }
+    .profile b { display: block; }
+    .profile small { color: var(--muted); }
+    .coin { margin-left: auto; padding: 10px 13px; border-radius: 14px; background: #171021; border: 1px solid #3a2849; color: #ffd86d; font-weight: 900; }
+    .section-title { display: flex; align-items: center; justify-content: space-between; margin: 16px 2px 9px; }
+    .section-title h2 { margin: 0; font-size: 20px; }
+    .section-title span { font-size: 11px; color: var(--muted); }
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .game-link { transition: transform .18s, border-color .18s; }
+    .game-link:active { transform: scale(.98); }
+    .cover { height: 145px; }
+    .game-link:first-child { grid-column: span 2; }
+    .game-link:first-child .cover { height: 190px; font-size: 80px; }
+    .game-link:first-child .game-meta b { font-size: 20px; }
+    .feature { border-color: #71448e; background: linear-gradient(145deg, #20102f, #110b18); }
+    .reward-panel { background: linear-gradient(135deg, #171022, #100b16); }
+    .mini-note { color: var(--muted); font-size: 11px; line-height: 1.45; margin-top: 8px; }
+    .legal { padding-top: 8px; }
+    @media(max-width:560px) {
+      .hero h1 { font-size: 30px; }
+      .game-link:first-child { grid-column: span 1; }
+      .game-link:first-child .cover { height: 145px; font-size: 62px; }
+      .grid { grid-template-columns: 1fr 1fr; }
+      .coin { margin-left: 0; }
+      .profile { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <div class="topbar">
+      <div class="brand">MINIGAME</div>
+      <div class="pill" id="piStatus">Pi SDK…</div>
+    </div>
+    
+    <section class="panel hero">
+      <h1>Chơi vui. Sưu tầm. Lên hạng.</h1>
+      <p>MiniGame Hub là khu game giải trí HTML5 dành cho Pi Browser. Pi chỉ được dùng ở những giao dịch mà app thực sự hỗ trợ; điểm và Game Coin là tài sản nội bộ của game.</p>
+      <div class="profile">
+        <div class="avatar">🧑‍🚀</div>
+        <div><b id="playerName">Pioneer</b><small>Level <span id="level">1</span> • XP <span id="xp">0</span></small></div>
+        <div class="coin">🪙 <span id="coins">10,000</span></div>
+      </div>
+      <div class="login-row">
+        <button class="btn" id="piLogin">Đăng nhập Pi</button>
+        <button class="btn secondary" id="resetScores">Xóa dữ liệu game</button>
+      </div>
+    </section>
+
+    <div class="section-title">
+      <h2>🔥 Game nổi bật</h2>
+      <span>6 trò chơi</span>
+    </div>
+
+    <section class="grid">
+      <a class="panel game-link feature" href="games/monopoly.html">
+        <div class="cover">🎲</div>
+        <div class="game-meta"><b>Cờ Tỉ Phú</b><span>Mua đất • xây tài sản • săn XP • trở thành ông trùm bất động sản.</span><span class="tag">⭐ FEATURED</span></div>
+      </a>
+      <a class="panel game-link" href="games/apps/game_viewer/gui/game_viewer.html">
+        <div class="cover">🩵</div>
+        <div class="game-meta"><b>Cờ Tướng</b><span>Chơi cờ tướng trực tuyến với AI hoặc đấu cùng bạn bè.</span><span class="tag">AI STRATEGY</span></div>
+      </a>
+      <a class="panel game-link" href="games/dungeon-battle.html">
+        <div class="cover">⚔️</div>
+        <div class="game-meta"><b>Dungeon Battle</b><span>Đánh quái, dùng kỹ năng và hạ Boss.</span><span class="tag">RPG</span></div>
+      </a>
+      <a class="panel game-link" href="games/caro.html">
+        <div class="cover">⚫</div>
+        <div class="game-meta"><b>Caro</b><span>Bàn 15×15, 5 quân liên tiếp là thắng.</span><span class="tag">STRATEGY</span></div>
+      </a>
+      <a class="panel game-link" href="games/find-difference.html">
+        <div class="cover">🔎</div>
+        <div class="game-meta"><b>Tìm điểm khác nhau</b><span>Tìm 5 điểm khác nhau.</span><span class="tag">PUZZLE</span></div>
+      </a>
+      <a class="panel game-link" href="games/bbtan.html">
+        <div class="cover">🏀</div>
+        <div class="game-meta"><b>BBTAN</b><span>Bắn bóng phá gạch và săn điểm cao.</span><span class="tag">ARCADE</span></div>
+      </a>
+    </section>
+
+    <div class="section-title">
+      <h2>💜 Pi Mainnet</h2>
+      <span>Step 10</span>
+    </div>
+
+    <section class="panel reward-panel">
+      <h2>Thanh toán thử nghiệm</h2>
+      <p>Giữ nguyên luồng U2A Mainnet đã hoàn thành của app. Giao dịch này tách biệt với Game Coin.</p>
+      <div class="reward-row"><button class="btn good" id="payBtn">Thanh toán 0.01 Pi</button></div>
+      <div class="reward-status" id="paymentStatus">Chưa bắt đầu giao dịch.</div>
+      <div class="reward-status" id="debugStatus"></div>
+      <div class="mini-note">Game Coin không có chức năng đổi ngược thành Pi.</div>
+    </section>
+
+    <div class="legal">
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms</a>
+    </div>
+    <div class="footer">MiniGame Hub • Pi Mainnet • Entertainment</div>
+  </main>
+
+  <script src="assets/pi.js"></script>
+  <script>
+    const statusEl = document.getElementById('piStatus');
+    const loginBtn = document.getElementById('piLogin');
+    const paymentStatus = document.getElementById('paymentStatus');
+    const debugStatus = document.getElementById('debugStatus');
+    const payBtn = document.getElementById('payBtn');
+
+    const coins = +(localStorage.mg_coins || 10000);
+    document.getElementById('coins').textContent = coins.toLocaleString();
+
+    const xp = +(localStorage.mg_monopoly_xp || 0);
+    document.getElementById('xp').textContent = xp;
+    document.getElementById('level').textContent = Math.floor(xp / 100) + 1;
+
+    MiniPi.init(statusEl).then(() => {
+      const u = MiniPi.cachedUsername();
+      if (u) {
+        statusEl.textContent = '@' + u;
+        document.getElementById('playerName').textContent = '@' + u;
+        loginBtn.textContent = 'Đăng nhập lại';
+      }
+    });
+
+    loginBtn.onclick = async () => {
+      const a = await MiniPi.login(statusEl, loginBtn);
+      if (a?.user?.username) document.getElementById('playerName').textContent = '@' + a.user.username;
+    };
+
+    document.getElementById('resetScores').onclick = () => {
+      if (confirm('Xóa toàn bộ dữ liệu game trên thiết bị này?')) {
+        Object.keys(localStorage).filter(k => k.startsWith('mg_')).forEach(k => localStorage.removeItem(k));
+        location.reload();
+      }
+    };
+
+    payBtn.onclick = async () => {
+      payBtn.disabled = true;
+      paymentStatus.textContent = 'Đang chuẩn bị thanh toán…';
+      debugStatus.textContent = '';
+      try {
+        const auth = await MiniPi.ensureAuth(statusEl, loginBtn);
+        if (!auth?.accessToken) throw new Error('Không lấy được Pi access token.');
+        const result = await MiniPi.createPayment({
+          amount: .01,
+          memo: 'MiniGame Mainnet transaction',
+          metadata: { kind: 'minigame_u2a_step10', createdAt: new Date().toISOString() },
+          statusEl: paymentStatus
+        });
+        paymentStatus.textContent = '🎉 Giao dịch hoàn tất.';
+        debugStatus.textContent = `Payment ID: ${result?.identifier || result?.payment?.identifier || 'xem log'}`;
+      } catch (err) {
+        console.error(err);
+        paymentStatus.textContent = '❌ ' + (err?.message || 'Thanh toán thất bại.');
+        if (err?.debug) {
+          const d = err.debug;
+          debugStatus.textContent = `Debug ID: ${d.debugId || '-'} • Payment ID: ${d.paymentId || '-'} • Pi HTTP: ${d.upstreamStatus ?? '-'}`;
+        }
+        payBtn.disabled = false;
+      }
+    };
+  </script>
+</body>
+</html>
