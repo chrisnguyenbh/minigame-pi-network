@@ -168,15 +168,20 @@ button.active{color:#fff;background:linear-gradient(180deg,#c82e34,#a8191f);box-
         <div class="puzzle-title" id="puzzleTitle"></div>
         <div class="puzzle-desc" id="puzzleDesc"></div>
         <div class="level-grid" style="margin-bottom:9px">
-          <button onclick="jumpPuzzleLevel('Dễ')">Dễ 1–15</button>
-          <button onclick="jumpPuzzleLevel('Trung bình')">TB 16–30</button>
-          <button onclick="jumpPuzzleLevel('Khó')">Khó 31–40</button>
-          <button onclick="jumpPuzzleLevel('Cao thủ')">Cao thủ 41–50</button>
+          <button onclick="jumpVeteranPuzzle(0)">Thế 1</button>
+          <button onclick="jumpVeteranPuzzle(1)">Thế 2</button>
+          <button onclick="jumpVeteranPuzzle(2)">Thế 3</button>
+          <button onclick="jumpVeteranPuzzle(3)">Thế 4</button>
+          <button onclick="jumpVeteranPuzzle(4)">Thế 5</button>
+          <button onclick="jumpVeteranPuzzle(5)">Thế 6</button>
+          <button onclick="jumpVeteranPuzzle(6)">Thế 7</button>
+          <button onclick="jumpVeteranPuzzle(7)">Thế 8</button>
+          <button onclick="jumpVeteranPuzzle(8)">Thế 9</button>
+          <button onclick="jumpVeteranPuzzle(9)">Thế 10</button>
         </div>
         <div class="puzzle-grid">
           <button onclick="changePuzzle(-1)">← Thế trước</button>
           <button onclick="changePuzzle(1)">Thế tiếp →</button>
-          <button onclick="undoPuzzle()">↶ Đi lại</button>
           <button onclick="showPuzzleHint()">💡 Gợi ý</button>
         </div>
         <div class="puzzle-desc" id="puzzleProgress"></div>
@@ -186,7 +191,7 @@ button.active{color:#fff;background:linear-gradient(180deg,#c82e34,#a8191f);box-
         Cờ Úp: ngoài hai Tướng, các quân còn lại được úp và xáo ngẫu nhiên. Nước đầu của quân úp đi theo vị trí đang đứng; sau đó quân được lật và đi theo quân thật.
       </div>
 
-      <button class="new" onclick="newGame()">↻ Ván mới</button>
+      <button class="new" id="newGameButton" onclick="newGame()">↻ Ván mới</button>
       <button class="flip" onclick="flipBoard()">↔ Đổi hướng bàn cờ</button>
 
       <div class="help" id="mainHelp">
