@@ -2,38 +2,207 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Monopoly Mini</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Cờ Tỷ Phú Sài Gòn</title>
 <style>
-:root{--bg:#0e1b27;--panel:#162838;--soft:#20394d;--ink:#f5f6f7;--gold:#ffd166;--green:#2fbf71;--red:#ef476f}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#1b3b50,#0b1721 70%);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;padding:14px}
-.app{width:min(1220px,100%);margin:auto}
-.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-.top h1{margin:0;font-size:30px}.top a{color:#cfe9ff;text-decoration:none;font-weight:800}
-.setup,.side,.log{background:rgba(18,38,52,.94);border:1px solid #ffffff18;border-radius:16px;padding:13px;box-shadow:0 12px 30px #0005}
-.setup{margin-bottom:12px;display:flex;gap:9px;flex-wrap:wrap;align-items:center}
-select,input,button{border:0;border-radius:10px;padding:9px 11px;font:inherit;font-weight:750}
-button{cursor:pointer;background:#e7edf3;color:#172533}button.primary{background:var(--green);color:#fff}button.danger{background:var(--red);color:#fff}button:disabled{opacity:.4;cursor:not-allowed}
-.layout{display:grid;grid-template-columns:minmax(650px,1fr) 330px;gap:14px;align-items:start}
-.board{display:grid;grid-template-columns:repeat(11,1fr);grid-template-rows:repeat(11,1fr);aspect-ratio:1;background:#d9e6d1;border:7px solid #24382b;border-radius:10px;overflow:hidden;position:relative}
-.tile{position:relative;border:1px solid #6b7b6a;background:#f7f5e8;color:#1d2a1f;padding:3px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;overflow:hidden}
-.tile .name{font-size:9px;font-weight:850;line-height:1.05;text-align:center}.tile .price{font-size:8px;text-align:center;opacity:.7}
-.tile .bar{height:7px;margin:-3px -3px 3px;background:#bbb}.tile.corner{background:#e9ead8;justify-content:center}
-.tokens{display:flex;flex-wrap:wrap;gap:1px;justify-content:center;align-items:center;min-height:30px}.chibi-token{width:27px;height:27px;border-radius:50%;overflow:hidden;border:2px solid #fff;background:#fff;box-shadow:0 3px 7px #0008;transition:transform .18s}.chibi-token.active{transform:translateY(-3px) scale(1.12);box-shadow:0 5px 10px #0009}.chibi-token img{width:100%;height:100%;object-fit:cover;display:block}
-.owner{position:absolute;right:2px;bottom:2px;width:7px;height:7px;border-radius:50%}.houses{font-size:9px;text-align:center;color:#0b7a3a;font-weight:900}
-.center{position:absolute;inset:17%;display:flex;align-items:center;justify-content:center;pointer-events:none}
-.center-card{background:#fff9;color:#203020;border:2px solid #57715c;padding:18px 25px;border-radius:15px;transform:rotate(-12deg);font-size:32px;font-weight:1000;letter-spacing:2px}
-.side{display:flex;flex-direction:column;gap:10px;position:sticky;top:10px}.turn{font-size:18px;font-weight:900;padding:10px;background:#ffffff0d;border-radius:10px}
-.players{display:grid;gap:7px}.player-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;border:2px solid #fff}.player{padding:8px 9px;border-radius:10px;background:#ffffff0b;border-left:5px solid var(--pc)}.player.active{outline:2px solid var(--gold)}.player.bankrupt{opacity:.4;text-decoration:line-through}.ai-badge{font-size:10px;background:#ffffff1c;padding:2px 5px;border-radius:6px;margin-left:4px}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.actions button{width:100%}.dice{font-size:34px;text-align:center;min-height:48px}
-.property{padding:9px;background:#ffffff0a;border-radius:10px;font-size:13px;line-height:1.45}
-.log{margin-top:12px;max-height:180px;overflow:auto;font-size:12px;line-height:1.45}.entry{padding:3px 0;border-bottom:1px solid #ffffff0d}
-@media(max-width:900px){.layout{grid-template-columns:1fr}.side{position:static}.board{min-width:680px}.board-wrap{overflow:auto}}
+:root{
+  --bg:#07111e;--panel:#0b1726;--panel2:#111f30;--line:#ffffff18;
+  --gold:#f6bd28;--red:#ef4444;--blue:#1e9bf0;--green:#22c55e;--purple:#8b5cf6;
+  --cream:#fff7dc;--ink:#1a1d21;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;background:
+  radial-gradient(circle at 50% 0,#163550 0,transparent 35%),
+  linear-gradient(180deg,#06101d,#091725 70%,#07111b);
+  color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+}
+button,select{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.38;cursor:not-allowed}
+.app{width:min(1580px,100%);margin:auto;padding:10px 12px 18px}
+.header{
+  display:grid;grid-template-columns:250px 1fr 250px;align-items:center;gap:12px;margin-bottom:10px
+}
+.brand{font-size:28px;font-weight:1000;line-height:1;color:#ffc83d;text-shadow:0 2px 12px #000}
+.brand span{display:block;color:#27d37f;font-size:22px;margin-top:5px}
+.header-nav{display:flex;gap:10px;justify-content:center}
+.header-nav button,.hub-link{
+  border:1px solid #ffffff24;background:#0c1726;color:#fff;border-radius:11px;padding:9px 16px;font-weight:850;text-decoration:none
+}
+.header-right{display:flex;justify-content:flex-end;gap:8px}
+.header-right button{border:1px solid #ffffff24;background:#0c1726;color:#fff;border-radius:10px;padding:9px 11px}
+
+.setup{
+  background:#0d1b2a;border:1px solid #ffffff1a;border-radius:13px;padding:10px 12px;margin-bottom:10px;
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap
+}
+.setup select,.setup button{border:0;border-radius:9px;padding:8px 10px;font-weight:750}
+.setup button{background:#1ba958;color:#fff}
+
+.game-layout{display:grid;grid-template-columns:235px minmax(760px,1fr) 250px;gap:11px;align-items:start}
+.panel{
+  background:linear-gradient(180deg,#0c1827,#09131e);border:1px solid #ffffff1b;border-radius:15px;
+  box-shadow:0 16px 40px #0005
+}
+.left-panel,.right-panel{padding:10px}
+.panel-title{font-size:16px;font-weight:1000;margin:2px 0 9px;color:#f7e7b6}
+.players{display:grid;gap:8px}
+.player{
+  position:relative;display:grid;grid-template-columns:52px 1fr;gap:8px;align-items:center;
+  min-height:76px;border:2px solid var(--pc);border-radius:12px;padding:7px;background:#ffffff08
+}
+.player.active{box-shadow:0 0 0 2px #ffd33d inset,0 0 20px #ffc10733}
+.player.bankrupt{opacity:.35;filter:grayscale(1)}
+.player-avatar{width:50px;height:50px;border-radius:14px;object-fit:cover;background:#fff;border:2px solid #fff}
+.player-name{font-weight:950}.player-money{font-size:20px;font-weight:1000;color:var(--pc)}
+.player-meta{font-size:11px;color:#bbc6d0}.ai-badge{font-size:9px;background:#ffffff18;padding:2px 5px;border-radius:5px}
+.info-card{margin-top:10px;background:#ffffff08;border-radius:11px;padding:10px;font-size:12px;line-height:1.6}
+
+.board-shell{display:flex;flex-direction:column;gap:9px;min-width:0}
+.board-wrap{overflow:auto;padding:4px}
+.board{
+  --corner:92px;--h:72px;--v:62px;
+  position:relative;margin:auto;
+  width:calc(var(--corner)*2 + var(--h)*9);
+  height:calc(var(--corner)*2 + var(--v)*9);
+  display:grid;
+  grid-template-columns:var(--corner) repeat(9,var(--h)) var(--corner);
+  grid-template-rows:var(--corner) repeat(9,var(--v)) var(--corner);
+  background:#eadfbd;border:7px solid #a87c42;border-radius:17px;
+  box-shadow:0 22px 45px #0008,inset 0 0 0 3px #fff7;
+  overflow:visible
+}
+.tile{
+  position:relative;background:linear-gradient(#fffbea,#f3ead3);color:var(--ink);
+  border:1px solid #7b6b53;padding:4px 3px;display:flex;flex-direction:column;justify-content:space-between;
+  overflow:visible;z-index:2
+}
+.tile.corner{background:linear-gradient(145deg,#fffbe8,#e7dbc0);justify-content:center}
+.tile .bar{height:10px;margin:-4px -3px 3px;border-bottom:1px solid #0003}
+.tile .name{font-size:10px;font-weight:1000;line-height:1.05;text-align:center;word-break:break-word}
+.tile .price{font-size:9px;text-align:center;font-weight:750}
+.tile.event .name{font-size:11px}
+.tile.event::after{content:"?";font-size:22px;color:#df2d3b;text-align:center;font-weight:1000;line-height:1}
+.tile.chest::after{content:"🧰";font-size:18px;text-align:center}
+.owner{position:absolute;right:4px;bottom:4px;width:10px;height:10px;border-radius:50%;border:1px solid #fff;box-shadow:0 1px 2px #000}
+.houses{font-size:9px;text-align:center;color:#087b36;font-weight:1000;min-height:11px}
+.tokens{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  display:flex;gap:2px;align-items:flex-end;justify-content:center;z-index:25;pointer-events:none;overflow:visible
+}
+.chibi-token{
+  width:48px;height:48px;border-radius:50%;overflow:visible;background:transparent;
+  filter:drop-shadow(0 7px 4px #0008);transition:transform .16s ease;
+}
+.chibi-token.active{transform:translateY(-8px) scale(1.14)}
+.chibi-token img{width:100%;height:100%;object-fit:cover;border-radius:50%;border:3px solid #fff;background:#fff}
+
+.center-scene{
+  position:absolute;left:var(--corner);right:var(--corner);top:var(--corner);bottom:var(--corner);
+  border:2px solid #7d6040;overflow:hidden;z-index:1;
+  background:
+    radial-gradient(circle at 50% 73%,#f4b44328 0 17%,transparent 18%),
+    linear-gradient(180deg,#0c3962 0,#15527a 31%,#126368 55%,#214839 100%);
+}
+.center-scene:before{
+  content:"";position:absolute;inset:0;
+  background:
+    linear-gradient(90deg,transparent 0 7%,#ffc85718 7% 8%,transparent 8% 17%,#56c7ff18 17% 18%,transparent 18% 27%,#ffc85718 27% 28%,transparent 28% 75%,#56c7ff18 75% 76%,transparent 76%),
+    radial-gradient(ellipse at 50% 98%,#071728 0 38%,transparent 39%);
+  opacity:.9
+}
+.skyline{position:absolute;left:8%;right:8%;top:12%;height:38%;display:flex;align-items:flex-end;justify-content:space-around;opacity:.95}
+.bld{width:7%;background:linear-gradient(#315d81,#163650);border:1px solid #68b9e633;border-bottom:0;box-shadow:inset 0 0 0 1px #0003}
+.bld:nth-child(2n){background:linear-gradient(#6e512f,#362718)}
+.bld::before{content:"";display:block;height:100%;background:repeating-linear-gradient(180deg,transparent 0 7px,#fbd56a77 7px 9px)}
+.saigon-title{
+  position:absolute;left:0;right:0;top:33%;text-align:center;font-size:52px;font-weight:1000;
+  color:#f5d28a;text-shadow:0 4px 0 #725025,0 10px 24px #000;letter-spacing:2px
+}
+.center-dice{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);font-size:63px;filter:drop-shadow(0 8px 6px #0008)}
+.spin-button{
+  position:absolute;left:50%;top:74%;transform:translate(-50%,-50%);
+  width:132px;height:132px;border-radius:50%;border:7px solid #f7c936;
+  background:radial-gradient(circle at 35% 25%,#54dc53,#07872e 72%);color:#fff;
+  font-size:28px;font-weight:1000;box-shadow:0 0 0 5px #ffffff33,0 0 30px #ffd43b99;
+  z-index:5
+}
+.spin-button small{display:block;font-size:10px;font-weight:700;margin-top:3px}
+.spin-button:disabled{filter:grayscale(.8);opacity:.55}
+
+.right-panel{display:flex;flex-direction:column;gap:10px}
+.turn-card,.current-card,.property-card{background:#ffffff08;border-radius:11px;padding:10px}
+.turn-card h3,.current-card h3{margin:0 0 8px;font-size:15px}
+.dice-readout{text-align:center;font-size:24px;font-weight:1000}
+.actions{display:grid;gap:7px}
+.actions button{
+  width:100%;border:0;border-radius:10px;padding:11px 8px;font-weight:1000;font-size:15px;color:#fff
+}
+#rollBtn{background:linear-gradient(#1389ed,#0860b5)}
+#buyBtn{background:linear-gradient(#f8bf24,#d38e04);color:#211300}
+#buildBtn{background:linear-gradient(#42c548,#13882f)}
+#cardBtn{background:linear-gradient(#9b5de5,#6530a4)}
+#endBtn{background:linear-gradient(#ef4444,#b91c1c)}
+.property-card{font-size:12px;line-height:1.5}
+.property-card b{font-size:14px}
+.current-symbol{font-size:44px;text-align:center;color:#f04454;font-weight:1000}
+
+.bottom-grid{display:grid;grid-template-columns:1.05fr 1.15fr 1.35fr;gap:10px}
+.bottom-box{background:#0b1726;border:1px solid #ffffff18;border-radius:13px;padding:11px;min-height:120px}
+.bottom-box h3{margin:0 0 7px;font-size:14px}
+.card-decks{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
+.deck{
+  border:2px solid currentColor;background:#171926;color:#fff;border-radius:13px;padding:10px;text-align:center;
+  min-height:92px;font-weight:1000;transition:.18s;position:relative
+}
+.deck.red{color:#ff5a67;box-shadow:0 0 20px #ef444433}
+.deck.blue{color:#52b7ff;box-shadow:0 0 20px #38bdf833}
+.deck.enabled{cursor:pointer;transform:translateY(-2px);box-shadow:0 0 0 2px currentColor,0 0 28px currentColor}
+.deck.disabled{opacity:.32}
+.deck .icon{font-size:34px;display:block}
+.deck small{display:block;color:#fff9;font-weight:700;margin-top:4px}
+.or{font-weight:1000;color:#ffe8b5}
+.log{max-height:126px;overflow:auto;font-size:11px;line-height:1.5}
+.entry{padding:3px 0;border-bottom:1px solid #ffffff0d}
+.amount-plus{color:#54e479}.amount-minus{color:#ff6d6d}
+
+.modal{
+  position:fixed;inset:0;background:#020710bb;display:none;align-items:center;justify-content:center;z-index:999;padding:18px
+}
+.modal.show{display:flex}
+.event-popup{
+  width:min(430px,100%);background:linear-gradient(180deg,#fff5d8,#f4ddb0);color:#281b10;border-radius:20px;
+  border:5px solid #d99d43;box-shadow:0 28px 70px #000b;overflow:hidden;text-align:center
+}
+.event-head{padding:13px;font-size:25px;font-weight:1000;color:#fff}
+.event-head.chance{background:linear-gradient(#ed493d,#c61e25)}
+.event-head.fortune{background:linear-gradient(#2698e8,#1465ad)}
+.event-body{padding:22px 24px}
+.event-icon{font-size:60px}.event-body h2{margin:9px 0 6px}.event-body p{font-size:18px;line-height:1.5;margin:0}
+.event-close{margin:0 0 18px;border:0;border-radius:11px;background:#c92c2c;color:#fff;padding:10px 38px;font-weight:1000;font-size:16px}
+
+@media(max-width:1220px){
+  .game-layout{grid-template-columns:190px minmax(700px,1fr) 215px}
+  .board{--corner:82px;--h:64px;--v:56px}
+  .chibi-token{width:42px;height:42px}
+  .saigon-title{font-size:44px}
+}
+@media(max-width:900px){
+  .header{grid-template-columns:1fr auto}.header-nav{display:none}.brand{font-size:22px}.brand span{font-size:18px}
+  .game-layout{display:block}.left-panel,.right-panel{margin-bottom:8px}.players{grid-template-columns:repeat(2,1fr)}
+  .board-wrap{overflow:auto}.board{min-width:820px}.bottom-grid{grid-template-columns:1fr}
+  .right-panel{display:grid;grid-template-columns:1fr 1fr}.actions{grid-column:1/-1;grid-template-columns:repeat(3,1fr)}
+}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="top"><div><h1>🏙️ Cờ Tỷ Phú Sài Gòn</h1><div>Phiên bản TP.HCM · Chibi di chuyển theo từng bước xúc xắc · Người vs AI.</div></div><a href="../">← MiniGame Hub</a></div>
+  <header class="header">
+    <div class="brand">🏙️ CỜ TỶ PHÚ<span>SÀI GÒN</span></div>
+    <div class="header-nav"><button>📖 Quy tắc</button><button>↶ Lịch sử</button><button>⚙ Cài đặt</button></div>
+    <div class="header-right"><a class="hub-link" href="../">🎮 Hub</a><button>🔊</button><button>☰</button></div>
+  </header>
 
   <div class="setup" id="setup">
     <b>Chế độ:</b>
@@ -41,88 +210,168 @@ button{cursor:pointer;background:#e7edf3;color:#172533}button.primary{background
       <option value="human-ai" selected>Người vs AI</option>
       <option value="local">Nhiều người cùng máy</option>
     </select>
-    <span id="aiSetup">
-      <b>Số AI:</b>
-      <select id="aiCount"><option value="1" selected>1 AI</option><option value="2">2 AI</option><option value="3">3 AI</option></select>
+    <span id="aiSetup"><b>Số AI:</b>
+      <select id="aiCount"><option value="1">1 AI</option><option value="2">2 AI</option><option value="3" selected>3 AI</option></select>
     </span>
-    <span id="localSetup" style="display:none">
-      <b>Số người:</b>
+    <span id="localSetup" style="display:none"><b>Số người:</b>
       <select id="playerCount"><option>2</option><option>3</option><option selected>4</option></select>
     </span>
-    <b>Luật chơi:</b>
-    <select id="gameMode"><option value="endless">Chơi đến khi còn 1 người</option><option value="turns">Giới hạn 30 vòng</option><option value="networth">Đạt tài sản $5000</option></select>
-    <button class="primary" onclick="startGame()">Bắt đầu</button>
+    <b>Luật:</b>
+    <select id="gameMode"><option value="endless">Đến khi còn 1 người</option><option value="turns" selected>20 vòng</option><option value="networth">Đạt $5000</option></select>
+    <button onclick="startGame()">Bắt đầu ván</button>
   </div>
 
-  <div class="layout">
-    <div class="board-wrap"><div class="board" id="board"><div class="center"><div class="center-card">SÀI GÒN</div></div></div></div>
-    <aside class="side">
-      <div class="turn" id="turn">Chưa bắt đầu</div>
+  <main class="game-layout">
+    <aside class="panel left-panel">
+      <div class="panel-title">NGƯỜI CHƠI</div>
       <div class="players" id="players"></div>
-      <div class="dice" id="dice">🎲 🎲</div>
-      <div class="actions">
-        <button class="primary" id="rollBtn" onclick="rollDice()" disabled>🎲 Xúc xắc</button>
-        <button id="buyBtn" onclick="buyProperty()" disabled>💰 Mua đất</button>
-        <button id="buildBtn" onclick="buildHouse()" disabled>🏠 Xây nhà</button>
-        <button class="danger" id="endBtn" onclick="endTurn()" disabled>➡ Hết lượt</button>
-      </div>
-      <div class="property" id="property">Chọn Bắt đầu để chơi.</div>
+      <div class="info-card"><b>THÔNG TIN</b><br><span id="gameInfo">Chưa bắt đầu.</span></div>
     </aside>
+
+    <section class="board-shell">
+      <div class="board-wrap">
+        <div class="board" id="board">
+          <div class="center-scene">
+            <div class="skyline">
+              <i class="bld" style="height:45%"></i><i class="bld" style="height:70%"></i><i class="bld" style="height:54%"></i>
+              <i class="bld" style="height:87%"></i><i class="bld" style="height:61%"></i><i class="bld" style="height:79%"></i>
+              <i class="bld" style="height:47%"></i><i class="bld" style="height:91%"></i><i class="bld" style="height:63%"></i>
+            </div>
+            <div class="saigon-title">SÀI GÒN</div>
+            <div class="center-dice" id="centerDice">⚄ ⚀</div>
+            <button class="spin-button" id="centerRoll" onclick="rollDice()" disabled>QUAY<small>Nhấn để đổ xúc xắc</small></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-grid">
+        <div class="bottom-box">
+          <h3 id="landingTitle">🎲 Sẵn sàng</h3>
+          <div id="landingText">Đổ xúc xắc và di chuyển chibi quanh Sài Gòn.</div>
+        </div>
+
+        <div class="bottom-box card-decks">
+          <button class="deck red disabled" id="chanceDeck" onclick="chooseEventCard('Cơ hội')">
+            <span>CƠ HỘI</span><span class="icon">❓</span><small>Nhấn để chọn</small>
+          </button>
+          <div class="or">HOẶC</div>
+          <button class="deck blue disabled" id="fortuneDeck" onclick="chooseEventCard('Khí vận')">
+            <span>KHÍ VẬN</span><span class="icon">🧰</span><small>Nhấn để chọn</small>
+          </button>
+        </div>
+
+        <div class="bottom-box">
+          <h3>LỊCH SỬ SỰ KIỆN</h3>
+          <div class="log" id="log"></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel right-panel">
+      <div class="turn-card">
+        <h3 id="turn">LƯỢT CỦA BẠN</h3>
+        <div class="dice-readout" id="dice">🎲 + 🎲</div>
+      </div>
+
+      <div class="actions">
+        <button id="rollBtn" onclick="rollDice()" disabled>🎲 XÚC XẮC</button>
+        <button id="buyBtn" onclick="buyProperty()" disabled>🛒 MUA ĐẤT</button>
+        <button id="buildBtn" onclick="buildHouse()" disabled>🏠 XÂY NHÀ</button>
+        <button id="cardBtn" onclick="openPendingDeck()" disabled>🃏 THẺ BÀI</button>
+        <button id="endBtn" onclick="endTurn()" disabled>⏩ KẾT THÚC LƯỢT</button>
+      </div>
+
+      <div class="current-card">
+        <h3>Ô HIỆN TẠI</h3>
+        <div class="current-symbol" id="currentSymbol">—</div>
+      </div>
+
+      <div class="property-card" id="property">Chọn <b>Bắt đầu ván</b> để chơi.</div>
+    </aside>
+  </main>
+</div>
+
+<div class="modal" id="eventModal">
+  <div class="event-popup">
+    <div class="event-head chance" id="eventHead">CƠ HỘI</div>
+    <div class="event-body">
+      <div class="event-icon" id="eventIcon">❓</div>
+      <h2 id="eventTitle">Bạn trúng thưởng!</h2>
+      <p id="eventText">Nhận $200 từ ngân hàng.</p>
+    </div>
+    <button class="event-close" onclick="closeEventModal()">ĐÓNG</button>
   </div>
-  <div class="log" id="log"></div>
 </div>
 
 <script>
 const LOCATIONS=[{"id": 0, "type": "START", "name": "KHỞI HÀNH", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 1, "type": "Đất", "name": "Bình Tây", "setId": 1, "cost": 60, "rent": 2, "house": [10, 30, 90, 160], "hotel": 250, "buildCost": 50}, {"id": 2, "type": "Khí vận", "name": "KHÍ VẬN", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 3, "type": "Đất", "name": "Chợ Lớn", "setId": 1, "cost": 60, "rent": 4, "house": [20, 60, 180, 320], "hotel": 500, "buildCost": 50}, {"id": 4, "type": "Thuế", "name": "THUẾ ĐÔ THỊ", "setId": null, "cost": 0, "rent": 200, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 5, "type": "Bến/Ga", "name": "Bến xe Miền Tây", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 6, "type": "Đất", "name": "Tân Phú", "setId": 2, "cost": 100, "rent": 6, "house": [30, 90, 270, 480], "hotel": 750, "buildCost": 50}, {"id": 7, "type": "Cơ hội", "name": "CƠ HỘI", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 8, "type": "Đất", "name": "Bình Tân", "setId": 2, "cost": 100, "rent": 6, "house": [30, 90, 270, 480], "hotel": 750, "buildCost": 50}, {"id": 9, "type": "Đất", "name": "Gò Vấp", "setId": 2, "cost": 120, "rent": 8, "house": [40, 120, 360, 640], "hotel": 1000, "buildCost": 50}, {"id": 10, "type": "Thăm nhà giam", "name": "THĂM NHÀ GIAM", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 11, "type": "Đất", "name": "Phú Nhuận", "setId": 3, "cost": 140, "rent": 10, "house": [50, 150, 450, 800], "hotel": 1250, "buildCost": 100}, {"id": 12, "type": "Tiện ích", "name": "Điện lực TP.HCM", "setId": null, "cost": 150, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 13, "type": "Đất", "name": "Tân Bình", "setId": 3, "cost": 140, "rent": 10, "house": [50, 150, 450, 800], "hotel": 1250, "buildCost": 100}, {"id": 14, "type": "Đất", "name": "Bình Thạnh", "setId": 3, "cost": 160, "rent": 12, "house": [60, 180, 540, 960], "hotel": 1500, "buildCost": 100}, {"id": 15, "type": "Bến/Ga", "name": "Ga Sài Gòn", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 16, "type": "Đất", "name": "Tân Định", "setId": 4, "cost": 180, "rent": 14, "house": [70, 210, 630, 1120], "hotel": 1750, "buildCost": 100}, {"id": 17, "type": "Khí vận", "name": "KHÍ VẬN", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 18, "type": "Đất", "name": "Đa Kao", "setId": 4, "cost": 180, "rent": 14, "house": [70, 210, 630, 1120], "hotel": 1750, "buildCost": 100}, {"id": 19, "type": "Đất", "name": "Bến Nghé", "setId": 4, "cost": 200, "rent": 16, "house": [80, 240, 720, 1280], "hotel": 2000, "buildCost": 100}, {"id": 20, "type": "Nghỉ miễn phí", "name": "CÔNG VIÊN 23/9", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 21, "type": "Đất", "name": "An Phú", "setId": 5, "cost": 220, "rent": 18, "house": [90, 270, 810, 1440], "hotel": 2250, "buildCost": 150}, {"id": 22, "type": "Cơ hội", "name": "CƠ HỘI", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 23, "type": "Đất", "name": "Thảo Điền", "setId": 5, "cost": 220, "rent": 18, "house": [90, 270, 810, 1440], "hotel": 2250, "buildCost": 150}, {"id": 24, "type": "Đất", "name": "Thủ Thiêm", "setId": 5, "cost": 240, "rent": 20, "house": [100, 300, 900, 1600], "hotel": 2500, "buildCost": 150}, {"id": 25, "type": "Bến/Ga", "name": "Bến xe Miền Đông", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 26, "type": "Đất", "name": "Nguyễn Huệ", "setId": 6, "cost": 260, "rent": 22, "house": [110, 330, 990, 1760], "hotel": 2750, "buildCost": 150}, {"id": 27, "type": "Đất", "name": "Bùi Viện", "setId": 6, "cost": 260, "rent": 22, "house": [110, 330, 990, 1760], "hotel": 2750, "buildCost": 150}, {"id": 28, "type": "Tiện ích", "name": "Cấp nước TP.HCM", "setId": null, "cost": 150, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 29, "type": "Đất", "name": "Bến Thành", "setId": 6, "cost": 280, "rent": 24, "house": [120, 360, 1080, 1920], "hotel": 3000, "buildCost": 150}, {"id": 30, "type": "Nhà giam", "name": "VÀO NHÀ GIAM", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 31, "type": "Đất", "name": "Phú Mỹ Hưng", "setId": 7, "cost": 300, "rent": 26, "house": [130, 390, 1170, 2080], "hotel": 3250, "buildCost": 200}, {"id": 32, "type": "Đất", "name": "Nguyễn Văn Linh", "setId": 7, "cost": 300, "rent": 26, "house": [130, 390, 1170, 2080], "hotel": 3250, "buildCost": 200}, {"id": 33, "type": "Khí vận", "name": "KHÍ VẬN", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 34, "type": "Đất", "name": "Sala Đại Quang Minh", "setId": 7, "cost": 320, "rent": 28, "house": [140, 420, 1260, 2240], "hotel": 3500, "buildCost": 200}, {"id": 35, "type": "Bến/Ga", "name": "Bến Bạch Đằng", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 36, "type": "Cơ hội", "name": "CƠ HỘI", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 37, "type": "Đất", "name": "Đồng Khởi", "setId": 8, "cost": 350, "rent": 35, "house": [175, 525, 1575, 2800], "hotel": 4375, "buildCost": 200}, {"id": 38, "type": "Thuế", "name": "THUẾ TÀI SẢN", "setId": null, "cost": 0, "rent": 100, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 39, "type": "Đất", "name": "Lê Lợi", "setId": 8, "cost": 400, "rent": 50, "house": [250, 750, 2250, 4000], "hotel": 6250, "buildCost": 200}];
-const SET_COLORS={1:'#6b4b3e',2:'#8bd3e6',3:'#d789d7',4:'#f4d35e',5:'#ef6f6c',6:'#f4a261',7:'#55a868',8:'#4b7bec'};
-const PLAYER_COLORS=['#e63946','#2a9d8f','#457b9d','#9b5de5','#ff9f1c','#00b4d8','#f15bb5','#84a98c'];
-
+const SET_COLORS={1:'#7c4a35',2:'#66c7e9',3:'#dd63b5',4:'#f2bd39',5:'#f05c58',6:'#ef923a',7:'#59a95b',8:'#4b7bec'};
+const PLAYER_COLORS=['#ef4444','#1e9bf0','#24b86a','#9b59ff'];
+const $=id=>document.getElementById(id);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let state=null;
 
+const CHANCE_CARDS=[
+  {title:'Bạn trúng thưởng!',text:'Nhận $200 từ ngân hàng.',icon:'🎉',effect:p=>p.cash+=200},
+  {title:'Kinh doanh thuận lợi',text:'Nhận $150 tiền lợi nhuận.',icon:'💼',effect:p=>p.cash+=150},
+  {title:'Phí sửa xe',text:'Trả $80.',icon:'🚗',effect:p=>p.cash-=80},
+  {title:'Về KHỞI HÀNH',text:'Di chuyển về KHỞI HÀNH và nhận $200.',icon:'🏁',effect:p=>{p.pos=0;p.cash+=200}},
+  {title:'Vào nhà giam',text:'Di chuyển tới Nhà giam trong 3 lượt.',icon:'🔒',effect:p=>{p.pos=10;p.jail=3}},
+  {title:'Thưởng du lịch',text:'Nhận $100.',icon:'✈️',effect:p=>p.cash+=100},
+  {title:'Phí đầu tư',text:'Trả $120.',icon:'📉',effect:p=>p.cash-=120},
+  {title:'Cổ tức bất động sản',text:'Nhận $180.',icon:'🏢',effect:p=>p.cash+=180},
+];
+
+const FORTUNE_CARDS=[
+  {title:'Sinh nhật vui vẻ',text:'Nhận $50 từ mỗi người chơi khác.',icon:'🎂',effect:p=>{state.players.forEach(q=>{if(q!==p&&!q.bankrupt){q.cash-=50;p.cash+=50}})}},
+  {title:'Hoàn tiền dịch vụ',text:'Nhận $100.',icon:'💳',effect:p=>p.cash+=100},
+  {title:'Chi phí y tế',text:'Trả $100.',icon:'🏥',effect:p=>p.cash-=100},
+  {title:'Trúng quà may mắn',text:'Nhận $150.',icon:'🎁',effect:p=>p.cash+=150},
+  {title:'Phí quản lý',text:'Trả $75.',icon:'🧾',effect:p=>p.cash-=75},
+  {title:'Tiền tiết kiệm đáo hạn',text:'Nhận $200.',icon:'🏦',effect:p=>p.cash+=200},
+  {title:'Đóng góp cộng đồng',text:'Trả $50.',icon:'🤝',effect:p=>p.cash-=50},
+  {title:'Lộc bất ngờ',text:'Nhận $80.',icon:'🧧',effect:p=>p.cash+=80},
+];
+
 function money(n){return '$'+Math.round(n)}
-function log(msg){const e=document.createElement('div');e.className='entry';e.textContent=msg;document.getElementById('log').prepend(e)}
+function current(){return state?.players[state.current]}
 function locByPos(pos){return LOCATIONS[pos%40]}
-function current(){return state.players[state.current]}
+function addLog(msg,kind=''){const e=document.createElement('div');e.className='entry '+kind;e.textContent=msg;$('log').prepend(e)}
 
 function updatePlayerSetup(){
-  const ai=playMode.value==='human-ai';
-  aiSetup.style.display=ai?'inline':'none';
-  localSetup.style.display=ai?'none':'inline';
+  const ai=$('playMode').value==='human-ai';
+  $('aiSetup').style.display=ai?'inline':'none';
+  $('localSetup').style.display=ai?'none':'inline';
 }
+
 function startGame(){
-  const aiMode=playMode.value==='human-ai';
-  const n=aiMode ? 1+(+aiCount.value) : +playerCount.value;
-  const mode=gameMode.value;
-  state={mode,round:1,current:0,rolled:false,doubleCount:0,pendingBuy:false,gameOver:false,properties:{},players:[]};
-  for(let i=0;i<n;i++){
-    state.players.push({
-      name: aiMode ? (i===0?'Bạn':'AI '+i) : 'Người '+(i+1),
-      cash:1500,pos:0,jail:0,bankrupt:false,color:PLAYER_COLORS[i],laps:0,
-      ai: aiMode && i>0
-    });
-  }
-  setup.style.display='none';
-  document.getElementById('log').innerHTML='';
-  renderBoard();renderAll();log('🏙️ Ván Cờ Tỷ Phú Sài Gòn bắt đầu!');
+  const aiMode=$('playMode').value==='human-ai';
+  const n=aiMode?1+(+$('aiCount').value):+$('playerCount').value;
+  state={mode:$('gameMode').value,round:1,current:0,rolled:false,pendingBuy:false,pendingCard:null,modalOpen:false,gameOver:false,properties:{},players:[]};
+  for(let i=0;i<n;i++)state.players.push({
+    name:aiMode?(i===0?'Bạn':['AI - Linh','AI - Minh','AI - An'][i-1]):'Người '+(i+1),
+    cash:1500,pos:0,jail:0,bankrupt:false,color:PLAYER_COLORS[i],laps:0,ai:aiMode&&i>0
+  });
+  $('setup').style.display='none';$('log').innerHTML='';
+  renderBoard();renderAll();addLog('🏙️ Ván Cờ Tỷ Phú Sài Gòn bắt đầu!');
   maybeAiTurn();
 }
 
 function boardIndexStyle(i){
-  // positions 0..39 clockwise: bottom-right -> bottom-left -> top-left -> top-right -> bottom-right
-  if(i<=10) return {row:11,col:11-i};
-  if(i<=20) return {row:11-(i-10),col:1};
-  if(i<=30) return {row:1,col:i-20+1};
-  return {row:i-30+1,col:11};
+  if(i<=10)return{row:11,col:11-i};
+  if(i<=20)return{row:11-(i-10),col:1};
+  if(i<=30)return{row:1,col:i-20+1};
+  return{row:i-30+1,col:11};
 }
 
 function renderBoard(){
-  const b=document.getElementById('board');
-  b.querySelectorAll('.tile').forEach(x=>x.remove());
+  const b=$('board');b.querySelectorAll('.tile').forEach(x=>x.remove());
   for(let i=0;i<40;i++){
     const loc=LOCATIONS[i],st=boardIndexStyle(i),d=document.createElement('div');
-    d.className='tile'+([0,10,20,30].includes(i)?' corner':'');
+    const event=loc.type==='Cơ hội',chest=loc.type==='Khí vận';
+    d.className='tile'+([0,10,20,30].includes(i)?' corner':'')+(event?' event':'')+(chest?' chest':'');
     d.style.gridRow=st.row;d.style.gridColumn=st.col;d.dataset.i=i;
-    if(loc.setId) d.innerHTML+=`<div class="bar" style="background:${SET_COLORS[loc.setId]}"></div>`;
+    if(loc.setId)d.innerHTML+=`<div class="bar" style="background:${SET_COLORS[loc.setId]}"></div>`;
     d.innerHTML+=`<div class="name">${loc.name}</div>`;
     if(loc.cost)d.innerHTML+=`<div class="price">${money(loc.cost)}</div>`;
     d.innerHTML+=`<div class="houses"></div><div class="tokens"></div>`;
@@ -139,155 +388,134 @@ function renderAll(){
   state.players.forEach((p,idx)=>{
     if(p.bankrupt)return;
     const tile=document.querySelector(`.tile[data-i="${p.pos}"] .tokens`);
-    if(tile)tile.innerHTML+=`<span class="chibi-token ${idx===state.current?'active':''}" title="${p.name}"><img src="../assets/monopoly/chibi_${(idx%4)+1}.webp" alt="${p.name}"></span>`;
+    if(tile)tile.innerHTML+=`<span class="chibi-token ${idx===state.current?'active':''}"><img src="../assets/monopoly/chibi_${(idx%4)+1}.webp"></span>`;
   });
 
   Object.entries(state.properties).forEach(([pos,pr])=>{
-    const tile=document.querySelector(`.tile[data-i="${pos}"]`);
-    if(!tile)return;
-    const owner=state.players[pr.owner];
-    const dot=document.createElement('i');dot.className='owner';dot.style.background=owner.color;tile.appendChild(dot);
+    const tile=document.querySelector(`.tile[data-i="${pos}"]`);if(!tile)return;
+    const dot=document.createElement('i');dot.className='owner';dot.style.background=state.players[pr.owner].color;tile.appendChild(dot);
     if(pr.houses)tile.querySelector('.houses').textContent=pr.houses>=5?'🏨':'🏠'.repeat(pr.houses);
   });
 
-  players.innerHTML=state.players.map((p,i)=>`<div class="player ${i===state.current?'active':''} ${p.bankrupt?'bankrupt':''}" style="--pc:${p.color}"><img class="player-avatar" src="../assets/monopoly/chibi_${(i%4)+1}.webp"><b>${p.name}</b>${p.ai?'<span class="ai-badge">🤖 AI</span>':''} · $${p.cash} · Ô ${p.pos+1}${p.jail?' · 🔒 Nhà giam':''}</div>`).join('');
-  const p=current(),loc=locByPos(p.pos);
-  turn.textContent=state.gameOver?'Ván đã kết thúc':`Vòng ${state.round} · ${p.name}`;
-  const typeLabel={
-    START:'Khởi hành',PROPERTY:'Bất động sản',RAIL:'Bến / Ga',
-    UTILITY:'Tiện ích',TAX:'Thuế',CHANCE:'Cơ hội',CHEST:'Khí vận',
-    JAIL:'Nhà giam',FREE:'Nghỉ miễn phí',VISIT:'Thăm nhà giam'
-  }[loc.type]||loc.type;
-  property.innerHTML=`<b>${loc.name}</b><br>Loại ô: ${typeLabel}${loc.cost?` · Giá ${money(loc.cost)}`:''}${loc.rent?` · Thuê gốc ${money(loc.rent)}`:''}`;
-
-  rollBtn.disabled=state.gameOver||state.rolled||p.bankrupt||p.ai;
-  buyBtn.disabled=!state.pendingBuy||p.cash<loc.cost||p.ai;
-  buildBtn.disabled=!canBuild(p,loc)||p.ai;
-  endBtn.disabled=state.gameOver||!state.rolled||p.ai;
-}
-
-
-function aiPropertyScore(loc,pos){
-  let score=0;
-  if(loc.type==='PROPERTY'){
-    score += loc.rent*8 + loc.cost*.35;
-    // Strongly value completing or approaching a color set.
-    const set=LOCATIONS.map((x,i)=>x.setId===loc.setId?i:null).filter(x=>x!==null);
-    const mine=set.filter(i=>state.properties[i]&&state.properties[i].owner===state.current).length;
-    if(mine===set.length-1)score+=900;
-    else if(mine>0)score+=180*mine;
-  }else if(loc.type==='RAIL'){
-    const mine=Object.entries(state.properties).filter(([k,v])=>v.owner===state.current&&LOCATIONS[k].type==='RAIL').length;
-    score=260+mine*180;
-  }else if(loc.type==='UTILITY')score=150;
-  return score;
-}
-
-function aiShouldBuy(p,loc){
-  if(!loc.cost||p.cash<loc.cost)return false;
-  const reserve=Math.max(220,Math.min(500,loc.cost*.9));
-  const score=aiPropertyScore(loc,p.pos);
-  // AI may spend deeper when completing a monopoly.
-  return (p.cash-loc.cost>=reserve && score>=loc.cost*.65) || score>700;
-}
-
-function aiBuildBest(){
-  const p=current();
-  let choices=[];
-  Object.entries(state.properties).forEach(([k,pr])=>{
-    const pos=+k,loc=LOCATIONS[pos];
-    if(pr.owner!==state.current||loc.type!=='PROPERTY'||!ownsFullSet(state.current,loc.setId)||pr.houses>=5)return;
-    if(p.cash<loc.buildCost+250)return;
-    const nextRent=pr.houses>=4?loc.hotel:loc.house[pr.houses];
-    const oldRent=pr.houses===0?loc.rent:loc.house[pr.houses-1];
-    choices.push({pos,pr,loc,gain:(nextRent||0)-(oldRent||0)});
-  });
-  choices.sort((a,b)=>(b.gain/b.loc.buildCost)-(a.gain/a.loc.buildCost));
-  if(!choices.length)return false;
-  const x=choices[0];
-  p.cash-=x.loc.buildCost;x.pr.houses++;
-  log(`🤖 ${p.name} xây ${x.pr.houses===5?'khách sạn':'nhà'} tại ${x.loc.name}.`);
-  return true;
-}
-
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-
-function maybeAiTurn(){
-  if(!state||state.gameOver)return;
-  const p=current();
-  if(!p.ai)return;
-  renderAll();
-  setTimeout(aiTakeTurn,650);
-}
-
-async function aiTakeTurn(){
-  if(!state||state.gameOver||!current().ai)return;
-  await rollDice();
-  await sleep(480);
-  if(!state||state.gameOver||!current().ai)return;
+  $('players').innerHTML=state.players.map((p,i)=>`
+    <div class="player ${i===state.current?'active':''} ${p.bankrupt?'bankrupt':''}" style="--pc:${p.color}">
+      <img class="player-avatar" src="../assets/monopoly/chibi_${(i%4)+1}.webp">
+      <div><div class="player-name">${p.name} ${p.ai?'<span class="ai-badge">🤖 AI</span>':''}</div>
+      <div class="player-money">${money(p.cash)}</div>
+      <div class="player-meta">Tài sản: ${money(netWorth(p))} · Ô ${p.pos+1}${p.jail?' · 🔒':''}</div></div>
+    </div>`).join('');
 
   const p=current(),loc=locByPos(p.pos);
-  if(state.pendingBuy && aiShouldBuy(p,loc)) buyProperty();
+  $('turn').textContent=state.gameOver?'VÁN ĐÃ KẾT THÚC':(p.ai?`LƯỢT ${p.name}`:'LƯỢT CỦA BẠN');
+  $('gameInfo').innerHTML=`Vòng: <b>${state.round}</b>${state.mode==='turns'?' / 20':''}<br>Số người còn lại: ${state.players.filter(x=>!x.bankrupt).length}`;
+  $('property').innerHTML=`<b>${loc.name}</b><br>Loại: ${loc.type}${loc.cost?`<br>Giá: ${money(loc.cost)}`:''}${loc.rent?`<br>Thuê gốc: ${money(loc.rent)}`:''}`;
+  $('currentSymbol').textContent=loc.type==='Cơ hội'?'❓':loc.type==='Khí vận'?'🧰':loc.type==='Nhà giam'?'🔒':loc.type==='Thuế'?'💰':'🏢';
 
-  let builds=0;
-  while(builds<2 && aiBuildBest()){builds++;await sleep(180)}
-  renderAll();
-  await sleep(520);
-  endTurn();
+  const blocked=state.pendingCard||state.modalOpen;
+  $('rollBtn').disabled=state.gameOver||state.rolled||p.bankrupt||p.ai||blocked;
+  $('centerRoll').disabled=$('rollBtn').disabled;
+  $('buyBtn').disabled=!state.pendingBuy||p.cash<loc.cost||p.ai||blocked;
+  $('buildBtn').disabled=!canBuild(p,loc)||p.ai||blocked;
+  $('cardBtn').disabled=!state.pendingCard||p.ai;
+  $('endBtn').disabled=state.gameOver||!state.rolled||p.ai||blocked;
+
+  updateDeckUI();
+}
+
+function updateDeckUI(){
+  const pending=state?.pendingCard;
+  $('chanceDeck').className='deck red '+(pending==='Cơ hội'?'enabled':'disabled');
+  $('fortuneDeck').className='deck blue '+(pending==='Khí vận'?'enabled':'disabled');
+}
+
+function landingMessage(title,text){
+  $('landingTitle').textContent=title;$('landingText').textContent=text;
 }
 
 async function rollDice(){
-  if(!state||state.gameOver||state.rolled)return;
+  if(!state||state.gameOver||state.rolled||state.pendingCard||state.modalOpen)return;
   const p=current();
 
   if(p.jail>0){
     const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);
-    dice.textContent=`🎲 ${a} + 🎲 ${b}`;
-    if(a===b){p.jail=0;log(`${p.name} tung đôi và ra khỏi tù!`)}
-    else{
-      p.jail--;state.rolled=true;log(`${p.name} còn ${p.jail} lượt trong tù.`);
-      renderAll();return;
-    }
+    $('dice').textContent=`🎲 ${a} + 🎲 ${b}`;
+    $('centerDice').textContent=`${dieFace(a)} ${dieFace(b)}`;
+    if(a===b){p.jail=0;addLog(`${p.name} tung đôi và ra khỏi nhà giam!`)}
+    else{p.jail--;state.rolled=true;addLog(`${p.name} còn ${p.jail} lượt trong nhà giam.`);renderAll();return}
   }
 
   const d1=1+Math.floor(Math.random()*6),d2=1+Math.floor(Math.random()*6),sum=d1+d2;
-  dice.textContent=`🎲 ${d1} + 🎲 ${d2} = ${sum}`;
+  $('dice').textContent=`🎲 ${d1} + 🎲 ${d2} = ${sum}`;$('centerDice').textContent=`${dieFace(d1)} ${dieFace(d2)}`;
   state.rolled=true;renderAll();
 
-  // Chibi đi từng ô đúng bằng số xúc xắc.
   for(let step=0;step<sum;step++){
     p.pos=(p.pos+1)%40;
-    if(p.pos===0){
-      p.cash+=200;p.laps++;
-      log(`${p.name} qua KHỞI HÀNH và nhận $200.`);
-    }
-    renderAll();
-    await sleep(185);
+    if(p.pos===0){p.cash+=200;p.laps++;addLog(`${p.name}: qua KHỞI HÀNH +$200`,'amount-plus')}
+    renderAll();await sleep(190);
   }
 
-  log(`${p.name} dừng tại ${locByPos(p.pos).name}.`);
+  const loc=locByPos(p.pos);landingMessage(`Bạn đã dừng ở ${loc.name}`,loc.type==='Cơ hội'||loc.type==='Khí vận'?'Hãy nhấn vào bộ thẻ tương ứng để xem nội dung.':'Xử lý ô hiện tại.');
   resolveLanding();
 }
+
+function dieFace(n){return['','⚀','⚁','⚂','⚃','⚄','⚅'][n]}
 
 function resolveLanding(){
   const p=current(),loc=locByPos(p.pos);state.pendingBuy=false;
   const owned=state.properties[p.pos];
 
-  if(loc.type==='Đất'||loc.type==='Bến/Ga'||loc.type==='Tiện ích'){
-    if(!owned){state.pendingBuy=true;log(`${loc.name} chưa có chủ. Có thể mua với ${loc.cost}.`)}
+  if(['Đất','Bến/Ga','Tiện ích'].includes(loc.type)){
+    if(!owned){state.pendingBuy=true;addLog(`${loc.name} chưa có chủ · Giá ${money(loc.cost)}`)}
     else if(owned.owner!==state.current){
-      let rent=calcRent(p.pos,owned);
-      payTo(state.current,owned.owner,rent);
-      log(`${p.name} trả ${rent} tiền thuê cho ${state.players[owned.owner].name}.`);
+      const rent=calcRent(p.pos,owned);payTo(state.current,owned.owner,rent);
+      addLog(`${p.name}: trả ${money(rent)} tiền thuê cho ${state.players[owned.owner].name}`,'amount-minus');
     }
-  } else if(loc.type==='Thuế'){
-    const amt=loc.rent||100;p.cash-=amt;log(`${p.name} nộp thuế ${amt}.`);
-  } else if(loc.type==='Cơ hội'||loc.type==='Khí vận'){
-    drawCard(loc.type);
-  } else if(loc.type==='Nhà giam'){
-    p.pos=10;p.jail=3;log(`${p.name} bị đưa vào tù trong tối đa 3 lượt.`);
+  }else if(loc.type==='Thuế'){
+    const amt=loc.rent||100;p.cash-=amt;addLog(`${p.name}: nộp thuế ${money(amt)}`,'amount-minus');
+  }else if(loc.type==='Cơ hội'||loc.type==='Khí vận'){
+    state.pendingCard=loc.type;
+    landingMessage(`Bạn đã dừng ở ô ${loc.type.toUpperCase()}`,p.ai?'AI đang rút thẻ…':'Nhấn vào thẻ phía dưới để lật nội dung.');
+  }else if(loc.type==='Nhà giam'){
+    p.pos=10;p.jail=3;addLog(`${p.name}: vào Nhà giam`);
   }
+
   checkBankruptcy(p);checkWin();renderAll();
+
+  if(p.ai&&state.pendingCard)setTimeout(()=>chooseEventCard(state.pendingCard,true),500);
+}
+
+function openPendingDeck(){
+  if(state?.pendingCard)chooseEventCard(state.pendingCard,false);
+}
+
+function chooseEventCard(type,auto=false){
+  if(!state||state.pendingCard!==type)return;
+  const p=current(),deck=type==='Cơ hội'?CHANCE_CARDS:FORTUNE_CARDS;
+  const card=deck[Math.floor(Math.random()*deck.length)];
+  card.effect(p);state.pendingCard=null;
+
+  addLog(`${type.toUpperCase()}: ${card.title} — ${card.text}`);
+  checkBankruptcy(p);checkWin();
+
+  if(auto){
+    landingMessage(`${type}: ${card.title}`,card.text);
+    renderAll();
+    setTimeout(()=>{if(current()?.ai&&!state.gameOver)endTurn()},750);
+    return;
+  }
+
+  state.modalOpen=true;
+  $('eventHead').textContent=type.toUpperCase();
+  $('eventHead').className='event-head '+(type==='Cơ hội'?'chance':'fortune');
+  $('eventIcon').textContent=card.icon;$('eventTitle').textContent=card.title;$('eventText').textContent=card.text;
+  $('eventModal').classList.add('show');renderAll();
+}
+
+function closeEventModal(){
+  $('eventModal').classList.remove('show');
+  if(!state)return;state.modalOpen=false;
+  landingMessage('Đã xử lý thẻ','Bạn có thể mua đất, xây nhà hoặc kết thúc lượt.');
+  renderAll();
 }
 
 function calcRent(pos,pr){
@@ -308,8 +536,8 @@ function calcRent(pos,pr){
 function buyProperty(){
   const p=current(),loc=locByPos(p.pos);
   if(!state.pendingBuy||p.cash<loc.cost)return;
-  p.cash-=loc.cost;state.properties[p.pos]={owner:state.current,houses:0};
-  state.pendingBuy=false;log(`${p.name} mua ${loc.name} với ${loc.cost}.`);renderAll();
+  p.cash-=loc.cost;state.properties[p.pos]={owner:state.current,houses:0};state.pendingBuy=false;
+  addLog(`${p.name}: mua ${loc.name} ${money(loc.cost)}`);renderAll();
 }
 
 function ownsFullSet(owner,setId){
@@ -325,66 +553,82 @@ function canBuild(p,loc){
 }
 
 function buildHouse(){
-  const p=current(),loc=locByPos(p.pos),pr=state.properties[p.pos];
-  if(!canBuild(p,loc))return;
-  p.cash-=loc.buildCost;pr.houses++;
-  log(`${p.name} xây ${pr.houses===5?'khách sạn':'nhà'} tại ${loc.name}.`);
-  renderAll();
+  const p=current(),loc=locByPos(p.pos),pr=state.properties[p.pos];if(!canBuild(p,loc))return;
+  p.cash-=loc.buildCost;pr.houses++;addLog(`${p.name}: xây ${pr.houses===5?'khách sạn':'nhà'} tại ${loc.name}`);renderAll();
 }
 
-function drawCard(type){
-  const p=current();
-  const cards=[
-    {t:'Nhận $100',fn:()=>p.cash+=100},
-    {t:'Trả $50',fn:()=>p.cash-=50},
-    {t:'Nhận $200',fn:()=>p.cash+=200},
-    {t:'Về KHỞI HÀNH, nhận $200',fn:()=>{p.pos=0;p.cash+=200}},
-    {t:'Đi tù',fn:()=>{p.pos=10;p.jail=3}},
-    {t:'Trả $100',fn:()=>p.cash-=100},
-    {t:'Nhận $50',fn:()=>p.cash+=50},
-  ];
-  const c=cards[Math.floor(Math.random()*cards.length)];c.fn();log(`${type==='Khí vận'?'KHÍ VẬN':'CƠ HỘI'}: ${c.t}.`);
+function aiPropertyScore(loc){
+  let score=0;
+  if(loc.type==='Đất'){
+    score=loc.rent*8+loc.cost*.35;
+    const set=LOCATIONS.map((x,i)=>x.setId===loc.setId?i:null).filter(x=>x!==null);
+    const mine=set.filter(i=>state.properties[i]&&state.properties[i].owner===state.current).length;
+    if(mine===set.length-1)score+=900;else if(mine>0)score+=180*mine;
+  }else if(loc.type==='Bến/Ga')score=260;
+  else if(loc.type==='Tiện ích')score=150;
+  return score;
+}
+function aiShouldBuy(p,loc){
+  if(!loc.cost||p.cash<loc.cost)return false;
+  const reserve=Math.max(220,Math.min(500,loc.cost*.9)),score=aiPropertyScore(loc);
+  return(p.cash-loc.cost>=reserve&&score>=loc.cost*.65)||score>700;
+}
+function aiBuildBest(){
+  const p=current(),choices=[];
+  Object.entries(state.properties).forEach(([k,pr])=>{
+    const loc=LOCATIONS[+k];
+    if(pr.owner!==state.current||loc.type!=='Đất'||!ownsFullSet(state.current,loc.setId)||pr.houses>=5||p.cash<loc.buildCost+250)return;
+    const next=pr.houses>=4?loc.hotel:loc.house[pr.houses],old=pr.houses===0?loc.rent:loc.house[pr.houses-1];
+    choices.push({pr,loc,gain:(next||0)-(old||0)});
+  });
+  choices.sort((a,b)=>(b.gain/b.loc.buildCost)-(a.gain/a.loc.buildCost));
+  if(!choices.length)return false;
+  const x=choices[0];p.cash-=x.loc.buildCost;x.pr.houses++;addLog(`🤖 ${p.name}: xây nhà tại ${x.loc.name}`);return true;
 }
 
-function payTo(from,to,amt){
-  const a=state.players[from],b=state.players[to];
-  a.cash-=amt;b.cash+=amt;checkBankruptcy(a);
+function maybeAiTurn(){
+  if(!state||state.gameOver||!current().ai)return;renderAll();setTimeout(aiTakeTurn,650);
+}
+async function aiTakeTurn(){
+  if(!state||state.gameOver||!current().ai)return;
+  await rollDice();await sleep(450);
+  if(state.pendingCard)return; // resolveLanding schedules card and end turn.
+  if(!state||state.gameOver||!current().ai)return;
+  const p=current(),loc=locByPos(p.pos);
+  if(state.pendingBuy&&aiShouldBuy(p,loc))buyProperty();
+  let builds=0;while(builds<2&&aiBuildBest()){builds++;await sleep(160)}
+  renderAll();await sleep(500);endTurn();
 }
 
+function payTo(from,to,amt){const a=state.players[from],b=state.players[to];a.cash-=amt;b.cash+=amt;checkBankruptcy(a)}
 function checkBankruptcy(p){
-  if(p.cash>=-500||p.bankrupt)return;
-  p.bankrupt=true;log(`💥 ${p.name} phá sản!`);
-  Object.keys(state.properties).forEach(k=>{if(state.properties[k].owner===state.players.indexOf(p))delete state.properties[k]});
+  if(p.cash>=-500||p.bankrupt)return;p.bankrupt=true;addLog(`💥 ${p.name} phá sản!`);
+  const idx=state.players.indexOf(p);Object.keys(state.properties).forEach(k=>{if(state.properties[k].owner===idx)delete state.properties[k]});
 }
-
 function endTurn(){
-  if(!state||state.gameOver||!state.rolled)return;
+  if(!state||state.gameOver||!state.rolled||state.pendingCard||state.modalOpen)return;
   state.rolled=false;state.pendingBuy=false;
   let next=state.current,loops=0;
   do{next=(next+1)%state.players.length;if(next===0)state.round++;loops++}while(state.players[next].bankrupt&&loops<=state.players.length);
-  state.current=next;dice.textContent='🎲 🎲';checkWin();renderAll();maybeAiTurn();
+  state.current=next;$('dice').textContent='🎲 + 🎲';$('centerDice').textContent='⚄ ⚀';
+  landingMessage('🎲 Lượt mới','Đổ xúc xắc để tiếp tục.');checkWin();renderAll();maybeAiTurn();
 }
-
 function checkWin(){
   const active=state.players.filter(p=>!p.bankrupt);
-  if(state.mode==='endless'&&active.length===1)finish(`${active[0].name} là người sống sót cuối cùng!`);
-  if(state.mode==='turns'&&state.round>30){
-    const w=[...active].sort((a,b)=>netWorth(b)-netWorth(a))[0];finish(`Hết 30 vòng. ${w.name} thắng với tài sản ${money(netWorth(w))}.`);
-  }
-  if(state.mode==='networth'){
-    const w=active.find(p=>netWorth(p)>=5000);if(w)finish(`${w.name} đạt tài sản $5000 và chiến thắng!`);
-  }
+  if(state.mode==='endless'&&active.length===1)finish(`${active[0].name} chiến thắng!`);
+  if(state.mode==='turns'&&state.round>20){const w=[...active].sort((a,b)=>netWorth(b)-netWorth(a))[0];finish(`${w.name} thắng với ${money(netWorth(w))}`)}
+  if(state.mode==='networth'){const w=active.find(p=>netWorth(p)>=5000);if(w)finish(`${w.name} đạt $5000 và chiến thắng!`)}
 }
-
 function netWorth(p){
+  if(!state)return p?.cash||0;
   let v=p.cash,idx=state.players.indexOf(p);
   Object.entries(state.properties).forEach(([k,pr])=>{if(pr.owner===idx){const l=LOCATIONS[k];v+=l.cost+(pr.houses||0)*l.buildCost}});
   return v;
 }
-
-function finish(msg){state.gameOver=true;log('🏆 '+msg);turn.textContent='🏆 '+msg}
+function finish(msg){state.gameOver=true;addLog('🏆 '+msg);$('turn').textContent='🏆 '+msg;renderAll()}
 
 renderBoard();
+landingMessage('🎲 Sẵn sàng','Chọn chế độ và bắt đầu ván.');
 </script>
 </body>
 </html>
