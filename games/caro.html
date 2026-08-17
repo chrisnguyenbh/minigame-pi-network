@@ -58,7 +58,7 @@ const AI_CFG={
   easy:   {label:'Dễ',depth:1,time:120,width:6,random:0.45},
   normal: {label:'Trung bình',depth:3,time:500,width:8,random:0.08},
   hard:   {label:'Khó',depth:4,time:1200,width:10,random:0},
-  expert: {label:'Cao thủ',depth:5,time:2400,width:12,random:0}
+  expert: {label:'Cao thủ',depth:7,time:4800,width:14,random:0}
 };
 const boardEl=document.getElementById('board'), statusEl=document.getElementById('status');
 
@@ -91,7 +91,7 @@ function updateAiInfo(){
     return;
   }
   const c=AI_CFG[aiLevel];
-  el.textContent=`AI ${c.label}: tìm sâu ${c.depth} ply · tối đa ${(c.time/1000).toFixed(c.time>=1000?1:2)} giây · ${c.random?'có sai số chiến thuật':'không đi ngẫu nhiên'}.`;
+  el.textContent=`AI ${c.label}: depth tối đa ${c.depth} · ${(c.time/1000).toFixed(1)} giây · ${aiLevel==='expert'?'Threat-Space + Alpha-Beta + bộ nhớ thế cờ':(c.random?'có sai số chiến thuật':'Alpha-Beta')}.`;
 }
 function resetGame(){
   board=emptyBoard();currentPlayer='X';gameOver=false;aiThinking=false;lastMove=null;
@@ -183,31 +183,56 @@ function immediateWinningMove(player){
   return null;
 }
 
-function patternValue(r,c,p){
-  let total=0, threats=0;
+function dirInfo(r,c,dr,dc,p){
+  let a=0,b=0;
+  let rr=r+dr,cc=c+dc;
+  while(rr>=0&&rr<N&&cc>=0&&cc<N&&board[rr][cc]===p){a++;rr+=dr;cc+=dc}
+  const open1=rr>=0&&rr<N&&cc>=0&&cc<N&&!board[rr][cc];
+  rr=r-dr;cc=c-dc;
+  while(rr>=0&&rr<N&&cc>=0&&cc<N&&board[rr][cc]===p){b++;rr-=dr;cc-=dc}
+  const open2=rr>=0&&rr<N&&cc>=0&&cc<N&&!board[rr][cc];
+  return {len:1+a+b,open:(open1?1:0)+(open2?1:0)};
+}
+
+function classifyMove(r,c,p){
+  // board[r][c] is assumed already set to p
+  let open4=0,four=0,open3=0,three=0,two=0;
   for(const [dr,dc] of [[1,0],[0,1],[1,1],[1,-1]]){
-    let a=countDir(r,c,dr,dc,p), b=countDir(r,c,-dr,-dc,p), n=1+a+b;
-    let r1=r+(a+1)*dr,c1=c+(a+1)*dc,r2=r-(b+1)*dr,c2=c-(b+1)*dc;
-    let open=(r1>=0&&r1<N&&c1>=0&&c1<N&&!board[r1][c1]?1:0)+(r2>=0&&r2<N&&c2>=0&&c2<N&&!board[r2][c2]?1:0);
-    if(n>=5){total+=100000000;threats+=4}
-    else if(n===4&&open===2){total+=12000000;threats+=3}
-    else if(n===4&&open===1){total+=1500000;threats+=2}
-    else if(n===3&&open===2){total+=300000;threats+=1}
-    else if(n===3&&open===1)total+=25000;
-    else if(n===2&&open===2)total+=4500;
-    else if(n===2&&open===1)total+=500;
-    else total+=n*12;
+    const x=dirInfo(r,c,dr,dc,p);
+    if(x.len>=5)return {win:true,open4:9,four:9,open3:9,score:1e12};
+    if(x.len===4&&x.open===2)open4++;
+    else if(x.len===4&&x.open===1)four++;
+    else if(x.len===3&&x.open===2)open3++;
+    else if(x.len===3&&x.open===1)three++;
+    else if(x.len===2&&x.open===2)two++;
   }
-  if(threats>=2)total+=2500000; // double threat
-  return total;
+  let score =
+    open4*2.0e9 +
+    four*2.5e8 +
+    open3*1.5e7 +
+    three*7.0e5 +
+    two*2.5e4;
+  // Compound threats are the heart of strong Gomoku.
+  if(open4>=1&&four>=1)score+=4e9;
+  if(four>=2)score+=3.5e9;
+  if(open3>=2)score+=8e8;        // double-three
+  if(open3>=1&&four>=1)score+=1.6e9; // three-four
+  return {win:false,open4,four,open3,three,two,score};
+}
+
+function tacticalScore(m,p){
+  board[m.r][m.c]=p;
+  const c=classifyMove(m.r,m.c,p);
+  board[m.r][m.c]=null;
+  return c;
 }
 
 function moveScore(m,p){
   const q=p==='O'?'X':'O';
-  board[m.r][m.c]=p; const attack=patternValue(m.r,m.c,p); board[m.r][m.c]=null;
-  board[m.r][m.c]=q; const defend=patternValue(m.r,m.c,q); board[m.r][m.c]=null;
+  const a=tacticalScore(m,p), d=tacticalScore(m,q);
   const mid=(N-1)/2;
-  return attack*1.20+defend*1.38-(Math.abs(m.r-mid)+Math.abs(m.c-mid))*2;
+  const center=80-(Math.abs(m.r-mid)+Math.abs(m.c-mid))*4;
+  return a.score*1.10+d.score*1.32+center;
 }
 
 function orderedMoves(player,limit){
@@ -218,17 +243,99 @@ function orderedMoves(player,limit){
     .map(x=>x.m);
 }
 
-function boardEval(){
-  let ao=0,ax=0;
-  const moves=candidateCells();
-  for(const m of moves){
-    board[m.r][m.c]='O';ao=Math.max(ao,patternValue(m.r,m.c,'O'));board[m.r][m.c]=null;
-    board[m.r][m.c]='X';ax=Math.max(ax,patternValue(m.r,m.c,'X'));board[m.r][m.c]=null;
+function winningThreatMoves(player){
+  const result=[];
+  for(const m of candidateCells()){
+    board[m.r][m.c]=player;
+    const c=classifyMove(m.r,m.c,player);
+    board[m.r][m.c]=null;
+    if(c.win||c.open4||c.four>=2||(c.four&&c.open3)||c.open3>=2) result.push({m,c});
   }
-  return ao-ax*1.22;
+  return result.sort((a,b)=>b.c.score-a.c.score);
 }
 
-let SEARCH_DEADLINE=0, SEARCH_ABORT=false, SEARCH_WIDTH=8;
+function forcingMoves(player,limit=10){
+  const out=[];
+  for(const m of candidateCells()){
+    board[m.r][m.c]=player;
+    const c=classifyMove(m.r,m.c,player);
+    board[m.r][m.c]=null;
+    if(c.win||c.open4||c.four||c.open3>=2||(c.open3&&c.three)) out.push({m,c});
+  }
+  return out.sort((a,b)=>b.c.score-a.c.score).slice(0,limit).map(x=>x.m);
+}
+
+function hasImmediateWin(player){
+  return immediateWinningMove(player)!==null;
+}
+
+// Threat-space search: asks whether attacker can force a win through forcing moves.
+// Defender is allowed to choose the strongest defensive replies.
+function threatSearch(attacker,depth,deadline){
+  if(Date.now()>deadline)return null;
+  const defender=attacker==='O'?'X':'O';
+
+  const iw=immediateWinningMove(attacker);
+  if(iw)return {win:true,move:iw};
+  if(depth<=0)return {win:false,move:null};
+
+  const threats=forcingMoves(attacker,9);
+  for(const m of threats){
+    if(Date.now()>deadline)break;
+    board[m.r][m.c]=attacker;
+    if(checkWin(m.r,m.c,attacker)){board[m.r][m.c]=null;return {win:true,move:m}}
+
+    // Defender first gets direct win; then must address attacker's immediate threats.
+    const defWin=immediateWinningMove(defender);
+    if(defWin){board[m.r][m.c]=null;continue;}
+
+    let defenses=[];
+    const attackerWin=immediateWinningMove(attacker);
+    if(attackerWin){
+      defenses=[attackerWin]; // occupy the winning square
+    }else{
+      // strongest defender tactical moves, including counter-threats
+      defenses=orderedMoves(defender,6);
+    }
+
+    let allLose=true;
+    for(const d of defenses){
+      if(board[d.r][d.c])continue;
+      board[d.r][d.c]=defender;
+      const r=threatSearch(attacker,depth-1,deadline);
+      board[d.r][d.c]=null;
+      if(!r||!r.win){allLose=false;break;}
+    }
+    board[m.r][m.c]=null;
+    if(allLose)return {win:true,move:m};
+  }
+  return {win:false,move:null};
+}
+
+function boardEval(){
+  const cand=candidateCells();
+  let bestO=0,bestX=0,secondO=0,secondX=0;
+  for(const m of cand){
+    const o=tacticalScore(m,'O').score;
+    const x=tacticalScore(m,'X').score;
+    if(o>bestO){secondO=bestO;bestO=o}else if(o>secondO)secondO=o;
+    if(x>bestX){secondX=bestX;bestX=x}else if(x>secondX)secondX=x;
+  }
+  return bestO+secondO*.22-(bestX+secondX*.28)*1.14;
+}
+
+let SEARCH_DEADLINE=0, SEARCH_ABORT=false, SEARCH_WIDTH=10;
+const TT=new Map();
+
+function boardKey(player,depth){
+  // Compact enough for a browser-side transposition table.
+  let str=player+depth+':';
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const v=board[r][c];
+    if(v)str+=r.toString(36)+c.toString(36)+v;
+  }
+  return str;
+}
 function timeUp(){
   if(Date.now()>SEARCH_DEADLINE){SEARCH_ABORT=true;return true}
   return false;
@@ -237,53 +344,51 @@ function timeUp(){
 function alphabeta(depth,alpha,beta,maximizing,lastMove,lastPlayer){
   if(timeUp())return 0;
   if(lastMove&&checkWin(lastMove.r,lastMove.c,lastPlayer))
-    return lastPlayer==='O'?1000000000+depth:-1000000000-depth;
+    return lastPlayer==='O'?1e13+depth:-1e13-depth;
   if(depth===0)return boardEval();
 
   const player=maximizing?'O':'X';
-  const width=Math.max(5,SEARCH_WIDTH-(depth<=1?2:0));
-  const moves=orderedMoves(player,width);
+  const key=depth>=2?boardKey(player,depth):null;
+  if(key&&TT.has(key))return TT.get(key);
+
+  let moves=orderedMoves(player,SEARCH_WIDTH);
   if(!moves.length)return 0;
 
+  let value=maximizing?-Infinity:Infinity;
   if(maximizing){
-    let value=-Infinity;
     for(const m of moves){
       board[m.r][m.c]='O';
       const v=alphabeta(depth-1,alpha,beta,false,m,'O');
       board[m.r][m.c]=null;
       if(SEARCH_ABORT)return value===-Infinity?0:value;
-      value=Math.max(value,v);alpha=Math.max(alpha,value);
+      value=Math.max(value,v); alpha=Math.max(alpha,value);
       if(alpha>=beta)break;
     }
-    return value;
   }else{
-    let value=Infinity;
     for(const m of moves){
       board[m.r][m.c]='X';
       const v=alphabeta(depth-1,alpha,beta,true,m,'X');
       board[m.r][m.c]=null;
       if(SEARCH_ABORT)return value===Infinity?0:value;
-      value=Math.min(value,v);beta=Math.min(beta,value);
+      value=Math.min(value,v); beta=Math.min(beta,value);
       if(alpha>=beta)break;
     }
-    return value;
   }
+  if(key&&TT.size<50000)TT.set(key,value);
+  return value;
 }
 
 function searchBestMove(cfg){
-  const roots=orderedMoves('O',Math.max(6,cfg.width));
+  const roots=orderedMoves('O',cfg.width);
   if(!roots.length)return null;
   let completedBest=roots[0];
-
   SEARCH_DEADLINE=Date.now()+cfg.time;
   SEARCH_WIDTH=cfg.width;
+  TT.clear();
 
-  // Iterative deepening means Hard/Expert actually finish shallower searches
-  // first, then deepen while time remains.
   for(let depth=2;depth<=cfg.depth;depth++){
     SEARCH_ABORT=false;
-    let roundBest=completedBest, roundValue=-Infinity;
-
+    let roundBest=completedBest,roundValue=-Infinity;
     for(const m of roots){
       if(timeUp())break;
       board[m.r][m.c]='O';
@@ -307,16 +412,18 @@ function minimax3(isMax,depth){
   if(e==='O')return 10-depth;if(e==='X')return depth-10;if(e==='D')return 0;
   let best=isMax?-Infinity:Infinity,p=isMax?'O':'X';
   for(const m of candidateCells()){
-    board[m.r][m.c]=p;let v=minimax3(!isMax,depth+1);board[m.r][m.c]=null;
+    board[m.r][m.c]=p;const v=minimax3(!isMax,depth+1);board[m.r][m.c]=null;
     best=isMax?Math.max(best,v):Math.min(best,v);
-  }return best;
+  }
+  return best;
 }
 function best3x3Move(){
   let best=null,v=-Infinity;
   for(const m of candidateCells()){
-    board[m.r][m.c]='O';let x=minimax3(false,0);board[m.r][m.c]=null;
+    board[m.r][m.c]='O';const x=minimax3(false,0);board[m.r][m.c]=null;
     if(x>v){v=x;best=m}
-  }return best;
+  }
+  return best;
 }
 
 function aiMove(){
@@ -327,29 +434,34 @@ function aiMove(){
 
   const cfg=AI_CFG[aiLevel];
 
-  // Tactical necessities are enforced at EVERY level.
+  // 1) Mandatory tactical moves.
   let best=immediateWinningMove('O');
   if(!best)best=immediateWinningMove('X');
 
-  if(!best && aiLevel==='easy'){
+  // 2) Cao thủ tries to find a forced tactical win before normal search.
+  if(!best&&aiLevel==='expert'){
+    const tacticalDeadline=Date.now()+Math.min(1800,cfg.time*.42);
+    const ts=threatSearch('O',5,tacticalDeadline);
+    if(ts&&ts.win)best=ts.move;
+
+    // If opponent has a forcing sequence, occupy its strongest threat square.
+    if(!best){
+      const oppThreats=winningThreatMoves('X');
+      if(oppThreats.length)best=oppThreats[0].m;
+    }
+  }
+
+  // 3) Easy stays deliberately imperfect.
+  if(!best&&aiLevel==='easy'){
     const cand=orderedMoves('O',Math.min(8,cfg.width));
     if(cand.length){
       best=Math.random()<cfg.random
-        ? cand[Math.floor(Math.random()*Math.min(4,cand.length))]
-        : cand[0];
+        ?cand[Math.floor(Math.random()*Math.min(4,cand.length))]
+        :cand[0];
     }
   }
 
-  if(!best && aiLevel==='normal'){
-    // One tactical look-ahead before the real search.
-    let danger=null,dv=-Infinity;
-    for(const m of candidateCells()){
-      board[m.r][m.c]='X';const v=patternValue(m.r,m.c,'X');board[m.r][m.c]=null;
-      if(v>dv){dv=v;danger=m}
-    }
-    if(dv>=1500000)best=danger;
-  }
-
+  // 4) All serious levels use iterative deepening alpha-beta.
   if(!best)best=searchBestMove(cfg);
 
   aiThinking=false;
