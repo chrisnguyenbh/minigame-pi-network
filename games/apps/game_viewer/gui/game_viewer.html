@@ -170,7 +170,10 @@ button.active{color:#fff;background:linear-gradient(180deg,#c82e34,#a8191f);box-
         <div class="puzzle-grid">
           <button onclick="changePuzzle(-1)">← Thế trước</button>
           <button onclick="changePuzzle(1)">Thế tiếp →</button>
+          <button onclick="undoPuzzle()">↶ Đi lại</button>
+          <button onclick="showPuzzleHint()">💡 Gợi ý</button>
         </div>
+        <div class="puzzle-desc" id="puzzleProgress"></div>
       </div>
 
       <div class="help hidden" id="hiddenHelp">

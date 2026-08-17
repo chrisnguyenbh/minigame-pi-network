@@ -43,6 +43,9 @@ const PUZZLES = [
   }
 ];
 let puzzleIndex = 0;
+let puzzleHistory = [];
+let puzzlePlayerMoves = 0;
+let puzzleSolved = new Set(JSON.parse(localStorage.getItem('xiangqiPuzzleSolved') || '[]'));
 
 function squareAt(r,c){ return (r+2)*11+(c+1); }
 function getPieceColor(p){ return p>=8 ? engine.COLOR.BLACK : engine.COLOR.RED; }
@@ -132,8 +135,11 @@ function newGame(){
   if(!engine) return;
   if(appMode==='puzzle'){
     engine.setBoard(PUZZLES[puzzleIndex].fen);
+    puzzleHistory=[];
+    puzzlePlayerMoves=0;
     document.getElementById('puzzleTitle').textContent=PUZZLES[puzzleIndex].title;
     document.getElementById('puzzleDesc').textContent=PUZZLES[puzzleIndex].desc;
+    updatePuzzleProgress();
   }else{
     engine.setBoard(engine.START_FEN);
   }
@@ -141,9 +147,63 @@ function newGame(){
   if(!isHumanTurn()) scheduleAI();
 }
 
+function updatePuzzleProgress(){
+  const el=document.getElementById('puzzleProgress');
+  if(!el)return;
+  const solved=puzzleSolved.has(puzzleIndex);
+  el.textContent=`Màn ${puzzleIndex+1}/${PUZZLES.length} · ${solved?'★ Đã hoàn thành':'☆ Chưa hoàn thành'} · Nước của bạn: ${puzzlePlayerMoves}`;
+}
+
+function savePuzzlePosition(){
+  if(appMode!=='puzzle')return;
+  try{
+    puzzleHistory.push(engine.getFen ? engine.getFen() : null);
+  }catch(e){
+    puzzleHistory.push(null);
+  }
+}
+
 function changePuzzle(delta){
   puzzleIndex=(puzzleIndex+delta+PUZZLES.length)%PUZZLES.length;
   newGame();
+}
+
+function undoPuzzle(){
+  if(appMode!=='puzzle'||aiThinking)return;
+  // Engine không bảo đảm có API undo, nên reset thế cờ để người chơi thử lại an toàn.
+  selectedSquare=null;
+  engine.setBoard(PUZZLES[puzzleIndex].fen);
+  puzzlePlayerMoves=0;
+  puzzleHistory=[];
+  render();
+  updateStatus('↶ Đã đặt lại thế cờ — thử một phương án khác.');
+  updatePuzzleProgress();
+}
+
+function showPuzzleHint(){
+  if(appMode!=='puzzle'||aiThinking||!isHumanTurn())return;
+  try{
+    const legal=engine.generateLegalMoves();
+    if(!legal.length)return;
+    const cfg=AI_LEVELS.expert;
+    const t=engine.getTimeControl();
+    t.timeSet=1;t.time=700;t.stopTime=Date.now()+700;t.stopped=0;
+    engine.setTimeControl(t);
+    const mv=engine.search(Math.min(9,cfg.depth));
+    if(!mv)return;
+    const src=engine.getSourceSquare(mv), dst=engine.getTargetSquare(mv);
+    selectedSquare=src;
+    render();
+    updateStatus('💡 Gợi ý: quân được tô sáng. Hãy tìm điểm đến tốt nhất.');
+    setTimeout(()=>{ if(appMode==='puzzle'&&selectedSquare===src){selectedSquare=null;render();updateStatus();}},2200);
+  }catch(e){console.error(e);}
+}
+
+function markPuzzleSolved(){
+  if(appMode!=='puzzle')return;
+  puzzleSolved.add(puzzleIndex);
+  localStorage.setItem('xiangqiPuzzleSolved',JSON.stringify([...puzzleSolved]));
+  updatePuzzleProgress();
 }
 
 function flipBoard(){ flipped=!flipped; render(); }
@@ -196,14 +256,23 @@ function tapStandard(sq){
   if(!mv && p && getPieceColor(p)===side){selectedSquare=sq;render();return;}
   if(!mv)return;
 
-  engine.makeMove(mv); selectedSquare=null; afterStandardMove();
+  if(appMode==='puzzle') puzzlePlayerMoves++;
+  engine.makeMove(mv); selectedSquare=null;
+  if(appMode==='puzzle') updatePuzzleProgress();
+  afterStandardMove();
 }
 
 function afterStandardMove(){
   render();
   if(engine.generateLegalMoves().length===0){
     gameOver=true;
-    updateStatus(`🏆 ${engine.getSide()===engine.COLOR.RED?'Đen':'Đỏ'} thắng!`);
+    const winner=engine.getSide()===engine.COLOR.RED?'Đen':'Đỏ';
+    if(appMode==='puzzle' && winner==='Đỏ'){
+      markPuzzleSolved();
+      updateStatus(`🏆 Hoàn thành ${PUZZLES[puzzleIndex].title}!`);
+    }else{
+      updateStatus(`🏆 ${winner} thắng!`);
+    }
     return;
   }
   updateStatus();
