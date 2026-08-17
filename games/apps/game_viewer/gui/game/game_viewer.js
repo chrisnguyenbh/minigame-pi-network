@@ -28,12 +28,24 @@ function render(){
  const g=document.getElementById('boardGrid');g.innerHTML='';
  for(let vr=0;vr<10;vr++)for(let vc=0;vc<9;vc++){
   const r=flipped?9-vr:vr,c=flipped?8-vc:vc,sq=squareAt(r,c);
-  const d=document.createElement('div');d.className='sq';d.dataset.square=sq;
+  const d=document.createElement('div');
+  d.className='sq';
+  d.dataset.square=sq;
+  d.style.left=(vc*100/8)+'%';
+  d.style.top=(vr*100/9)+'%';
   if(selectedSquare===sq)d.classList.add('selected');
   if(selectedSquare!==null&&isLegal(selectedSquare,sq))d.classList.add('legal');
   const p=engine.getPiece(sq);
-  if(p){const img=document.createElement('img');img.className='piece';img.src=`game/images/traditional_pieces/${p}.png`;img.alt='quân cờ';img.draggable=false;d.appendChild(img)}
-  d.onclick=()=>tap(sq);g.appendChild(d);
+  if(p){
+    const img=document.createElement('img');
+    img.className='piece';
+    img.src=`game/images/traditional_pieces/${p}.png`;
+    img.alt='quân cờ';
+    img.draggable=false;
+    d.appendChild(img);
+  }
+  d.onclick=()=>tap(sq);
+  g.appendChild(d);
  }
 }
 function tap(sq){

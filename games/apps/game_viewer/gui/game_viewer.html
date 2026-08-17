@@ -10,14 +10,123 @@
 .layout{display:grid;grid-template-columns:minmax(300px,720px) 300px;gap:18px;align-items:start}
 .card{background:rgba(255,248,228,.95);border-radius:18px;padding:14px;box-shadow:0 12px 35px #54290a55}
 .board-shell{background:linear-gradient(145deg,#884820,#d18a48,#8b4b27);padding:12px;border-radius:14px}
-#xiangqiboard{position:relative;aspect-ratio:9/10;background:#e7bd78;border-radius:8px;overflow:hidden;box-shadow:inset 0 0 0 2px #5b321d55}
-#boardGrid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(9,1fr);grid-template-rows:repeat(10,1fr);background-image:linear-gradient(#613719bb 1px,transparent 1px),linear-gradient(90deg,#613719bb 1px,transparent 1px);background-size:calc(100% / 8) calc(100% / 9);background-position:center}
-.sq{display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer}
-.sq.selected{background:#ffd95c66}.sq.legal:after{content:"";width:15%;aspect-ratio:1;border-radius:50%;background:#5c351f88}
-.piece{width:82%;height:82%;object-fit:contain;position:relative;z-index:2;filter:drop-shadow(0 2px 1px #0005);user-select:none}
-.river{position:absolute;z-index:3;left:0;right:0;top:50%;transform:translateY(-50%);display:flex;justify-content:space-around;font-size:clamp(15px,2.5vw,25px);font-weight:700;pointer-events:none;color:#633719aa}
-.controls{display:flex;flex-direction:column;gap:12px}.status{padding:11px;background:#f0dfbf;border-radius:10px;font-weight:700}
-.mode-grid{display:grid;gap:8px;margin-top:8px}button{border:0;border-radius:11px;padding:11px;cursor:pointer;font-weight:700;background:#eadfc9;color:#402616}button.active{background:#b21f1f;color:#fff}.new{background:#2e7147;color:#fff}.help{font-size:13px;line-height:1.5;opacity:.72}
+
+#xiangqiboard{
+  position:relative;
+  width:100%;
+  aspect-ratio:9/10;
+  background:#e7bd78;
+  border-radius:8px;
+  overflow:hidden;
+  box-shadow:inset 0 0 0 2px #5b321d55;
+}
+.board-lines{
+  position:absolute;
+  left:5.5%;
+  right:5.5%;
+  top:5%;
+  bottom:5%;
+  pointer-events:none;
+  z-index:1;
+}
+.board-lines .hline,
+.board-lines .vline{
+  position:absolute;
+  background:#5b321d;
+}
+.board-lines .hline{
+  left:0;
+  right:0;
+  height:2px;
+  transform:translateY(-1px);
+}
+.board-lines .vline{
+  top:0;
+  bottom:0;
+  width:2px;
+  transform:translateX(-1px);
+}
+.board-lines .vline.inner{
+  bottom:auto;
+  height:44.444%;
+}
+.board-lines .vline.inner.bottom{
+  top:auto;
+  bottom:0;
+  height:44.444%;
+}
+.board-lines .palace{
+  position:absolute;
+  width:25%;
+  height:22.222%;
+  left:37.5%;
+}
+.board-lines .palace.top{top:0}
+.board-lines .palace.bottom{bottom:0}
+.board-lines .palace::before,
+.board-lines .palace::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:141.5%;
+  height:2px;
+  background:#5b321d;
+  transform-origin:center;
+}
+.board-lines .palace::before{transform:translate(-50%,-50%) rotate(41.6deg)}
+.board-lines .palace::after{transform:translate(-50%,-50%) rotate(-41.6deg)}
+#boardGrid{
+  position:absolute;
+  left:5.5%;
+  right:5.5%;
+  top:5%;
+  bottom:5%;
+  z-index:3;
+}
+.sq{
+  position:absolute;
+  width:10.8%;
+  height:9.6%;
+  transform:translate(-50%,-50%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  border-radius:50%;
+}
+.sq.selected{background:#ffd95c77}
+.sq.legal:after{
+  content:"";
+  width:18%;
+  aspect-ratio:1;
+  border-radius:50%;
+  background:#5c351fcc;
+}
+.piece{
+  width:88%;
+  height:88%;
+  object-fit:contain;
+  position:relative;
+  z-index:2;
+  filter:drop-shadow(0 2px 1px #0005);
+  user-select:none;
+}
+.river{
+  position:absolute;
+  z-index:2;
+  left:8%;
+  right:8%;
+  top:50%;
+  transform:translateY(-50%);
+  display:flex;
+  justify-content:space-around;
+  font-size:clamp(15px,2.5vw,25px);
+  font-weight:700;
+  pointer-events:none;
+  color:#633719aa;
+}
+
 @media(max-width:850px){.layout{grid-template-columns:1fr}.controls{order:-1}}
 </style>
 </head>
@@ -25,7 +134,7 @@
 <div class="wrap">
 <div class="top"><h1>♟ Cờ Tướng</h1><div class="sub">Người chơi hoặc đấu với AI</div></div>
 <div class="layout">
-<div class="card"><div class="board-shell"><div id="xiangqiboard"><div class="river"><span>楚河</span><span>漢界</span></div><div id="boardGrid"></div></div></div></div>
+<div class="card"><div class="board-shell"><div id="xiangqiboard"><div class="board-lines"><div class="hline" style="top:0.000000%"></div><div class="hline" style="top:11.111111%"></div><div class="hline" style="top:22.222222%"></div><div class="hline" style="top:33.333333%"></div><div class="hline" style="top:44.444444%"></div><div class="hline" style="top:55.555556%"></div><div class="hline" style="top:66.666667%"></div><div class="hline" style="top:77.777778%"></div><div class="hline" style="top:88.888889%"></div><div class="hline" style="top:100.000000%"></div><div class="vline" style="left:0.000000%"></div><div class="vline inner" style="left:12.500000%"></div><div class="vline inner bottom" style="left:12.500000%"></div><div class="vline inner" style="left:25.000000%"></div><div class="vline inner bottom" style="left:25.000000%"></div><div class="vline inner" style="left:37.500000%"></div><div class="vline inner bottom" style="left:37.500000%"></div><div class="vline inner" style="left:50.000000%"></div><div class="vline inner bottom" style="left:50.000000%"></div><div class="vline inner" style="left:62.500000%"></div><div class="vline inner bottom" style="left:62.500000%"></div><div class="vline inner" style="left:75.000000%"></div><div class="vline inner bottom" style="left:75.000000%"></div><div class="vline inner" style="left:87.500000%"></div><div class="vline inner bottom" style="left:87.500000%"></div><div class="vline" style="left:100.000000%"></div><div class="palace top"></div><div class="palace bottom"></div></div><div class="river"><span>楚河</span><span>漢界</span></div><div id="boardGrid"></div></div></div></div>
 <div class="card controls">
 <div class="status" id="status">Đang khởi tạo…</div>
 <div><b>Chế độ chơi</b><div class="mode-grid">
