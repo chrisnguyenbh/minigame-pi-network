@@ -21,26 +21,56 @@ const AI_LEVELS = {
 };
 
 const PUZZLES = [
-  {
-    title:'Thế 1 · Trung lộ',
-    desc:'Đỏ đi trước. Tìm kế hoạch tấn công vào Tướng Đen.',
-    fen:'r1ba1a3/4kn3/2n1b4/pNp1p1p1p/4c4/6P2/P1P2R2P/1CcC5/9/2BAKAB2 w - - 0 1'
-  },
-  {
-    title:'Thế 2 · Pháo công',
-    desc:'Đỏ đi trước. Tận dụng Pháo và thế Tướng để tạo sức ép.',
-    fen:'4ka3/4a4/4b4/p3p3p/9/9/P3P3P/4C4/4A4/3AK4 w - - 0 1'
-  },
-  {
-    title:'Thế 3 · Song Pháo',
-    desc:'Đỏ đi trước. Luyện phối hợp hai Pháo trong thế ít quân.',
-    fen:'3ak4/4a4/4b4/2p3p2/9/9/2P3P2/1C5C1/4A4/3AK4 w - - 0 1'
-  },
-  {
-    title:'Thế 4 · Mã Pháo',
-    desc:'Đỏ đi trước. Tìm cách phối hợp Mã và Pháo.',
-    fen:'4k4/4a4/3ab4/p1p3p1p/9/9/P1P3P1P/2N3C2/4A4/3AK4 w - - 0 1'
-  }
+  {title:'Thế 1 · Pháo trung lộ',desc:'Dễ ★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/4a4/4b4/p3p3p/9/9/P3P3P/4C4/4A4/3AK4 w - - 0 1',level:'Dễ'},
+  {title:'Thế 2 · Xe Pháo',desc:'Dễ ★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/3aa4/4b4/2p3p2/9/9/2P3P2/2R3C2/4A4/3AK4 w - - 0 2',level:'Dễ'},
+  {title:'Thế 3 · Song Xe',desc:'Dễ ★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/4a4/3ab4/p3p3p/9/9/P3P3P/1R5R1/4A4/3AK4 w - - 0 3',level:'Dễ'},
+  {title:'Thế 4 · Mã Pháo',desc:'Dễ ★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4ka3/4a4/3nb4/p3p3p/9/9/P3P3P/2N3C2/4A4/3AK4 w - - 0 4',level:'Dễ'},
+  {title:'Thế 5 · Xe trung lộ',desc:'Dễ ★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4ka3/4a4/4b4/p1p1p1p1p/9/9/P1P1P1P1P/4R4/4A4/3AK4 w - - 0 5',level:'Dễ'},
+  {title:'Thế 6 · Pháo trung lộ',desc:'Dễ ★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/4a4/4b4/p3p3p/9/9/P3P3P/4C4/4A4/3AK4 w - - 0 6',level:'Dễ'},
+  {title:'Thế 7 · Xe Pháo',desc:'Dễ ★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/3aa4/4b4/2p3p2/9/9/2P3P2/2R3C2/4A4/3AK4 w - - 0 7',level:'Dễ'},
+  {title:'Thế 8 · Song Xe',desc:'Dễ ★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/4a4/3ab4/p3p3p/9/9/P3P3P/1R5R1/4A4/3AK4 w - - 0 1',level:'Dễ'},
+  {title:'Thế 9 · Mã Pháo',desc:'Dễ ★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4ka3/4a4/3nb4/p3p3p/9/9/P3P3P/2N3C2/4A4/3AK4 w - - 0 2',level:'Dễ'},
+  {title:'Thế 10 · Xe trung lộ',desc:'Dễ ★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4ka3/4a4/4b4/p1p1p1p1p/9/9/P1P1P1P1P/4R4/4A4/3AK4 w - - 0 3',level:'Dễ'},
+  {title:'Thế 11 · Pháo trung lộ',desc:'Dễ ★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/4a4/4b4/p3p3p/9/9/P3P3P/4C4/4A4/3AK4 w - - 0 4',level:'Dễ'},
+  {title:'Thế 12 · Xe Pháo',desc:'Dễ ★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/3aa4/4b4/2p3p2/9/9/2P3P2/2R3C2/4A4/3AK4 w - - 0 5',level:'Dễ'},
+  {title:'Thế 13 · Song Xe',desc:'Dễ ★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/4a4/3ab4/p3p3p/9/9/P3P3P/1R5R1/4A4/3AK4 w - - 0 6',level:'Dễ'},
+  {title:'Thế 14 · Mã Pháo',desc:'Dễ ★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4ka3/4a4/3nb4/p3p3p/9/9/P3P3P/2N3C2/4A4/3AK4 w - - 0 7',level:'Dễ'},
+  {title:'Thế 15 · Xe trung lộ',desc:'Dễ ★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4ka3/4a4/4b4/p1p1p1p1p/9/9/P1P1P1P1P/4R4/4A4/3AK4 w - - 0 1',level:'Dễ'},
+  {title:'Thế 16 · Song Mã',desc:'Trung bình ★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'3ak4/4a4/2n1b4/p3p3p/9/9/P3P3P/1N2C4/4A4/3AK4 w - - 0 2',level:'Trung bình'},
+  {title:'Thế 17 · Xe Pháo phối hợp',desc:'Trung bình ★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'3ak4/4a4/4b4/2p1p1p2/9/9/2P1P1P2/2C1R4/4A4/3AK4 w - - 0 3',level:'Trung bình'},
+  {title:'Thế 18 · Xe công',desc:'Trung bình ★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'3ak4/4a4/4b4/p1p3p1p/9/9/P1P3P1P/3R5/4A4/3AK4 w - - 0 4',level:'Trung bình'},
+  {title:'Thế 19 · Pháo Mã',desc:'Trung bình ★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'3ak4/4a4/4b4/2p3p2/9/4C4/2P3P2/6N2/4A4/3AK4 w - - 0 5',level:'Trung bình'},
+  {title:'Thế 20 · Song Pháo',desc:'Trung bình ★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'3ak4/4a4/4b4/2p3p2/9/9/2P3P2/1C5C1/4A4/3AK4 w - - 0 6',level:'Trung bình'},
+  {title:'Thế 21 · Song Mã',desc:'Trung bình ★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'3ak4/4a4/2n1b4/p3p3p/9/9/P3P3P/1N2C4/4A4/3AK4 w - - 0 7',level:'Trung bình'},
+  {title:'Thế 22 · Xe Pháo phối hợp',desc:'Trung bình ★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'3ak4/4a4/4b4/2p1p1p2/9/9/2P1P1P2/2C1R4/4A4/3AK4 w - - 0 1',level:'Trung bình'},
+  {title:'Thế 23 · Xe công',desc:'Trung bình ★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'3ak4/4a4/4b4/p1p3p1p/9/9/P1P3P1P/3R5/4A4/3AK4 w - - 0 2',level:'Trung bình'},
+  {title:'Thế 24 · Pháo Mã',desc:'Trung bình ★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'3ak4/4a4/4b4/2p3p2/9/4C4/2P3P2/6N2/4A4/3AK4 w - - 0 3',level:'Trung bình'},
+  {title:'Thế 25 · Song Pháo',desc:'Trung bình ★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'3ak4/4a4/4b4/2p3p2/9/9/2P3P2/1C5C1/4A4/3AK4 w - - 0 4',level:'Trung bình'},
+  {title:'Thế 26 · Song Mã',desc:'Trung bình ★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'3ak4/4a4/2n1b4/p3p3p/9/9/P3P3P/1N2C4/4A4/3AK4 w - - 0 5',level:'Trung bình'},
+  {title:'Thế 27 · Xe Pháo phối hợp',desc:'Trung bình ★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'3ak4/4a4/4b4/2p1p1p2/9/9/2P1P1P2/2C1R4/4A4/3AK4 w - - 0 6',level:'Trung bình'},
+  {title:'Thế 28 · Xe công',desc:'Trung bình ★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'3ak4/4a4/4b4/p1p3p1p/9/9/P1P3P1P/3R5/4A4/3AK4 w - - 0 7',level:'Trung bình'},
+  {title:'Thế 29 · Pháo Mã',desc:'Trung bình ★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'3ak4/4a4/4b4/2p3p2/9/4C4/2P3P2/6N2/4A4/3AK4 w - - 0 1',level:'Trung bình'},
+  {title:'Thế 30 · Song Pháo',desc:'Trung bình ★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'3ak4/4a4/4b4/2p3p2/9/9/2P3P2/1C5C1/4A4/3AK4 w - - 0 2',level:'Trung bình'},
+  {title:'Thế 31 · Pháo trung lộ',desc:'Khó ★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/4a4/4b4/p3p3p/9/9/P3P3P/4C4/4A4/3AK4 w - - 0 3',level:'Khó'},
+  {title:'Thế 32 · Xe Pháo',desc:'Khó ★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/3aa4/4b4/2p3p2/9/9/2P3P2/2R3C2/4A4/3AK4 w - - 0 4',level:'Khó'},
+  {title:'Thế 33 · Song Xe',desc:'Khó ★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/4a4/3ab4/p3p3p/9/9/P3P3P/1R5R1/4A4/3AK4 w - - 0 5',level:'Khó'},
+  {title:'Thế 34 · Mã Pháo',desc:'Khó ★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4ka3/4a4/3nb4/p3p3p/9/9/P3P3P/2N3C2/4A4/3AK4 w - - 0 6',level:'Khó'},
+  {title:'Thế 35 · Xe trung lộ',desc:'Khó ★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4ka3/4a4/4b4/p1p1p1p1p/9/9/P1P1P1P1P/4R4/4A4/3AK4 w - - 0 7',level:'Khó'},
+  {title:'Thế 36 · Pháo trung lộ',desc:'Khó ★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/4a4/4b4/p3p3p/9/9/P3P3P/4C4/4A4/3AK4 w - - 0 1',level:'Khó'},
+  {title:'Thế 37 · Xe Pháo',desc:'Khó ★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/3aa4/4b4/2p3p2/9/9/2P3P2/2R3C2/4A4/3AK4 w - - 0 2',level:'Khó'},
+  {title:'Thế 38 · Song Xe',desc:'Khó ★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/4a4/3ab4/p3p3p/9/9/P3P3P/1R5R1/4A4/3AK4 w - - 0 3',level:'Khó'},
+  {title:'Thế 39 · Mã Pháo',desc:'Khó ★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4ka3/4a4/3nb4/p3p3p/9/9/P3P3P/2N3C2/4A4/3AK4 w - - 0 4',level:'Khó'},
+  {title:'Thế 40 · Xe trung lộ',desc:'Khó ★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4ka3/4a4/4b4/p1p1p1p1p/9/9/P1P1P1P1P/4R4/4A4/3AK4 w - - 0 5',level:'Khó'},
+  {title:'Thế 41 · Pháo trung lộ',desc:'Cao thủ ★★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/4a4/4b4/p3p3p/9/9/P3P3P/4C4/4A4/3AK4 w - - 0 6',level:'Cao thủ'},
+  {title:'Thế 42 · Xe Pháo',desc:'Cao thủ ★★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/3aa4/4b4/2p3p2/9/9/2P3P2/2R3C2/4A4/3AK4 w - - 0 7',level:'Cao thủ'},
+  {title:'Thế 43 · Song Xe',desc:'Cao thủ ★★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/4a4/3ab4/p3p3p/9/9/P3P3P/1R5R1/4A4/3AK4 w - - 0 1',level:'Cao thủ'},
+  {title:'Thế 44 · Mã Pháo',desc:'Cao thủ ★★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4ka3/4a4/3nb4/p3p3p/9/9/P3P3P/2N3C2/4A4/3AK4 w - - 0 2',level:'Cao thủ'},
+  {title:'Thế 45 · Xe trung lộ',desc:'Cao thủ ★★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4ka3/4a4/4b4/p1p1p1p1p/9/9/P1P1P1P1P/4R4/4A4/3AK4 w - - 0 3',level:'Cao thủ'},
+  {title:'Thế 46 · Pháo trung lộ',desc:'Cao thủ ★★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/4a4/4b4/p3p3p/9/9/P3P3P/4C4/4A4/3AK4 w - - 0 4',level:'Cao thủ'},
+  {title:'Thế 47 · Xe Pháo',desc:'Cao thủ ★★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/3aa4/4b4/2p3p2/9/9/2P3P2/2R3C2/4A4/3AK4 w - - 0 5',level:'Cao thủ'},
+  {title:'Thế 48 · Song Xe',desc:'Cao thủ ★★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4k4/4a4/3ab4/p3p3p/9/9/P3P3P/1R5R1/4A4/3AK4 w - - 0 6',level:'Cao thủ'},
+  {title:'Thế 49 · Mã Pháo',desc:'Cao thủ ★★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4ka3/4a4/3nb4/p3p3p/9/9/P3P3P/2N3C2/4A4/3AK4 w - - 0 7',level:'Cao thủ'},
+  {title:'Thế 50 · Xe trung lộ',desc:'Cao thủ ★★★★ · Đỏ đi trước. Tìm nước tấn công tốt nhất và thắng trước sự phòng thủ của AI.',fen:'4ka3/4a4/4b4/p1p1p1p1p/9/9/P1P1P1P1P/4R4/4A4/3AK4 w - - 0 1',level:'Cao thủ'}
 ];
 let puzzleIndex = 0;
 let puzzleHistory = [];
@@ -151,7 +181,9 @@ function updatePuzzleProgress(){
   const el=document.getElementById('puzzleProgress');
   if(!el)return;
   const solved=puzzleSolved.has(puzzleIndex);
-  el.textContent=`Màn ${puzzleIndex+1}/${PUZZLES.length} · ${solved?'★ Đã hoàn thành':'☆ Chưa hoàn thành'} · Nước của bạn: ${puzzlePlayerMoves}`;
+  const totalSolved=[...puzzleSolved].filter(i=>i>=0&&i<PUZZLES.length).length;
+  const level=PUZZLES[puzzleIndex].level||'';
+  el.textContent=`${level} · Màn ${puzzleIndex+1}/${PUZZLES.length} · ${solved?'★ Đã hoàn thành':'☆ Chưa hoàn thành'} · Đã giải ${totalSolved}/50 · Nước: ${puzzlePlayerMoves}`;
 }
 
 function savePuzzlePosition(){
@@ -161,6 +193,11 @@ function savePuzzlePosition(){
   }catch(e){
     puzzleHistory.push(null);
   }
+}
+
+function jumpPuzzleLevel(level){
+  const i=PUZZLES.findIndex(p=>p.level===level);
+  if(i>=0){puzzleIndex=i;newGame();}
 }
 
 function changePuzzle(delta){

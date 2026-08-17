@@ -167,6 +167,12 @@ button.active{color:#fff;background:linear-gradient(180deg,#c82e34,#a8191f);box-
         <div class="section-title">Cờ thế luyện tập</div>
         <div class="puzzle-title" id="puzzleTitle"></div>
         <div class="puzzle-desc" id="puzzleDesc"></div>
+        <div class="level-grid" style="margin-bottom:9px">
+          <button onclick="jumpPuzzleLevel('Dễ')">Dễ 1–15</button>
+          <button onclick="jumpPuzzleLevel('Trung bình')">TB 16–30</button>
+          <button onclick="jumpPuzzleLevel('Khó')">Khó 31–40</button>
+          <button onclick="jumpPuzzleLevel('Cao thủ')">Cao thủ 41–50</button>
+        </div>
         <div class="puzzle-grid">
           <button onclick="changePuzzle(-1)">← Thế trước</button>
           <button onclick="changePuzzle(1)">Thế tiếp →</button>
