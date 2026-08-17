@@ -24,7 +24,7 @@ button{cursor:pointer;background:#e7edf3;color:#172533}button.primary{background
 .center{position:absolute;inset:17%;display:flex;align-items:center;justify-content:center;pointer-events:none}
 .center-card{background:#fff9;color:#203020;border:2px solid #57715c;padding:18px 25px;border-radius:15px;transform:rotate(-12deg);font-size:32px;font-weight:1000;letter-spacing:2px}
 .side{display:flex;flex-direction:column;gap:10px;position:sticky;top:10px}.turn{font-size:18px;font-weight:900;padding:10px;background:#ffffff0d;border-radius:10px}
-.players{display:grid;gap:7px}.player{padding:8px 9px;border-radius:10px;background:#ffffff0b;border-left:5px solid var(--pc)}.player.active{outline:2px solid var(--gold)}.player.bankrupt{opacity:.4;text-decoration:line-through}
+.players{display:grid;gap:7px}.player{padding:8px 9px;border-radius:10px;background:#ffffff0b;border-left:5px solid var(--pc)}.player.active{outline:2px solid var(--gold)}.player.bankrupt{opacity:.4;text-decoration:line-through}.ai-badge{font-size:10px;background:#ffffff1c;padding:2px 5px;border-radius:6px;margin-left:4px}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.actions button{width:100%}.dice{font-size:34px;text-align:center;min-height:48px}
 .property{padding:9px;background:#ffffff0a;border-radius:10px;font-size:13px;line-height:1.45}
 .log{margin-top:12px;max-height:180px;overflow:auto;font-size:12px;line-height:1.45}.entry{padding:3px 0;border-bottom:1px solid #ffffff0d}
@@ -33,11 +33,22 @@ button{cursor:pointer;background:#e7edf3;color:#172533}button.primary{background
 </head>
 <body>
 <div class="app">
-  <div class="top"><div><h1>🏙️ Cờ Tỷ Phú Sài Gòn</h1><div>Phiên bản Việt hóa với các khu vực quen thuộc tại TP.HCM.</div></div><a href="../">← MiniGame Hub</a></div>
+  <div class="top"><div><h1>🏙️ Cờ Tỷ Phú Sài Gòn</h1><div>Phiên bản TP.HCM · Chơi với người hoặc AI.</div></div><a href="../">← MiniGame Hub</a></div>
 
   <div class="setup" id="setup">
-    <b>Số người chơi:</b>
-    <select id="playerCount"><option>2</option><option>3</option><option selected>4</option></select>
+    <b>Chế độ:</b>
+    <select id="playMode" onchange="updatePlayerSetup()">
+      <option value="human-ai" selected>Người vs AI</option>
+      <option value="local">Nhiều người cùng máy</option>
+    </select>
+    <span id="aiSetup">
+      <b>Số AI:</b>
+      <select id="aiCount"><option value="1" selected>1 AI</option><option value="2">2 AI</option><option value="3">3 AI</option></select>
+    </span>
+    <span id="localSetup" style="display:none">
+      <b>Số người:</b>
+      <select id="playerCount"><option>2</option><option>3</option><option selected>4</option></select>
+    </span>
     <b>Luật chơi:</b>
     <select id="gameMode"><option value="endless">Chơi đến khi còn 1 người</option><option value="turns">Giới hạn 30 vòng</option><option value="networth">Đạt tài sản $5000</option></select>
     <button class="primary" onclick="startGame()">Bắt đầu</button>
@@ -62,7 +73,7 @@ button{cursor:pointer;background:#e7edf3;color:#172533}button.primary{background
 </div>
 
 <script>
-const LOCATIONS=[{"id": 0, "type": "START", "name": "KHỞI HÀNH", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 1, "type": "Đất", "name": "Bình Tây", "setId": 1, "cost": 60, "rent": 2, "house": [10, 30, 90, 160], "hotel": 250, "buildCost": 50}, {"id": 2, "type": "Quỹ cộng đồng", "name": "QUỸ CỘNG ĐỒNG", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 3, "type": "Đất", "name": "Chợ Lớn", "setId": 1, "cost": 60, "rent": 4, "house": [20, 60, 180, 320], "hotel": 500, "buildCost": 50}, {"id": 4, "type": "Thuế", "name": "THUẾ ĐÔ THỊ", "setId": null, "cost": 0, "rent": 200, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 5, "type": "Bến/Ga", "name": "Bến xe Miền Tây", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 6, "type": "Đất", "name": "Tân Phú", "setId": 2, "cost": 100, "rent": 6, "house": [30, 90, 270, 480], "hotel": 750, "buildCost": 50}, {"id": 7, "type": "Cơ hội", "name": "CƠ HỘI", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 8, "type": "Đất", "name": "Bình Tân", "setId": 2, "cost": 100, "rent": 6, "house": [30, 90, 270, 480], "hotel": 750, "buildCost": 50}, {"id": 9, "type": "Đất", "name": "Gò Vấp", "setId": 2, "cost": 120, "rent": 8, "house": [40, 120, 360, 640], "hotel": 1000, "buildCost": 50}, {"id": 10, "type": "Thăm nhà giam", "name": "THĂM NHÀ GIAM", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 11, "type": "Đất", "name": "Phú Nhuận", "setId": 3, "cost": 140, "rent": 10, "house": [50, 150, 450, 800], "hotel": 1250, "buildCost": 100}, {"id": 12, "type": "Tiện ích", "name": "Điện lực TP.HCM", "setId": null, "cost": 150, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 13, "type": "Đất", "name": "Tân Bình", "setId": 3, "cost": 140, "rent": 10, "house": [50, 150, 450, 800], "hotel": 1250, "buildCost": 100}, {"id": 14, "type": "Đất", "name": "Bình Thạnh", "setId": 3, "cost": 160, "rent": 12, "house": [60, 180, 540, 960], "hotel": 1500, "buildCost": 100}, {"id": 15, "type": "Bến/Ga", "name": "Ga Sài Gòn", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 16, "type": "Đất", "name": "Tân Định", "setId": 4, "cost": 180, "rent": 14, "house": [70, 210, 630, 1120], "hotel": 1750, "buildCost": 100}, {"id": 17, "type": "Quỹ cộng đồng", "name": "QUỸ CỘNG ĐỒNG", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 18, "type": "Đất", "name": "Đa Kao", "setId": 4, "cost": 180, "rent": 14, "house": [70, 210, 630, 1120], "hotel": 1750, "buildCost": 100}, {"id": 19, "type": "Đất", "name": "Bến Nghé", "setId": 4, "cost": 200, "rent": 16, "house": [80, 240, 720, 1280], "hotel": 2000, "buildCost": 100}, {"id": 20, "type": "Nghỉ miễn phí", "name": "CÔNG VIÊN 23/9", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 21, "type": "Đất", "name": "An Phú", "setId": 5, "cost": 220, "rent": 18, "house": [90, 270, 810, 1440], "hotel": 2250, "buildCost": 150}, {"id": 22, "type": "Cơ hội", "name": "CƠ HỘI", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 23, "type": "Đất", "name": "Thảo Điền", "setId": 5, "cost": 220, "rent": 18, "house": [90, 270, 810, 1440], "hotel": 2250, "buildCost": 150}, {"id": 24, "type": "Đất", "name": "Thủ Thiêm", "setId": 5, "cost": 240, "rent": 20, "house": [100, 300, 900, 1600], "hotel": 2500, "buildCost": 150}, {"id": 25, "type": "Bến/Ga", "name": "Bến xe Miền Đông", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 26, "type": "Đất", "name": "Nguyễn Huệ", "setId": 6, "cost": 260, "rent": 22, "house": [110, 330, 990, 1760], "hotel": 2750, "buildCost": 150}, {"id": 27, "type": "Đất", "name": "Bùi Viện", "setId": 6, "cost": 260, "rent": 22, "house": [110, 330, 990, 1760], "hotel": 2750, "buildCost": 150}, {"id": 28, "type": "Tiện ích", "name": "Cấp nước TP.HCM", "setId": null, "cost": 150, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 29, "type": "Đất", "name": "Bến Thành", "setId": 6, "cost": 280, "rent": 24, "house": [120, 360, 1080, 1920], "hotel": 3000, "buildCost": 150}, {"id": 30, "type": "Nhà giam", "name": "VÀO NHÀ GIAM", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 31, "type": "Đất", "name": "Phú Mỹ Hưng", "setId": 7, "cost": 300, "rent": 26, "house": [130, 390, 1170, 2080], "hotel": 3250, "buildCost": 200}, {"id": 32, "type": "Đất", "name": "Nguyễn Văn Linh", "setId": 7, "cost": 300, "rent": 26, "house": [130, 390, 1170, 2080], "hotel": 3250, "buildCost": 200}, {"id": 33, "type": "Quỹ cộng đồng", "name": "QUỸ CỘNG ĐỒNG", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 34, "type": "Đất", "name": "Sala Đại Quang Minh", "setId": 7, "cost": 320, "rent": 28, "house": [140, 420, 1260, 2240], "hotel": 3500, "buildCost": 200}, {"id": 35, "type": "Bến/Ga", "name": "Bến Bạch Đằng", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 36, "type": "Cơ hội", "name": "CƠ HỘI", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 37, "type": "Đất", "name": "Đồng Khởi", "setId": 8, "cost": 350, "rent": 35, "house": [175, 525, 1575, 2800], "hotel": 4375, "buildCost": 200}, {"id": 38, "type": "Thuế", "name": "THUẾ TÀI SẢN", "setId": null, "cost": 0, "rent": 100, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 39, "type": "Đất", "name": "Lê Lợi", "setId": 8, "cost": 400, "rent": 50, "house": [250, 750, 2250, 4000], "hotel": 6250, "buildCost": 200}];
+const LOCATIONS=[{"id": 0, "type": "START", "name": "KHỞI HÀNH", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 1, "type": "Đất", "name": "Bình Tây", "setId": 1, "cost": 60, "rent": 2, "house": [10, 30, 90, 160], "hotel": 250, "buildCost": 50}, {"id": 2, "type": "Khí vận", "name": "KHÍ VẬN", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 3, "type": "Đất", "name": "Chợ Lớn", "setId": 1, "cost": 60, "rent": 4, "house": [20, 60, 180, 320], "hotel": 500, "buildCost": 50}, {"id": 4, "type": "Thuế", "name": "THUẾ ĐÔ THỊ", "setId": null, "cost": 0, "rent": 200, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 5, "type": "Bến/Ga", "name": "Bến xe Miền Tây", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 6, "type": "Đất", "name": "Tân Phú", "setId": 2, "cost": 100, "rent": 6, "house": [30, 90, 270, 480], "hotel": 750, "buildCost": 50}, {"id": 7, "type": "Cơ hội", "name": "CƠ HỘI", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 8, "type": "Đất", "name": "Bình Tân", "setId": 2, "cost": 100, "rent": 6, "house": [30, 90, 270, 480], "hotel": 750, "buildCost": 50}, {"id": 9, "type": "Đất", "name": "Gò Vấp", "setId": 2, "cost": 120, "rent": 8, "house": [40, 120, 360, 640], "hotel": 1000, "buildCost": 50}, {"id": 10, "type": "Thăm nhà giam", "name": "THĂM NHÀ GIAM", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 11, "type": "Đất", "name": "Phú Nhuận", "setId": 3, "cost": 140, "rent": 10, "house": [50, 150, 450, 800], "hotel": 1250, "buildCost": 100}, {"id": 12, "type": "Tiện ích", "name": "Điện lực TP.HCM", "setId": null, "cost": 150, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 13, "type": "Đất", "name": "Tân Bình", "setId": 3, "cost": 140, "rent": 10, "house": [50, 150, 450, 800], "hotel": 1250, "buildCost": 100}, {"id": 14, "type": "Đất", "name": "Bình Thạnh", "setId": 3, "cost": 160, "rent": 12, "house": [60, 180, 540, 960], "hotel": 1500, "buildCost": 100}, {"id": 15, "type": "Bến/Ga", "name": "Ga Sài Gòn", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 16, "type": "Đất", "name": "Tân Định", "setId": 4, "cost": 180, "rent": 14, "house": [70, 210, 630, 1120], "hotel": 1750, "buildCost": 100}, {"id": 17, "type": "Khí vận", "name": "KHÍ VẬN", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 18, "type": "Đất", "name": "Đa Kao", "setId": 4, "cost": 180, "rent": 14, "house": [70, 210, 630, 1120], "hotel": 1750, "buildCost": 100}, {"id": 19, "type": "Đất", "name": "Bến Nghé", "setId": 4, "cost": 200, "rent": 16, "house": [80, 240, 720, 1280], "hotel": 2000, "buildCost": 100}, {"id": 20, "type": "Nghỉ miễn phí", "name": "CÔNG VIÊN 23/9", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 21, "type": "Đất", "name": "An Phú", "setId": 5, "cost": 220, "rent": 18, "house": [90, 270, 810, 1440], "hotel": 2250, "buildCost": 150}, {"id": 22, "type": "Cơ hội", "name": "CƠ HỘI", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 23, "type": "Đất", "name": "Thảo Điền", "setId": 5, "cost": 220, "rent": 18, "house": [90, 270, 810, 1440], "hotel": 2250, "buildCost": 150}, {"id": 24, "type": "Đất", "name": "Thủ Thiêm", "setId": 5, "cost": 240, "rent": 20, "house": [100, 300, 900, 1600], "hotel": 2500, "buildCost": 150}, {"id": 25, "type": "Bến/Ga", "name": "Bến xe Miền Đông", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 26, "type": "Đất", "name": "Nguyễn Huệ", "setId": 6, "cost": 260, "rent": 22, "house": [110, 330, 990, 1760], "hotel": 2750, "buildCost": 150}, {"id": 27, "type": "Đất", "name": "Bùi Viện", "setId": 6, "cost": 260, "rent": 22, "house": [110, 330, 990, 1760], "hotel": 2750, "buildCost": 150}, {"id": 28, "type": "Tiện ích", "name": "Cấp nước TP.HCM", "setId": null, "cost": 150, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 29, "type": "Đất", "name": "Bến Thành", "setId": 6, "cost": 280, "rent": 24, "house": [120, 360, 1080, 1920], "hotel": 3000, "buildCost": 150}, {"id": 30, "type": "Nhà giam", "name": "VÀO NHÀ GIAM", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 31, "type": "Đất", "name": "Phú Mỹ Hưng", "setId": 7, "cost": 300, "rent": 26, "house": [130, 390, 1170, 2080], "hotel": 3250, "buildCost": 200}, {"id": 32, "type": "Đất", "name": "Nguyễn Văn Linh", "setId": 7, "cost": 300, "rent": 26, "house": [130, 390, 1170, 2080], "hotel": 3250, "buildCost": 200}, {"id": 33, "type": "Khí vận", "name": "KHÍ VẬN", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 34, "type": "Đất", "name": "Sala Đại Quang Minh", "setId": 7, "cost": 320, "rent": 28, "house": [140, 420, 1260, 2240], "hotel": 3500, "buildCost": 200}, {"id": 35, "type": "Bến/Ga", "name": "Bến Bạch Đằng", "setId": null, "cost": 200, "rent": 25, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 36, "type": "Cơ hội", "name": "CƠ HỘI", "setId": null, "cost": 0, "rent": 0, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 37, "type": "Đất", "name": "Đồng Khởi", "setId": 8, "cost": 350, "rent": 35, "house": [175, 525, 1575, 2800], "hotel": 4375, "buildCost": 200}, {"id": 38, "type": "Thuế", "name": "THUẾ TÀI SẢN", "setId": null, "cost": 0, "rent": 100, "house": [0, 0, 0, 0], "hotel": 0, "buildCost": 0}, {"id": 39, "type": "Đất", "name": "Lê Lợi", "setId": 8, "cost": 400, "rent": 50, "house": [250, 750, 2250, 4000], "hotel": 6250, "buildCost": 200}];
 const SET_COLORS={1:'#6b4b3e',2:'#8bd3e6',3:'#d789d7',4:'#f4d35e',5:'#ef6f6c',6:'#f4a261',7:'#55a868',8:'#4b7bec'};
 const PLAYER_COLORS=['#e63946','#2a9d8f','#457b9d','#9b5de5','#ff9f1c','#00b4d8','#f15bb5','#84a98c'];
 
@@ -73,12 +84,27 @@ function log(msg){const e=document.createElement('div');e.className='entry';e.te
 function locByPos(pos){return LOCATIONS[pos%40]}
 function current(){return state.players[state.current]}
 
+function updatePlayerSetup(){
+  const ai=playMode.value==='human-ai';
+  aiSetup.style.display=ai?'inline':'none';
+  localSetup.style.display=ai?'none':'inline';
+}
 function startGame(){
-  const n=+playerCount.value, mode=gameMode.value;
+  const aiMode=playMode.value==='human-ai';
+  const n=aiMode ? 1+(+aiCount.value) : +playerCount.value;
+  const mode=gameMode.value;
   state={mode,round:1,current:0,rolled:false,doubleCount:0,pendingBuy:false,gameOver:false,properties:{},players:[]};
-  for(let i=0;i<n;i++)state.players.push({name:'Người '+(i+1),cash:1500,pos:0,jail:0,bankrupt:false,color:PLAYER_COLORS[i],laps:0});
-  setup.style.display='none';logEl='';document.getElementById('log').innerHTML='';
-  renderBoard();renderAll();log('🎩 Ván Monopoly bắt đầu!');
+  for(let i=0;i<n;i++){
+    state.players.push({
+      name: aiMode ? (i===0?'Bạn':'AI '+i) : 'Người '+(i+1),
+      cash:1500,pos:0,jail:0,bankrupt:false,color:PLAYER_COLORS[i],laps:0,
+      ai: aiMode && i>0
+    });
+  }
+  setup.style.display='none';
+  document.getElementById('log').innerHTML='';
+  renderBoard();renderAll();log('🏙️ Ván Cờ Tỷ Phú Sài Gòn bắt đầu!');
+  maybeAiTurn();
 }
 
 function boardIndexStyle(i){
@@ -129,15 +155,89 @@ function renderAll(){
   turn.textContent=state.gameOver?'Ván đã kết thúc':`Vòng ${state.round} · ${p.name}`;
   const typeLabel={
     START:'Khởi hành',PROPERTY:'Bất động sản',RAIL:'Bến / Ga',
-    UTILITY:'Tiện ích',TAX:'Thuế',CHANCE:'Cơ hội',CHEST:'Quỹ cộng đồng',
+    UTILITY:'Tiện ích',TAX:'Thuế',CHANCE:'Cơ hội',CHEST:'Khí vận',
     JAIL:'Nhà giam',FREE:'Nghỉ miễn phí',VISIT:'Thăm nhà giam'
   }[loc.type]||loc.type;
   property.innerHTML=`<b>${loc.name}</b><br>Loại ô: ${typeLabel}${loc.cost?` · Giá ${money(loc.cost)}`:''}${loc.rent?` · Thuê gốc ${money(loc.rent)}`:''}`;
 
-  rollBtn.disabled=state.gameOver||state.rolled||p.bankrupt;
-  buyBtn.disabled=!state.pendingBuy||p.cash<loc.cost;
-  buildBtn.disabled=!canBuild(p,loc);
-  endBtn.disabled=state.gameOver||!state.rolled;
+  rollBtn.disabled=state.gameOver||state.rolled||p.bankrupt||p.ai;
+  buyBtn.disabled=!state.pendingBuy||p.cash<loc.cost||p.ai;
+  buildBtn.disabled=!canBuild(p,loc)||p.ai;
+  endBtn.disabled=state.gameOver||!state.rolled||p.ai;
+}
+
+
+function aiPropertyScore(loc,pos){
+  let score=0;
+  if(loc.type==='PROPERTY'){
+    score += loc.rent*8 + loc.cost*.35;
+    // Strongly value completing or approaching a color set.
+    const set=LOCATIONS.map((x,i)=>x.setId===loc.setId?i:null).filter(x=>x!==null);
+    const mine=set.filter(i=>state.properties[i]&&state.properties[i].owner===state.current).length;
+    if(mine===set.length-1)score+=900;
+    else if(mine>0)score+=180*mine;
+  }else if(loc.type==='RAIL'){
+    const mine=Object.entries(state.properties).filter(([k,v])=>v.owner===state.current&&LOCATIONS[k].type==='RAIL').length;
+    score=260+mine*180;
+  }else if(loc.type==='UTILITY')score=150;
+  return score;
+}
+
+function aiShouldBuy(p,loc){
+  if(!loc.cost||p.cash<loc.cost)return false;
+  const reserve=Math.max(220,Math.min(500,loc.cost*.9));
+  const score=aiPropertyScore(loc,p.pos);
+  // AI may spend deeper when completing a monopoly.
+  return (p.cash-loc.cost>=reserve && score>=loc.cost*.65) || score>700;
+}
+
+function aiBuildBest(){
+  const p=current();
+  let choices=[];
+  Object.entries(state.properties).forEach(([k,pr])=>{
+    const pos=+k,loc=LOCATIONS[pos];
+    if(pr.owner!==state.current||loc.type!=='PROPERTY'||!ownsFullSet(state.current,loc.setId)||pr.houses>=5)return;
+    if(p.cash<loc.buildCost+250)return;
+    const nextRent=pr.houses>=4?loc.hotel:loc.house[pr.houses];
+    const oldRent=pr.houses===0?loc.rent:loc.house[pr.houses-1];
+    choices.push({pos,pr,loc,gain:(nextRent||0)-(oldRent||0)});
+  });
+  choices.sort((a,b)=>(b.gain/b.loc.buildCost)-(a.gain/a.loc.buildCost));
+  if(!choices.length)return false;
+  const x=choices[0];
+  p.cash-=x.loc.buildCost;x.pr.houses++;
+  log(`🤖 ${p.name} xây ${x.pr.houses===5?'khách sạn':'nhà'} tại ${x.loc.name}.`);
+  return true;
+}
+
+function maybeAiTurn(){
+  if(!state||state.gameOver)return;
+  const p=current();
+  if(!p.ai)return;
+  renderAll();
+  setTimeout(aiTakeTurn,650);
+}
+
+function aiTakeTurn(){
+  if(!state||state.gameOver||!current().ai)return;
+  const p=current();
+
+  // Roll/move using the same rules as human.
+  rollDice();
+
+  setTimeout(()=>{
+    if(!state||state.gameOver||!current().ai)return;
+    const p=current(),loc=locByPos(p.pos);
+
+    if(state.pendingBuy && aiShouldBuy(p,loc)) buyProperty();
+
+    // Build up to two profitable houses per turn while maintaining cash reserve.
+    let builds=0;
+    while(builds<2 && aiBuildBest()) builds++;
+
+    renderAll();
+    setTimeout(()=>endTurn(),700);
+  },700);
 }
 
 function rollDice(){
@@ -170,7 +270,7 @@ function resolveLanding(){
     }
   } else if(loc.type==='Thuế'){
     const amt=loc.rent||100;p.cash-=amt;log(`${p.name} nộp thuế ${amt}.`);
-  } else if(loc.type==='Cơ hội'||loc.type==='Quỹ cộng đồng'){
+  } else if(loc.type==='Cơ hội'||loc.type==='Khí vận'){
     drawCard(loc.type);
   } else if(loc.type==='Nhà giam'){
     p.pos=10;p.jail=3;log(`${p.name} bị đưa vào tù trong tối đa 3 lượt.`);
@@ -231,7 +331,7 @@ function drawCard(type){
     {t:'Trả $100',fn:()=>p.cash-=100},
     {t:'Nhận $50',fn:()=>p.cash+=50},
   ];
-  const c=cards[Math.floor(Math.random()*cards.length)];c.fn();log(`${type}: ${c.t}.`);
+  const c=cards[Math.floor(Math.random()*cards.length)];c.fn();log(`${type==='CHEST'?'KHÍ VẬN':'CƠ HỘI'}: ${c.t}.`);
 }
 
 function payTo(from,to,amt){
@@ -250,7 +350,7 @@ function endTurn(){
   state.rolled=false;state.pendingBuy=false;
   let next=state.current,loops=0;
   do{next=(next+1)%state.players.length;if(next===0)state.round++;loops++}while(state.players[next].bankrupt&&loops<=state.players.length);
-  state.current=next;dice.textContent='🎲 🎲';checkWin();renderAll();
+  state.current=next;dice.textContent='🎲 🎲';checkWin();renderAll();maybeAiTurn();
 }
 
 function checkWin(){
