@@ -152,132 +152,140 @@ function immediateWinningMove(player){
   return null;
 }
 
-function positionScore(m,player){
-  const other=player==='O'?'X':'O';
-  board[m.r][m.c]=player;
-  const own=lineScore(m.r,m.c,player);
-  board[m.r][m.c]=null;
-
-  board[m.r][m.c]=other;
-  const opp=lineScore(m.r,m.c,other);
-  board[m.r][m.c]=null;
-
-  const center=(N-1)/2;
-  const central=30-(Math.abs(m.r-center)+Math.abs(m.c-center));
-  return own*1.18+opp*1.32+central;
+function patternValue(r,c,p){
+  let total=0;
+  for(const [dr,dc] of [[1,0],[0,1],[1,1],[1,-1]]){
+    let a=countDir(r,c,dr,dc,p), b=countDir(r,c,-dr,-dc,p);
+    let n=1+a+b;
+    let r1=r+(a+1)*dr,c1=c+(a+1)*dc,r2=r-(b+1)*dr,c2=c-(b+1)*dc;
+    let open=(r1>=0&&r1<N&&c1>=0&&c1<N&&!board[r1][c1]?1:0)+(r2>=0&&r2<N&&c2>=0&&c2<N&&!board[r2][c2]?1:0);
+    if(n>=5) total+=100000000;
+    else if(n===4&&open===2) total+=8000000;
+    else if(n===4&&open===1) total+=900000;
+    else if(n===3&&open===2) total+=180000;
+    else if(n===3&&open===1) total+=18000;
+    else if(n===2&&open===2) total+=3500;
+    else if(n===2&&open===1) total+=400;
+    else total+=n*12;
+  }
+  return total;
 }
 
-function topCandidates(limit=12){
+function moveScore(m,p){
+  const q=p==='O'?'X':'O';
+  board[m.r][m.c]=p; const attack=patternValue(m.r,m.c,p); board[m.r][m.c]=null;
+  board[m.r][m.c]=q; const defend=patternValue(m.r,m.c,q); board[m.r][m.c]=null;
+  const mid=(N-1)/2;
+  return attack*1.12+defend*1.28-(Math.abs(m.r-mid)+Math.abs(m.c-mid))*2;
+}
+
+function orderedMoves(player,limit){
   return candidateCells()
-    .map(m=>({m,score:positionScore(m,'O')}))
-    .sort((a,b)=>b.score-a.score)
+    .map(m=>({m,v:moveScore(m,player)}))
+    .sort((a,b)=>b.v-a.v)
     .slice(0,limit)
     .map(x=>x.m);
 }
 
-function evaluateBoardForAI(){
-  let bestO=0,bestX=0;
-  const cand=candidateCells();
-  for(const m of cand){
-    board[m.r][m.c]='O';bestO=Math.max(bestO,lineScore(m.r,m.c,'O'));board[m.r][m.c]=null;
-    board[m.r][m.c]='X';bestX=Math.max(bestX,lineScore(m.r,m.c,'X'));board[m.r][m.c]=null;
+function boardEval(){
+  let ao=0,ax=0;
+  const moves=candidateCells();
+  for(const m of moves){
+    board[m.r][m.c]='O'; ao=Math.max(ao,patternValue(m.r,m.c,'O')); board[m.r][m.c]=null;
+    board[m.r][m.c]='X'; ax=Math.max(ax,patternValue(m.r,m.c,'X')); board[m.r][m.c]=null;
   }
-  return bestO-bestX*1.18;
+  return ao-ax*1.15;
 }
 
+function hasWin(p){
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)
+    if(board[r][c]===p&&checkWin(r,c,p)) return true;
+  return false;
+}
+
+function alphabeta(depth,alpha,beta,maximizing){
+  if(hasWin('O')) return 1000000000+depth;
+  if(hasWin('X')) return -1000000000-depth;
+  if(depth===0) return boardEval();
+
+  const p=maximizing?'O':'X';
+  const moves=orderedMoves(p, depth>=2?8:6);
+  if(!moves.length)return 0;
+
+  if(maximizing){
+    let value=-Infinity;
+    for(const m of moves){
+      board[m.r][m.c]='O';
+      value=Math.max(value,alphabeta(depth-1,alpha,beta,false));
+      board[m.r][m.c]=null;
+      alpha=Math.max(alpha,value);
+      if(alpha>=beta)break;
+    }
+    return value;
+  }else{
+    let value=Infinity;
+    for(const m of moves){
+      board[m.r][m.c]='X';
+      value=Math.min(value,alphabeta(depth-1,alpha,beta,true));
+      board[m.r][m.c]=null;
+      beta=Math.min(beta,value);
+      if(alpha>=beta)break;
+    }
+    return value;
+  }
+}
 
 function terminal3(){
-  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c]){
-    if(checkWin(r,c,board[r][c]))return board[r][c];
-  }
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c]&&checkWin(r,c,board[r][c]))return board[r][c];
   return board.every(row=>row.every(Boolean))?'D':null;
 }
 function minimax3(isMax,depth){
-  const end=terminal3();
-  if(end==='O')return 10-depth;
-  if(end==='X')return depth-10;
-  if(end==='D')return 0;
-  let best=isMax?-Infinity:Infinity;
-  const p=isMax?'O':'X';
+  const e=terminal3();
+  if(e==='O')return 10-depth;if(e==='X')return depth-10;if(e==='D')return 0;
+  let best=isMax?-Infinity:Infinity,p=isMax?'O':'X';
   for(const m of candidateCells()){
-    board[m.r][m.c]=p;
-    const v=minimax3(!isMax,depth+1);
-    board[m.r][m.c]=null;
+    board[m.r][m.c]=p;let v=minimax3(!isMax,depth+1);board[m.r][m.c]=null;
     best=isMax?Math.max(best,v):Math.min(best,v);
-  }
-  return best;
+  } return best;
 }
 function best3x3Move(){
-  let best=null,bestScore=-Infinity;
+  let best=null,v=-Infinity;
   for(const m of candidateCells()){
-    board[m.r][m.c]='O';
-    const score=minimax3(false,0);
-    board[m.r][m.c]=null;
-    if(score>bestScore){bestScore=score;best=m;}
-  }
-  return best;
+    board[m.r][m.c]='O';let x=minimax3(false,0);board[m.r][m.c]=null;
+    if(x>v){v=x;best=m}
+  } return best;
 }
+
 function aiMove(){
   if(gameOver||mode!=='ai'){aiThinking=false;return}
-
   if(N===3){
-    const m=best3x3Move();
-    aiThinking=false;
-    if(m)play(m.r,m.c,'O');
-    return;
+    const m=best3x3Move();aiThinking=false;if(m)play(m.r,m.c,'O');return;
   }
 
-  // 1. Có thể thắng ngay -> thắng.
+  // Tactics have absolute priority.
   let best=immediateWinningMove('O');
+  if(!best) best=immediateWinningMove('X');
 
-  // 2. Người sắp thắng -> bắt buộc chặn.
-  if(!best)best=immediateWinningMove('X');
-
-  // 3. Nếu chưa có nước bắt buộc, tìm 2 ply:
-  //    thử nước của AI rồi giả định người chơi đáp trả mạnh nhất.
+  // Detect dangerous open-four / double-threat squares before search.
   if(!best){
-    let bestValue=-Infinity;
-    const aiCandidates=topCandidates(14);
-
-    for(const m of aiCandidates){
-      board[m.r][m.c]='O';
-
-      // Thưởng rất lớn cho thế tạo nhiều đe dọa.
-      let value=lineScore(m.r,m.c,'O')*1.25;
-
-      let worstReply=Infinity;
-      const replies=candidateCells()
-        .map(x=>({m:x,score:positionScore(x,'X')}))
-        .sort((a,b)=>b.score-a.score)
-        .slice(0,10)
-        .map(x=>x.m);
-
-      if(!replies.length){
-        worstReply=evaluateBoardForAI();
-      }else{
-        for(const r of replies){
-          board[r.r][r.c]='X';
-
-          if(checkWin(r.r,r.c,'X')){
-            worstReply=Math.min(worstReply,-10000000);
-          }else{
-            // AI nhìn thêm nước chiến thuật kế tiếp.
-            const nextWin=immediateWinningMove('O');
-            let v=nextWin?5000000:evaluateBoardForAI();
-            worstReply=Math.min(worstReply,v);
-          }
-
-          board[r.r][r.c]=null;
-        }
-      }
-
+    let danger=null,dv=-1;
+    for(const m of candidateCells()){
+      board[m.r][m.c]='X';
+      const v=patternValue(m.r,m.c,'X');
       board[m.r][m.c]=null;
-      value+=worstReply;
+      if(v>dv){dv=v;danger=m}
+    }
+    if(dv>=800000)best=danger;
+  }
 
-      if(value>bestValue){
-        bestValue=value;
-        best=m;
-      }
+  // 3-ply alpha-beta with aggressive candidate ordering.
+  if(!best){
+    let value=-Infinity;
+    for(const m of orderedMoves('O',12)){
+      board[m.r][m.c]='O';
+      const v=alphabeta(2,-Infinity,Infinity,false);
+      board[m.r][m.c]=null;
+      if(v>value){value=v;best=m}
     }
   }
 
