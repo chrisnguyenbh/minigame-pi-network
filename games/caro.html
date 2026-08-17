@@ -15,10 +15,10 @@ h1{margin:0 0 6px;font-size:30px}.sub{opacity:.72;margin-bottom:14px}
 button{border:0;border-radius:11px;padding:10px 15px;font-weight:800;font-size:14px;cursor:pointer;background:#e9edf8;color:#18203a}
 button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:#fff}
 .status{font-weight:850;font-size:17px;margin-top:11px;min-height:24px}
-.board-wrap{overflow:auto;max-width:100%;border-radius:14px;padding:7px;background:#9b622e;box-shadow:0 14px 35px rgba(0,0,0,.3);-webkit-overflow-scrolling:touch}
-.board{display:grid;grid-template-columns:repeat(19,38px);grid-template-rows:repeat(19,38px);gap:1px;width:max-content;margin:auto;background:#6e421f}
-.cell{width:38px;height:38px;background:#e7bd72;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:900;cursor:pointer;user-select:none}
-.cell:hover{background:#f2cb82}.cell.x{color:#c82732;text-shadow:0 1px #fff}.cell.o{color:#163d8c;text-shadow:0 1px #fff}.cell.last{box-shadow:inset 0 0 0 3px rgba(255,255,255,.72)}
+.board-wrap{overflow:auto;max-width:100%;border-radius:10px;padding:12px;background:#f8f5e9;box-shadow:0 14px 35px rgba(0,0,0,.3);-webkit-overflow-scrolling:touch}
+.board{display:grid;grid-template-columns:repeat(19,38px);grid-template-rows:repeat(19,38px);gap:0;width:max-content;margin:auto;background:#fffef7;border-top:1px solid #91a8c2;border-left:1px solid #91a8c2}
+.cell{width:38px;height:38px;background:#fffef7;border-right:1px solid #91a8c2;border-bottom:1px solid #91a8c2;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:900;cursor:pointer;user-select:none}
+.cell:hover{background:#eef5ff}.cell.x{color:#c82732;text-shadow:0 1px #fff}.cell.o{color:#163d8c;text-shadow:0 1px #fff}.cell.last{background:#fff2b8;box-shadow:inset 0 0 0 2px rgba(196,139,25,.45)}
 .legend{font-size:12px;opacity:.72;margin-top:9px}
 @media(max-width:560px){body{padding:12px 7px}.board{grid-template-columns:repeat(19,32px);grid-template-rows:repeat(19,32px)}.cell{width:32px;height:32px;font-size:22px}}
 </style>
@@ -32,6 +32,10 @@ button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:
     <button id="pvpBtn" onclick="setMode('pvp')">👥 Người vs Người</button>
     <button id="aiBtn" class="active" onclick="setMode('ai')">👤 Người vs 🤖 Máy</button>
   </div>
+  <div class="modes" style="margin-top:9px">
+    <button id="smallBtn" onclick="setBoardSize(3)">3×3</button>
+    <button id="largeBtn" class="active" onclick="setBoardSize(19)">19×19</button>
+  </div>
   <div class="status" id="status"></div>
 </div>
 <div class="board-wrap"><div class="board" id="board"></div></div>
@@ -39,7 +43,8 @@ button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:
 <div class="legend">Bạn đánh X khi chơi với máy. Máy đánh O.</div>
 </div>
 <script>
-const N=19;
+let N=19;
+let WIN=5;
 let board,currentPlayer,gameOver,mode='ai',aiThinking=false,lastMove=null;
 const boardEl=document.getElementById('board'), statusEl=document.getElementById('status');
 
@@ -50,14 +55,27 @@ function setMode(m){
   document.getElementById('aiBtn').classList.toggle('active',m==='ai');
   resetGame();
 }
+function setBoardSize(size){
+  N=size;
+  WIN=size===3?3:5;
+  document.getElementById('smallBtn').classList.toggle('active',size===3);
+  document.getElementById('largeBtn').classList.toggle('active',size===19);
+  resetGame();
+}
 function resetGame(){
   board=emptyBoard();currentPlayer='X';gameOver=false;aiThinking=false;lastMove=null;
+  document.querySelector('.sub').textContent=N===3?'3 quân liên tiếp để chiến thắng':'5 quân liên tiếp để chiến thắng';
+  document.querySelector('.legend').textContent=N===3?'Chế độ 3×3: AI chơi tối ưu. Bạn đánh X, máy đánh O.':'Chế độ 19×19: 5 quân liên tiếp. Bạn đánh X, máy đánh O.';
   render();updateStatus();
 }
 function render(){
   boardEl.innerHTML='';
+  const cellSize=N===3?88:(window.innerWidth<=560?32:38);
+  boardEl.style.gridTemplateColumns=`repeat(${N},${cellSize}px)`;
+  boardEl.style.gridTemplateRows=`repeat(${N},${cellSize}px)`;
+  boardEl.style.fontSize=N===3?'42px':'25px';
   for(let r=0;r<N;r++)for(let c=0;c<N;c++){
-    const d=document.createElement('div');d.className='cell';
+    const d=document.createElement('div');d.className='cell';d.style.width=cellSize+'px';d.style.height=cellSize+'px';d.style.fontSize=(N===3?48:(window.innerWidth<=560?22:25))+'px';
     if(board[r][c]){d.textContent=board[r][c];d.classList.add(board[r][c].toLowerCase())}
     if(lastMove&&lastMove.r===r&&lastMove.c===c)d.classList.add('last');
     d.onclick=()=>humanClick(r,c);boardEl.appendChild(d);
@@ -92,7 +110,7 @@ function countDir(r,c,dr,dc,p){
   return n;
 }
 function checkWin(r,c,p){
-  return [[1,0],[0,1],[1,1],[1,-1]].some(([dr,dc])=>1+countDir(r,c,dr,dc,p)+countDir(r,c,-dr,-dc,p)>=5)
+  return [[1,0],[0,1],[1,1],[1,-1]].some(([dr,dc])=>1+countDir(r,c,dr,dc,p)+countDir(r,c,-dr,-dc,p)>=WIN)
 }
 function lineScore(r,c,p){
   let score=0;
@@ -100,19 +118,28 @@ function lineScore(r,c,p){
     let a=countDir(r,c,dr,dc,p),b=countDir(r,c,-dr,-dc,p),n=1+a+b;
     let r1=r+(a+1)*dr,c1=c+(a+1)*dc,r2=r-(b+1)*dr,c2=c-(b+1)*dc;
     let open=(r1>=0&&r1<N&&c1>=0&&c1<N&&!board[r1][c1]?1:0)+(r2>=0&&r2<N&&c2>=0&&c2<N&&!board[r2][c2]?1:0);
-    if(n>=5)score+=1000000;else if(n===4&&open===2)score+=80000;else if(n===4)score+=15000;
+    if(n>=WIN)score+=1000000;else if(n===4&&open===2)score+=80000;else if(n===4)score+=15000;
     else if(n===3&&open===2)score+=6000;else if(n===3)score+=800;else if(n===2&&open===2)score+=250;else score+=n*8;
   } return score;
 }
 function candidateCells(){
+  if(N===3){
+    const out=[];
+    for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(!board[r][c])out.push({r,c});
+    return out;
+  }
   const out=[];let any=false;
   for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c]){
     any=true;
     for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++){
-      let rr=r+dr,cc=c+dc;if(rr>=0&&rr<N&&cc>=0&&cc<N&&!board[rr][cc])out.push(rr*N+cc)
+      let rr=r+dr,cc=c+dc;
+      if(rr>=0&&rr<N&&cc>=0&&cc<N&&!board[rr][cc])out.push(rr*N+cc);
     }
   }
-  if(!any)return[{r:9,c:9}];
+  if(!any){
+    const mid=Math.floor(N/2);
+    return [{r:mid,c:mid}];
+  }
   return [...new Set(out)].map(v=>({r:Math.floor(v/N),c:v%N}));
 }
 function immediateWinningMove(player){
@@ -158,8 +185,47 @@ function evaluateBoardForAI(){
   return bestO-bestX*1.18;
 }
 
+
+function terminal3(){
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c]){
+    if(checkWin(r,c,board[r][c]))return board[r][c];
+  }
+  return board.every(row=>row.every(Boolean))?'D':null;
+}
+function minimax3(isMax,depth){
+  const end=terminal3();
+  if(end==='O')return 10-depth;
+  if(end==='X')return depth-10;
+  if(end==='D')return 0;
+  let best=isMax?-Infinity:Infinity;
+  const p=isMax?'O':'X';
+  for(const m of candidateCells()){
+    board[m.r][m.c]=p;
+    const v=minimax3(!isMax,depth+1);
+    board[m.r][m.c]=null;
+    best=isMax?Math.max(best,v):Math.min(best,v);
+  }
+  return best;
+}
+function best3x3Move(){
+  let best=null,bestScore=-Infinity;
+  for(const m of candidateCells()){
+    board[m.r][m.c]='O';
+    const score=minimax3(false,0);
+    board[m.r][m.c]=null;
+    if(score>bestScore){bestScore=score;best=m;}
+  }
+  return best;
+}
 function aiMove(){
   if(gameOver||mode!=='ai'){aiThinking=false;return}
+
+  if(N===3){
+    const m=best3x3Move();
+    aiThinking=false;
+    if(m)play(m.r,m.c,'O');
+    return;
+  }
 
   // 1. Có thể thắng ngay -> thắng.
   let best=immediateWinningMove('O');
