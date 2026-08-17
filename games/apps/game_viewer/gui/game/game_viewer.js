@@ -92,6 +92,7 @@ function setAppMode(mode){
   document.getElementById('puzzleSection').classList.toggle('hidden', mode!=='puzzle');
   document.getElementById('hiddenHelp').classList.toggle('hidden', mode!=='hidden');
   document.getElementById('mainHelp').classList.toggle('hidden', mode==='hidden');
+  document.getElementById('difficultySection').classList.toggle('hidden', mode==='puzzle');
 
   if(mode==='puzzle'){
     gameMode = HA;
@@ -183,7 +184,13 @@ function updatePuzzleProgress(){
   const solved=puzzleSolved.has(puzzleIndex);
   const totalSolved=[...puzzleSolved].filter(i=>i>=0&&i<PUZZLES.length).length;
   const level=PUZZLES[puzzleIndex].level||'';
-  el.textContent=`${level} · Màn ${puzzleIndex+1}/${PUZZLES.length} · ${solved?'★ Đã hoàn thành':'☆ Chưa hoàn thành'} · Đã giải ${totalSolved}/50 · Nước: ${puzzlePlayerMoves}`;
+  const target={
+    'Dễ':'AI phòng thủ cơ bản',
+    'Trung bình':'AI phòng thủ khá',
+    'Khó':'AI tìm sâu',
+    'Cao thủ':'AI phòng thủ tối đa'
+  }[level]||'';
+  el.textContent=`${level} · ${target} · Màn ${puzzleIndex+1}/${PUZZLES.length} · ${solved?'★ Đã hoàn thành':'☆ Chưa hoàn thành'} · Đã giải ${totalSolved}/50 · Nước: ${puzzlePlayerMoves}`;
 }
 
 function savePuzzlePosition(){
@@ -222,11 +229,13 @@ function showPuzzleHint(){
   try{
     const legal=engine.generateLegalMoves();
     if(!legal.length)return;
-    const cfg=AI_LEVELS.expert;
+    const cfg=currentPuzzleAiConfig();
+    const hintDepth=Math.max(6,Math.min(11,cfg.depth));
+    const hintTime=Math.max(500,Math.min(1200,cfg.time));
     const t=engine.getTimeControl();
-    t.timeSet=1;t.time=700;t.stopTime=Date.now()+700;t.stopped=0;
+    t.timeSet=1;t.time=hintTime;t.stopTime=Date.now()+hintTime;t.stopped=0;
     engine.setTimeControl(t);
-    const mv=engine.search(Math.min(9,cfg.depth));
+    const mv=engine.search(hintDepth);
     if(!mv)return;
     const src=engine.getSourceSquare(mv), dst=engine.getTargetSquare(mv);
     selectedSquare=src;
@@ -316,6 +325,37 @@ function afterStandardMove(){
   if(!isHumanTurn()) scheduleAI();
 }
 
+
+const PUZZLE_AI_LEVEL = {
+  'Dễ':        {depth:2,  time:160,  random:0.38},
+  'Trung bình':{depth:5,  time:420,  random:0.08},
+  'Khó':       {depth:8,  time:850,  random:0},
+  'Cao thủ':   {depth:12, time:1600, random:0}
+};
+
+function currentPuzzleAiConfig(){
+  return PUZZLE_AI_LEVEL[PUZZLES[puzzleIndex].level] || PUZZLE_AI_LEVEL['Trung bình'];
+}
+
+function choosePuzzleAiMove(){
+  const cfg=currentPuzzleAiConfig();
+  const legal=engine.generateLegalMoves();
+  if(!legal.length)return 0;
+
+  // Easy deliberately makes imperfect defensive moves sometimes.
+  if(Math.random()<cfg.random){
+    return legal[Math.floor(Math.random()*legal.length)].move;
+  }
+
+  const t=engine.getTimeControl();
+  t.timeSet=1;
+  t.time=cfg.time;
+  t.stopTime=Date.now()+cfg.time;
+  t.stopped=0;
+  engine.setTimeControl(t);
+  return engine.search(cfg.depth);
+}
+
 function chooseNormalAiMove(){
   const cfg=AI_LEVELS[aiLevel];
   const legal=engine.generateLegalMoves();
@@ -344,7 +384,7 @@ function scheduleAI(){
       }
 
       if(isHumanTurn()){aiThinking=false;updateStatus();return;}
-      const mv=chooseNormalAiMove();
+      const mv=appMode==='puzzle' ? choosePuzzleAiMove() : chooseNormalAiMove();
       if(!mv){gameOver=true;aiThinking=false;updateStatus('🏁 Không còn nước đi.');return;}
       engine.makeMove(mv); aiThinking=false; afterStandardMove();
     }catch(err){
