@@ -6,64 +6,98 @@
 <title>Cờ Tướng</title>
 <style>
 :root{
-  --bg1:#f4d7a5; --bg2:#b86e38; --panel:#fff7e6; --panel-soft:#f4e6cb;
-  --ink:#3c2415; --muted:#78604e; --red:#bd2228; --green:#2f7e4b; --gold:#b8863b;
+  --bg:#b86f39;--panel:#fff7e6;--soft:#f2e4ca;--ink:#3b2415;
+  --line:#5b321c;--red:#bd2228;--green:#2f7e4b;--gold:#e5b264;
 }
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink)}
-body{min-height:100vh;background:radial-gradient(circle at 50% 0,#fff1cf 0,#edbd7a 38%,#c17a40 68%,#8d522f 100%);padding:24px 16px 36px}
+body{
+  min-height:100vh;padding:24px 16px 38px;
+  background:radial-gradient(circle at 50% 0,#fff0ca 0,#edbd79 38%,#c17a40 68%,#8d522f 100%);
+}
 .page{width:min(1120px,100%);margin:auto}
-.hero{margin-bottom:14px}
-.hero h1{margin:0;font-size:clamp(32px,4vw,46px);line-height:1;font-weight:850;letter-spacing:-1px}
-.hero p{margin:7px 0 0;color:#654a38;font-size:15px}
-.tabs{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}
-.tab{width:auto;padding:10px 16px;border-radius:999px;background:#f0dfc1}
-.tab.active{background:#7e492a;color:white}
+.hero{display:flex;justify-content:space-between;align-items:end;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.hero h1{margin:0;font-size:clamp(31px,4vw,46px);line-height:1;font-weight:850;letter-spacing:-1px}
+.hero p{margin:7px 0 0;color:#684c39}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{
+  width:auto;padding:9px 15px;border-radius:999px;background:#f3e4c8;font-weight:800;
+  box-shadow:0 5px 14px rgba(74,37,16,.12)
+}
+.tab.active{background:#6f3d22;color:#fff}
 .layout{display:grid;grid-template-columns:minmax(450px,700px) 320px;gap:22px;align-items:start}
 .card{background:rgba(255,248,233,.96);border:1px solid rgba(91,48,22,.18);border-radius:22px;box-shadow:0 18px 45px rgba(74,37,16,.22)}
 .board-card{padding:15px}
-.board-frame{padding:18px;border-radius:16px;background:repeating-linear-gradient(0deg,#a85e2f 0 8px,#b86d38 8px 16px,#a95f31 16px 24px);box-shadow:inset 0 0 0 2px rgba(255,225,169,.25),inset 0 0 0 7px rgba(91,44,18,.2),0 10px 24px rgba(71,34,14,.25)}
-#xiangqiboard{position:relative;width:100%;aspect-ratio:8/9;border-radius:7px;overflow:hidden;background:repeating-linear-gradient(2deg,rgba(128,78,39,.035) 0 2px,transparent 2px 7px),#e3b66e;box-shadow:inset 0 0 0 2px rgba(86,44,19,.30),inset 0 0 24px rgba(104,57,25,.10)}
+.board-frame{
+  padding:18px;border-radius:16px;
+  background:repeating-linear-gradient(0deg,#a85e2f 0 8px,#b86d38 8px 16px,#a95f31 16px 24px);
+  box-shadow:inset 0 0 0 2px rgba(255,225,169,.25),inset 0 0 0 7px rgba(91,44,18,.2),0 10px 24px rgba(71,34,14,.25)
+}
+#xiangqiboard{
+  position:relative;width:100%;aspect-ratio:8/9;border-radius:7px;overflow:hidden;
+  background:repeating-linear-gradient(2deg,rgba(128,78,39,.035) 0 2px,transparent 2px 7px),#e3b66e;
+  box-shadow:inset 0 0 0 2px rgba(86,44,19,.30),inset 0 0 24px rgba(104,57,25,.10)
+}
 .board-svg{position:absolute;inset:0;width:100%;height:100%;z-index:1}
-.board-svg line,.board-svg path{stroke:#5b321c;stroke-width:2.2;fill:none;stroke-linecap:square}
-.board-svg .mark{stroke-width:2.4}
-.river-text{position:absolute;z-index:2;left:12%;right:12%;top:50%;transform:translateY(-50%);display:flex;justify-content:space-around;align-items:center;pointer-events:none;font-family:"Times New Roman",serif;font-weight:800;font-size:clamp(20px,2.5vw,31px);letter-spacing:4px;color:rgba(92,49,25,.70)}
+.board-svg line,.board-svg path{stroke:var(--line);stroke-width:2.1;fill:none;stroke-linecap:square}
+.board-svg .mark{stroke-width:2.3}
+.river-text{
+  position:absolute;z-index:2;left:12%;right:12%;top:50%;transform:translateY(-50%);
+  display:flex;justify-content:space-around;pointer-events:none;font-family:"Times New Roman",serif;
+  font-weight:800;font-size:clamp(19px,2.5vw,31px);letter-spacing:4px;color:rgba(92,49,25,.69)
+}
 #boardGrid{position:absolute;left:6.25%;right:6.25%;top:5.56%;bottom:5.56%;z-index:3}
-.sq{position:absolute;width:10.8%;height:9.6%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%}
-.sq.selected{background:rgba(255,222,73,.42)}
-.sq.legal:after{content:"";position:absolute;width:15%;aspect-ratio:1;border-radius:50%;background:rgba(73,39,20,.65);z-index:1}
-.piece{width:87%;height:87%;object-fit:contain;position:relative;z-index:2;filter:drop-shadow(0 3px 2px rgba(0,0,0,.28));user-select:none;-webkit-user-drag:none;transition:transform .12s ease}
-.sq:hover .piece{transform:scale(1.04)}
-.cover-piece{width:82%;height:82%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#d9b26d,#a56f35 55%,#6f431f 100%);border:3px solid #5b321c;box-shadow:inset 0 0 0 3px #ead29a,0 3px 2px #0004;display:flex;align-items:center;justify-content:center;font-weight:900;color:#5a321c;font-size:18px;z-index:2}
-.side-card{padding:18px;position:sticky;top:18px}
-.status{padding:12px 14px;border-radius:13px;background:linear-gradient(180deg,#f6e8c9,#edd4a7);border:1px solid rgba(103,62,28,.12);font-weight:800;margin-bottom:18px}
-.section{margin-top:14px}
-.section-title{font-size:14px;font-weight:800;margin-bottom:9px}
+.sq{
+  position:absolute;width:10.9%;height:9.7%;transform:translate(-50%,-50%);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%
+}
+.sq.selected{background:rgba(255,222,73,.44)}
+.sq.legal:after{content:"";position:absolute;width:16%;aspect-ratio:1;border-radius:50%;background:rgba(65,35,18,.68);z-index:1}
+.piece{width:88%;height:88%;object-fit:contain;position:relative;z-index:2;filter:drop-shadow(0 3px 2px rgba(0,0,0,.28));user-select:none;-webkit-user-drag:none}
+.covered-piece{
+  width:80%;height:80%;border-radius:50%;position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:center;
+  color:#f6d99a;font-weight:900;font-size:clamp(17px,2vw,25px);
+  background:radial-gradient(circle at 35% 28%,#9c5c31,#63351f 72%);
+  border:3px double #edc37c;box-shadow:0 3px 5px rgba(0,0,0,.28),inset 0 0 0 2px rgba(66,32,15,.7)
+}
+.covered-piece.red{background:radial-gradient(circle at 35% 28%,#b84b42,#7c211f 72%)}
+.side-card{padding:18px;position:sticky;top:16px}
+.status{padding:12px 14px;border-radius:13px;background:linear-gradient(180deg,#f6e8c9,#edd4a7);font-weight:850;margin-bottom:16px}
+.section{margin-top:15px}
+.section-title{font-size:13px;font-weight:850;margin-bottom:8px;text-transform:uppercase;letter-spacing:.45px;color:#6d503b}
 .mode-grid,.level-grid,.puzzle-grid{display:grid;gap:8px}
 .level-grid{grid-template-columns:1fr 1fr}
-button,select{border:0;border-radius:12px;padding:11px 12px;font:inherit;font-weight:750;color:#3c2819;background:#efe3cd;cursor:pointer;transition:.16s ease;box-shadow:inset 0 0 0 1px rgba(90,52,27,.08)}
+button{
+  border:0;border-radius:11px;padding:10px 11px;font:inherit;font-weight:750;color:#3c2819;
+  background:#efe3cd;cursor:pointer;transition:.15s ease;box-shadow:inset 0 0 0 1px rgba(90,52,27,.08)
+}
 button:hover{transform:translateY(-1px);filter:brightness(.98)}
-button.active{color:#fff;background:linear-gradient(180deg,#ca3036,#a9191f);box-shadow:0 7px 16px rgba(168,25,30,.22)}
-.new{margin-top:13px;color:#fff;background:linear-gradient(180deg,#3a8b58,#286d43)}
-.flip{margin-top:9px}
-.help{margin-top:16px;padding-top:14px;border-top:1px solid rgba(94,50,28,.12);color:var(--muted);font-size:13px;line-height:1.55}
-.small{font-size:12px;color:var(--muted)}
+button.active{color:#fff;background:linear-gradient(180deg,#c82e34,#a8191f);box-shadow:0 6px 14px rgba(168,25,30,.20)}
+.level-grid button.active{background:linear-gradient(180deg,#6d4b2e,#51321e)}
+.new{width:100%;margin-top:15px;color:#fff;background:linear-gradient(180deg,#3a8b58,#286d43)}
+.flip{width:100%;margin-top:8px}
+.help{margin-top:15px;padding-top:13px;border-top:1px solid rgba(94,50,28,.12);color:#79614e;font-size:12.5px;line-height:1.55}
+.badge{display:inline-block;margin:5px 5px 0 0;padding:4px 7px;border-radius:999px;background:#f0e1c5;font-size:11px}
 .hidden{display:none!important}
-@media(max-width:860px){.layout{grid-template-columns:1fr}.side-card{position:static;order:-1}}
-@media(max-width:520px){.board-card{padding:9px}.board-frame{padding:10px}.side-card{padding:14px}.level-grid{grid-template-columns:1fr}}
+.puzzle-title{font-weight:850;margin-bottom:4px}
+.puzzle-desc{font-size:12px;color:#7b6451;margin-bottom:9px;line-height:1.4}
+@media(max-width:880px){.layout{grid-template-columns:1fr}.side-card{position:static;order:-1}.hero{align-items:start}}
+@media(max-width:520px){body{padding:15px 9px 25px}.board-card{padding:8px}.board-frame{padding:9px}.side-card{padding:14px}.tabs{width:100%}.tab{flex:1}}
 </style>
 </head>
 <body>
 <div class="page">
   <div class="hero">
-    <h1>♟ Cờ Tướng</h1>
-    <p>Cờ Tướng · Cờ Thế · Cờ Úp</p>
-  </div>
-
-  <div class="tabs">
-    <button id="tabStandard" class="tab active" onclick="setVariant('standard')">Cờ Tướng</button>
-    <button id="tabPuzzle" class="tab" onclick="setVariant('puzzle')">Cờ Thế</button>
-    <button id="tabBlind" class="tab" onclick="setVariant('blind')">Cờ Úp</button>
+    <div>
+      <h1>♟ Cờ Tướng</h1>
+      <p>Cờ Tướng · Cờ Thế · Cờ Úp</p>
+    </div>
+    <div class="tabs">
+      <button class="tab active" id="tabXiangqi" onclick="setAppMode('xiangqi')">Cờ Tướng</button>
+      <button class="tab" id="tabPuzzle" onclick="setAppMode('puzzle')">Cờ Thế</button>
+      <button class="tab" id="tabHidden" onclick="setAppMode('hidden')">Cờ Úp</button>
+    </div>
   </div>
 
   <div class="layout">
@@ -71,7 +105,11 @@ button.active{color:#fff;background:linear-gradient(180deg,#ca3036,#a9191f);box-
       <div class="board-frame">
         <div id="xiangqiboard">
           <svg class="board-svg" viewBox="0 0 800 900" preserveAspectRatio="none" aria-hidden="true">
-            <line x1="50" y1="50" x2="750" y2="50"/><line x1="50" y1="138.889" x2="750" y2="138.889"/><line x1="50" y1="227.778" x2="750" y2="227.778"/><line x1="50" y1="316.667" x2="750" y2="316.667"/><line x1="50" y1="405.556" x2="750" y2="405.556"/><line x1="50" y1="494.444" x2="750" y2="494.444"/><line x1="50" y1="583.333" x2="750" y2="583.333"/><line x1="50" y1="672.222" x2="750" y2="672.222"/><line x1="50" y1="761.111" x2="750" y2="761.111"/><line x1="50" y1="850" x2="750" y2="850"/>
+            <line x1="50" y1="50" x2="750" y2="50"/><line x1="50" y1="138.889" x2="750" y2="138.889"/>
+            <line x1="50" y1="227.778" x2="750" y2="227.778"/><line x1="50" y1="316.667" x2="750" y2="316.667"/>
+            <line x1="50" y1="405.556" x2="750" y2="405.556"/><line x1="50" y1="494.444" x2="750" y2="494.444"/>
+            <line x1="50" y1="583.333" x2="750" y2="583.333"/><line x1="50" y1="672.222" x2="750" y2="672.222"/>
+            <line x1="50" y1="761.111" x2="750" y2="761.111"/><line x1="50" y1="850" x2="750" y2="850"/>
             <line x1="50" y1="50" x2="50" y2="850"/><line x1="750" y1="50" x2="750" y2="850"/>
             <line x1="137.5" y1="50" x2="137.5" y2="405.556"/><line x1="137.5" y1="494.444" x2="137.5" y2="850"/>
             <line x1="225" y1="50" x2="225" y2="405.556"/><line x1="225" y1="494.444" x2="225" y2="850"/>
@@ -82,6 +120,20 @@ button.active{color:#fff;background:linear-gradient(180deg,#ca3036,#a9191f);box-
             <line x1="662.5" y1="50" x2="662.5" y2="405.556"/><line x1="662.5" y1="494.444" x2="662.5" y2="850"/>
             <line x1="312.5" y1="50" x2="487.5" y2="227.778"/><line x1="487.5" y1="50" x2="312.5" y2="227.778"/>
             <line x1="312.5" y1="672.222" x2="487.5" y2="850"/><line x1="487.5" y1="672.222" x2="312.5" y2="850"/>
+            <path class="mark" d="M126 214 h-12 v-12 M149 214 h12 v-12 M126 241 h-12 v12 M149 241 h12 v12"/>
+            <path class="mark" d="M651 214 h-12 v-12 M674 214 h12 v-12 M651 241 h-12 v12 M674 241 h12 v12"/>
+            <path class="mark" d="M61 303 h12 v-12 M61 330 h12 v12"/>
+            <path class="mark" d="M214 303 h-12 v-12 M236 303 h12 v-12 M214 330 h-12 v12 M236 330 h12 v12"/>
+            <path class="mark" d="M389 303 h-12 v-12 M411 303 h12 v-12 M389 330 h-12 v12 M411 330 h12 v12"/>
+            <path class="mark" d="M564 303 h-12 v-12 M586 303 h12 v-12 M564 330 h-12 v12 M586 330 h12 v12"/>
+            <path class="mark" d="M739 303 h-12 v-12 M739 330 h-12 v12"/>
+            <path class="mark" d="M61 570 h12 v-12 M61 597 h12 v12"/>
+            <path class="mark" d="M214 570 h-12 v-12 M236 570 h12 v-12 M214 597 h-12 v12 M236 597 h12 v12"/>
+            <path class="mark" d="M389 570 h-12 v-12 M411 570 h12 v-12 M389 597 h-12 v12 M411 597 h12 v12"/>
+            <path class="mark" d="M564 570 h-12 v-12 M586 570 h12 v-12 M564 597 h-12 v12 M586 597 h12 v12"/>
+            <path class="mark" d="M739 570 h-12 v-12 M739 597 h-12 v12"/>
+            <path class="mark" d="M126 658 h-12 v-12 M149 658 h12 v-12 M126 685 h-12 v12 M149 685 h12 v12"/>
+            <path class="mark" d="M651 658 h-12 v-12 M674 658 h12 v-12 M651 685 h-12 v12 M674 685 h12 v12"/>
           </svg>
           <div class="river-text"><span>楚 河</span><span>漢 界</span></div>
           <div id="boardGrid"></div>
@@ -92,44 +144,46 @@ button.active{color:#fff;background:linear-gradient(180deg,#ca3036,#a9191f);box-
     <aside class="card side-card">
       <div class="status" id="status">Đang khởi tạo…</div>
 
-      <div id="standardPanel">
+      <div class="section" id="playModeSection">
         <div class="section-title">Chế độ chơi</div>
         <div class="mode-grid">
           <button id="modeHH" onclick="setGameMode('human-human')">👥 Người vs Người</button>
           <button id="modeHA" onclick="setGameMode('human-ai')">👤 Người (Đỏ) vs 🤖 AI</button>
           <button id="modeAH" onclick="setGameMode('ai-human')">🤖 AI (Đỏ) vs 👤 Người</button>
         </div>
+      </div>
 
-        <div class="section">
-          <div class="section-title">Độ khó AI</div>
-          <div class="level-grid">
-            <button id="lvEasy" onclick="setAiLevel('easy')">Dễ</button>
-            <button id="lvNormal" onclick="setAiLevel('normal')">Trung bình</button>
-            <button id="lvHard" onclick="setAiLevel('hard')">Khó</button>
-            <button id="lvExpert" onclick="setAiLevel('expert')">Cao thủ</button>
-          </div>
+      <div class="section" id="difficultySection">
+        <div class="section-title">Cấp độ AI</div>
+        <div class="level-grid">
+          <button id="lvEasy" onclick="setAiLevel('easy')">Dễ</button>
+          <button id="lvNormal" onclick="setAiLevel('normal')">Trung bình</button>
+          <button id="lvHard" onclick="setAiLevel('hard')">Khó</button>
+          <button id="lvExpert" onclick="setAiLevel('expert')">Cao thủ</button>
         </div>
       </div>
 
-      <div id="puzzlePanel" class="hidden">
-        <div class="section-title">Cờ Thế</div>
+      <div class="section hidden" id="puzzleSection">
+        <div class="section-title">Cờ thế luyện tập</div>
+        <div class="puzzle-title" id="puzzleTitle"></div>
+        <div class="puzzle-desc" id="puzzleDesc"></div>
         <div class="puzzle-grid">
-          <button onclick="loadPuzzle(0)">Màn 1 · Chiếu bí 1 nước</button>
-          <button onclick="loadPuzzle(1)">Màn 2 · Chiếu bí 2 nước</button>
-          <button onclick="loadPuzzle(2)">Màn 3 · Tấn công</button>
+          <button onclick="changePuzzle(-1)">← Thế trước</button>
+          <button onclick="changePuzzle(1)">Thế tiếp →</button>
         </div>
-        <div class="small" style="margin-top:10px">Bản đầu có 3 thế cờ mẫu; có thể thêm nhiều màn sau.</div>
       </div>
 
-      <div id="blindPanel" class="hidden">
-        <div class="section-title">Cờ Úp</div>
-        <div class="small">Quân ở hàng xuất phát được úp. Khi quân đi lần đầu, quân thật sẽ được lật ra. Đây là bản chơi thử cơ chế Cờ Úp trên engine hiện tại.</div>
+      <div class="help hidden" id="hiddenHelp">
+        Cờ Úp: ngoài hai Tướng, các quân còn lại được úp và xáo ngẫu nhiên. Nước đầu của quân úp đi theo vị trí đang đứng; sau đó quân được lật và đi theo quân thật.
       </div>
 
       <button class="new" onclick="newGame()">↻ Ván mới</button>
       <button class="flip" onclick="flipBoard()">↔ Đổi hướng bàn cờ</button>
 
-      <div class="help">Chọn quân rồi chọn giao điểm đích. Dấu chấm là nước đi hợp lệ.</div>
+      <div class="help" id="mainHelp">
+        Chọn quân rồi chọn giao điểm đích. Dấu chấm là nước đi hợp lệ.
+        <div><span class="badge">Đỏ đi trước</span><span class="badge">AI tự động đi</span></div>
+      </div>
     </aside>
   </div>
 </div>
