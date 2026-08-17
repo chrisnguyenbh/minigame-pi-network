@@ -68,17 +68,13 @@ function setGameMode(m){ gameMode=m; setActiveControls(); newGame(); }
 function updateAiStrengthInfo(){
   const el=document.getElementById('aiStrengthInfo');
   if(!el)return;
-  el.textContent='🤖 AI Mạnh nhất · depth tối đa 24 · khoảng 5.2 giây/nước · ưu tiên chiến thuật + tìm kiếm sâu.';
+  el.textContent=`🤖 AI Mạnh nhất · depth tối đa ${STRONG_AI.depth} · khoảng ${(STRONG_AI.time/1000).toFixed(1)} giây/nước · tìm kiếm sâu.`;
 }
 
 function setActiveControls(){
   document.querySelectorAll('.mode-grid button').forEach(x=>x.classList.remove('active'));
   const mid = {[HH]:'modeHH',[HA]:'modeHA',[AH]:'modeAH'}[gameMode];
   if(mid && document.getElementById(mid)) document.getElementById(mid).classList.add('active');
-
-  document.querySelectorAll('.level-grid button').forEach(x=>x.classList.remove('active'));
-  const lid = {easy:'lvEasy',normal:'lvNormal',hard:'lvHard',expert:'lvExpert'}[aiLevel];
-  document.getElementById(lid).classList.add('active');
 }
 
 function isHumanTurn(){
@@ -612,16 +608,16 @@ function hiddenMoveScore(mv){
 }
 function chooseHiddenAiMove(){
   const moves=hiddenAllLegalMoves(hiddenSide);if(!moves.length)return null;
-  if(aiLevel==='easy')return moves[Math.floor(Math.random()*moves.length)];
+  if(null==='easy')return moves[Math.floor(Math.random()*moves.length)];
 
   let ranked=moves.map(m=>({m,s:hiddenMoveScore(m)})).sort((a,b)=>b.s-a.s);
-  if(aiLevel==='normal'){
+  if(null==='normal'){
     const pool=ranked.slice(0,Math.min(5,ranked.length));
     return pool[Math.floor(Math.random()*pool.length)].m;
   }
 
   // Hard/Expert: penalize the strongest immediate opponent capture.
-  const limit=aiLevel==='expert'?Math.min(18,ranked.length):Math.min(10,ranked.length);
+  const limit=null==='expert'?Math.min(18,ranked.length):Math.min(10,ranked.length);
   let best=null,bestScore=-1e9;
   for(const item of ranked.slice(0,limit)){
     const backup=cloneHiddenBoard(hiddenBoard),sideBackup=hiddenSide;
@@ -630,7 +626,7 @@ function chooseHiddenAiMove(){
     let reply=0;
     for(const r of replies)reply=Math.max(reply,hiddenMoveScore(r));
     hiddenBoard=backup;hiddenSide=sideBackup;
-    const score=item.s-(aiLevel==='expert'?.85:.55)*reply;
+    const score=item.s-(null==='expert'?.85:.55)*reply;
     if(score>bestScore){bestScore=score;best=item.m;}
   }
   return best||ranked[0].m;
