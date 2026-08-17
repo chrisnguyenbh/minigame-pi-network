@@ -32,7 +32,7 @@ function render(){
   if(selectedSquare===sq)d.classList.add('selected');
   if(selectedSquare!==null&&isLegal(selectedSquare,sq))d.classList.add('legal');
   const p=engine.getPiece(sq);
-  if(p){const img=document.createElement('img');img.className='piece';img.src=`../game/images/traditional_pieces/${p}.png`;img.alt='quân cờ';img.draggable=false;d.appendChild(img)}
+  if(p){const img=document.createElement('img');img.className='piece';img.src=`game/images/traditional_pieces/${p}.png`;img.alt='quân cờ';img.draggable=false;d.appendChild(img)}
   d.onclick=()=>tap(sq);g.appendChild(d);
  }
 }
