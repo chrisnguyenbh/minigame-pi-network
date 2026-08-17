@@ -14,10 +14,10 @@ let flipped = false;
 
 const HH='human-human', HA='human-ai', AH='ai-human';
 const AI_LEVELS = {
-  easy:   {depth:2, time:180, random:0.38},
-  normal: {depth:5, time:380, random:0.08},
-  hard:   {depth:8, time:700, random:0},
-  expert: {depth:11,time:1250,random:0}
+  easy:   {depth:3,  time:220,  random:0.42, label:'Dễ'},
+  normal: {depth:8,  time:700,  random:0.03, label:'Trung bình'},
+  hard:   {depth:14, time:1600, random:0,    label:'Khó'},
+  expert: {depth:20, time:3200, random:0,    label:'Cao thủ'}
 };
 
 const PUZZLES = [
@@ -67,7 +67,18 @@ function setAppMode(mode){
 }
 
 function setGameMode(m){ gameMode=m; setActiveControls(); newGame(); }
-function setAiLevel(level){ aiLevel=level; setActiveControls(); if(!aiThinking) updateStatus(); }
+function setAiLevel(level){
+  aiLevel=level;
+  setActiveControls();
+  updateAiStrengthInfo();
+  if(!aiThinking) updateStatus();
+}
+function updateAiStrengthInfo(){
+  const el=document.getElementById('aiStrengthInfo');
+  if(!el)return;
+  const c=AI_LEVELS[aiLevel];
+  el.textContent=`${c.label}: depth ${c.depth} · tối đa ${(c.time/1000).toFixed(c.time>=1000?1:2)} giây${c.random?' · có sai số để yếu hơn':''}.`;
+}
 
 function setActiveControls(){
   document.querySelectorAll('.mode-grid button').forEach(x=>x.classList.remove('active'));
@@ -304,11 +315,21 @@ function chooseNormalAiMove(){
   const cfg=AI_LEVELS[aiLevel];
   const legal=engine.generateLegalMoves();
   if(!legal.length)return 0;
-  if(Math.random()<cfg.random) return legal[Math.floor(Math.random()*legal.length)].move;
+
+  // Easy deliberately makes mistakes. Higher levels never throw away a move randomly.
+  if(cfg.random && Math.random()<cfg.random){
+    return legal[Math.floor(Math.random()*legal.length)].move;
+  }
 
   const t=engine.getTimeControl();
-  t.timeSet=1; t.time=cfg.time; t.stopTime=Date.now()+cfg.time; t.stopped=0;
+  t.timeSet=1;
+  t.time=cfg.time;
+  t.stopTime=Date.now()+cfg.time;
+  t.stopped=0;
   engine.setTimeControl(t);
+
+  // Wukong's search is time-controlled. Bigger depth + larger time budget
+  // creates a real strength gap instead of cosmetic labels.
   return engine.search(cfg.depth);
 }
 
@@ -610,6 +631,7 @@ function init(){
   }
   engine=new Engine();
   setActiveControls();
+  updateAiStrengthInfo();
   newGame();
 }
 window.addEventListener('DOMContentLoaded',init);

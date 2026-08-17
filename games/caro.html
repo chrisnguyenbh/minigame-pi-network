@@ -19,7 +19,7 @@ button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:
 .board{display:grid;grid-template-columns:repeat(19,38px);grid-template-rows:repeat(19,38px);gap:0;width:max-content;margin:auto;background:#fffef7;border-top:1px solid #91a8c2;border-left:1px solid #91a8c2}
 .cell{width:38px;height:38px;background:#fffef7;border-right:1px solid #91a8c2;border-bottom:1px solid #91a8c2;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:900;cursor:pointer;user-select:none}
 .cell:hover{background:#eef5ff}.cell.x{color:#c82732;text-shadow:0 1px #fff}.cell.o{color:#163d8c;text-shadow:0 1px #fff}.cell.last{background:#fff2b8;box-shadow:inset 0 0 0 2px rgba(196,139,25,.45)}
-.legend{font-size:12px;opacity:.72;margin-top:9px}
+.legend{font-size:12px;opacity:.72;margin-top:9px}.ai-info{font-size:12px;opacity:.78;margin-top:8px;min-height:18px}.ai-levels button.active{background:#6856c8;color:#fff}
 @media(max-width:560px){body{padding:12px 7px}.board{grid-template-columns:repeat(19,32px);grid-template-rows:repeat(19,32px)}.cell{width:32px;height:32px;font-size:22px}}
 </style>
 </head>
@@ -36,7 +36,14 @@ button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:
     <button id="smallBtn" onclick="setBoardSize(3)">3×3</button>
     <button id="largeBtn" class="active" onclick="setBoardSize(19)">19×19</button>
   </div>
+  <div class="modes ai-levels" style="margin-top:9px">
+    <button id="aiEasy" onclick="setAiLevel('easy')">Dễ</button>
+    <button id="aiNormal" class="active" onclick="setAiLevel('normal')">Trung bình</button>
+    <button id="aiHard" onclick="setAiLevel('hard')">Khó</button>
+    <button id="aiExpert" onclick="setAiLevel('expert')">Cao thủ</button>
+  </div>
   <div class="status" id="status"></div>
+  <div class="ai-info" id="aiInfo"></div>
 </div>
 <div class="board-wrap"><div class="board" id="board"></div></div>
 <div class="panel actions"><button class="new" onclick="resetGame()">↻ Ván mới</button></div>
@@ -46,6 +53,13 @@ button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:
 let N=19;
 let WIN=5;
 let board,currentPlayer,gameOver,mode='ai',aiThinking=false,lastMove=null;
+let aiLevel='normal';
+const AI_CFG={
+  easy:   {label:'Dễ',depth:1,time:120,width:6,random:0.45},
+  normal: {label:'Trung bình',depth:3,time:500,width:8,random:0.08},
+  hard:   {label:'Khó',depth:4,time:1200,width:10,random:0},
+  expert: {label:'Cao thủ',depth:5,time:2400,width:12,random:0}
+};
 const boardEl=document.getElementById('board'), statusEl=document.getElementById('status');
 
 function emptyBoard(){return Array.from({length:N},()=>Array(N).fill(null))}
@@ -62,11 +76,28 @@ function setBoardSize(size){
   document.getElementById('largeBtn').classList.toggle('active',size===19);
   resetGame();
 }
+function setAiLevel(level){
+  aiLevel=level;
+  for(const [k,id] of Object.entries({easy:'aiEasy',normal:'aiNormal',hard:'aiHard',expert:'aiExpert'})){
+    document.getElementById(id).classList.toggle('active',k===level);
+  }
+  updateAiInfo();
+}
+function updateAiInfo(){
+  const el=document.getElementById('aiInfo');
+  if(!el)return;
+  if(N===3){
+    el.textContent='3×3: AI Minimax tối ưu — nếu bạn đi chuẩn, máy không thể bị ép thua.';
+    return;
+  }
+  const c=AI_CFG[aiLevel];
+  el.textContent=`AI ${c.label}: tìm sâu ${c.depth} ply · tối đa ${(c.time/1000).toFixed(c.time>=1000?1:2)} giây · ${c.random?'có sai số chiến thuật':'không đi ngẫu nhiên'}.`;
+}
 function resetGame(){
   board=emptyBoard();currentPlayer='X';gameOver=false;aiThinking=false;lastMove=null;
   document.querySelector('.sub').textContent=N===3?'3 quân liên tiếp để chiến thắng':'5 quân liên tiếp để chiến thắng';
   document.querySelector('.legend').textContent=N===3?'Chế độ 3×3: AI chơi tối ưu. Bạn đánh X, máy đánh O.':'Chế độ 19×19: 5 quân liên tiếp. Bạn đánh X, máy đánh O.';
-  render();updateStatus();
+  render();updateStatus();updateAiInfo();
 }
 function render(){
   boardEl.innerHTML='';
@@ -153,21 +184,21 @@ function immediateWinningMove(player){
 }
 
 function patternValue(r,c,p){
-  let total=0;
+  let total=0, threats=0;
   for(const [dr,dc] of [[1,0],[0,1],[1,1],[1,-1]]){
-    let a=countDir(r,c,dr,dc,p), b=countDir(r,c,-dr,-dc,p);
-    let n=1+a+b;
+    let a=countDir(r,c,dr,dc,p), b=countDir(r,c,-dr,-dc,p), n=1+a+b;
     let r1=r+(a+1)*dr,c1=c+(a+1)*dc,r2=r-(b+1)*dr,c2=c-(b+1)*dc;
     let open=(r1>=0&&r1<N&&c1>=0&&c1<N&&!board[r1][c1]?1:0)+(r2>=0&&r2<N&&c2>=0&&c2<N&&!board[r2][c2]?1:0);
-    if(n>=5) total+=100000000;
-    else if(n===4&&open===2) total+=8000000;
-    else if(n===4&&open===1) total+=900000;
-    else if(n===3&&open===2) total+=180000;
-    else if(n===3&&open===1) total+=18000;
-    else if(n===2&&open===2) total+=3500;
-    else if(n===2&&open===1) total+=400;
+    if(n>=5){total+=100000000;threats+=4}
+    else if(n===4&&open===2){total+=12000000;threats+=3}
+    else if(n===4&&open===1){total+=1500000;threats+=2}
+    else if(n===3&&open===2){total+=300000;threats+=1}
+    else if(n===3&&open===1)total+=25000;
+    else if(n===2&&open===2)total+=4500;
+    else if(n===2&&open===1)total+=500;
     else total+=n*12;
   }
+  if(threats>=2)total+=2500000; // double threat
   return total;
 }
 
@@ -176,7 +207,7 @@ function moveScore(m,p){
   board[m.r][m.c]=p; const attack=patternValue(m.r,m.c,p); board[m.r][m.c]=null;
   board[m.r][m.c]=q; const defend=patternValue(m.r,m.c,q); board[m.r][m.c]=null;
   const mid=(N-1)/2;
-  return attack*1.12+defend*1.28-(Math.abs(m.r-mid)+Math.abs(m.c-mid))*2;
+  return attack*1.20+defend*1.38-(Math.abs(m.r-mid)+Math.abs(m.c-mid))*2;
 }
 
 function orderedMoves(player,limit){
@@ -191,34 +222,37 @@ function boardEval(){
   let ao=0,ax=0;
   const moves=candidateCells();
   for(const m of moves){
-    board[m.r][m.c]='O'; ao=Math.max(ao,patternValue(m.r,m.c,'O')); board[m.r][m.c]=null;
-    board[m.r][m.c]='X'; ax=Math.max(ax,patternValue(m.r,m.c,'X')); board[m.r][m.c]=null;
+    board[m.r][m.c]='O';ao=Math.max(ao,patternValue(m.r,m.c,'O'));board[m.r][m.c]=null;
+    board[m.r][m.c]='X';ax=Math.max(ax,patternValue(m.r,m.c,'X'));board[m.r][m.c]=null;
   }
-  return ao-ax*1.15;
+  return ao-ax*1.22;
 }
 
-function hasWin(p){
-  for(let r=0;r<N;r++)for(let c=0;c<N;c++)
-    if(board[r][c]===p&&checkWin(r,c,p)) return true;
+let SEARCH_DEADLINE=0, SEARCH_ABORT=false, SEARCH_WIDTH=8;
+function timeUp(){
+  if(Date.now()>SEARCH_DEADLINE){SEARCH_ABORT=true;return true}
   return false;
 }
 
-function alphabeta(depth,alpha,beta,maximizing){
-  if(hasWin('O')) return 1000000000+depth;
-  if(hasWin('X')) return -1000000000-depth;
-  if(depth===0) return boardEval();
+function alphabeta(depth,alpha,beta,maximizing,lastMove,lastPlayer){
+  if(timeUp())return 0;
+  if(lastMove&&checkWin(lastMove.r,lastMove.c,lastPlayer))
+    return lastPlayer==='O'?1000000000+depth:-1000000000-depth;
+  if(depth===0)return boardEval();
 
-  const p=maximizing?'O':'X';
-  const moves=orderedMoves(p, depth>=2?8:6);
+  const player=maximizing?'O':'X';
+  const width=Math.max(5,SEARCH_WIDTH-(depth<=1?2:0));
+  const moves=orderedMoves(player,width);
   if(!moves.length)return 0;
 
   if(maximizing){
     let value=-Infinity;
     for(const m of moves){
       board[m.r][m.c]='O';
-      value=Math.max(value,alphabeta(depth-1,alpha,beta,false));
+      const v=alphabeta(depth-1,alpha,beta,false,m,'O');
       board[m.r][m.c]=null;
-      alpha=Math.max(alpha,value);
+      if(SEARCH_ABORT)return value===-Infinity?0:value;
+      value=Math.max(value,v);alpha=Math.max(alpha,value);
       if(alpha>=beta)break;
     }
     return value;
@@ -226,13 +260,42 @@ function alphabeta(depth,alpha,beta,maximizing){
     let value=Infinity;
     for(const m of moves){
       board[m.r][m.c]='X';
-      value=Math.min(value,alphabeta(depth-1,alpha,beta,true));
+      const v=alphabeta(depth-1,alpha,beta,true,m,'X');
       board[m.r][m.c]=null;
-      beta=Math.min(beta,value);
+      if(SEARCH_ABORT)return value===Infinity?0:value;
+      value=Math.min(value,v);beta=Math.min(beta,value);
       if(alpha>=beta)break;
     }
     return value;
   }
+}
+
+function searchBestMove(cfg){
+  const roots=orderedMoves('O',Math.max(6,cfg.width));
+  if(!roots.length)return null;
+  let completedBest=roots[0];
+
+  SEARCH_DEADLINE=Date.now()+cfg.time;
+  SEARCH_WIDTH=cfg.width;
+
+  // Iterative deepening means Hard/Expert actually finish shallower searches
+  // first, then deepen while time remains.
+  for(let depth=2;depth<=cfg.depth;depth++){
+    SEARCH_ABORT=false;
+    let roundBest=completedBest, roundValue=-Infinity;
+
+    for(const m of roots){
+      if(timeUp())break;
+      board[m.r][m.c]='O';
+      const v=alphabeta(depth-1,-Infinity,Infinity,false,m,'O');
+      board[m.r][m.c]=null;
+      if(SEARCH_ABORT)break;
+      if(v>roundValue){roundValue=v;roundBest=m}
+    }
+    if(!SEARCH_ABORT)completedBest=roundBest;
+    else break;
+  }
+  return completedBest;
 }
 
 function terminal3(){
@@ -246,14 +309,14 @@ function minimax3(isMax,depth){
   for(const m of candidateCells()){
     board[m.r][m.c]=p;let v=minimax3(!isMax,depth+1);board[m.r][m.c]=null;
     best=isMax?Math.max(best,v):Math.min(best,v);
-  } return best;
+  }return best;
 }
 function best3x3Move(){
   let best=null,v=-Infinity;
   for(const m of candidateCells()){
     board[m.r][m.c]='O';let x=minimax3(false,0);board[m.r][m.c]=null;
     if(x>v){v=x;best=m}
-  } return best;
+  }return best;
 }
 
 function aiMove(){
@@ -262,32 +325,32 @@ function aiMove(){
     const m=best3x3Move();aiThinking=false;if(m)play(m.r,m.c,'O');return;
   }
 
-  // Tactics have absolute priority.
-  let best=immediateWinningMove('O');
-  if(!best) best=immediateWinningMove('X');
+  const cfg=AI_CFG[aiLevel];
 
-  // Detect dangerous open-four / double-threat squares before search.
-  if(!best){
-    let danger=null,dv=-1;
+  // Tactical necessities are enforced at EVERY level.
+  let best=immediateWinningMove('O');
+  if(!best)best=immediateWinningMove('X');
+
+  if(!best && aiLevel==='easy'){
+    const cand=orderedMoves('O',Math.min(8,cfg.width));
+    if(cand.length){
+      best=Math.random()<cfg.random
+        ? cand[Math.floor(Math.random()*Math.min(4,cand.length))]
+        : cand[0];
+    }
+  }
+
+  if(!best && aiLevel==='normal'){
+    // One tactical look-ahead before the real search.
+    let danger=null,dv=-Infinity;
     for(const m of candidateCells()){
-      board[m.r][m.c]='X';
-      const v=patternValue(m.r,m.c,'X');
-      board[m.r][m.c]=null;
+      board[m.r][m.c]='X';const v=patternValue(m.r,m.c,'X');board[m.r][m.c]=null;
       if(v>dv){dv=v;danger=m}
     }
-    if(dv>=800000)best=danger;
+    if(dv>=1500000)best=danger;
   }
 
-  // 3-ply alpha-beta with aggressive candidate ordering.
-  if(!best){
-    let value=-Infinity;
-    for(const m of orderedMoves('O',12)){
-      board[m.r][m.c]='O';
-      const v=alphabeta(2,-Infinity,Infinity,false);
-      board[m.r][m.c]=null;
-      if(v>value){value=v;best=m}
-    }
-  }
+  if(!best)best=searchBestMove(cfg);
 
   aiThinking=false;
   if(best)play(best.r,best.c,'O');
