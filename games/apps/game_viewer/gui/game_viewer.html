@@ -6,187 +6,286 @@
 <title>Cờ Tướng</title>
 <style>
 :root{
-  --bg1:#f6d69b;
-  --bg2:#b66d35;
-  --panel:#fff8e8;
-  --panel2:#f7ead1;
-  --wood:#d9a45e;
-  --wood-dark:#6e3b1f;
-  --line:#5e321c;
-  --red:#b51f24;
-  --green:#2f7d4a;
-  --text:#382214;
-  --muted:#7a6657;
+  --bg1:#f4d7a5;
+  --bg2:#b86e38;
+  --panel:#fff7e6;
+  --panel-soft:#f4e6cb;
+  --ink:#3c2415;
+  --muted:#78604e;
+  --red:#bd2228;
+  --green:#2f7e4b;
 }
 *{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--text)}
+html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink)}
 body{
   min-height:100vh;
-  background:
-    radial-gradient(circle at 50% 0%,#fff1c9 0%,#efbd78 35%,#c17a3e 70%,#8f542f 100%);
+  background:radial-gradient(circle at 50% 0,#fff1cf 0,#edbd7a 38%,#c17a40 68%,#8d522f 100%);
   padding:28px 18px 40px;
 }
-.page{width:min(1080px,100%);margin:0 auto}
-.hero{display:flex;justify-content:space-between;align-items:end;gap:18px;margin-bottom:18px}
-.hero h1{margin:0;font-size:clamp(30px,4vw,46px);line-height:1;font-weight:850;letter-spacing:-1px}
-.hero p{margin:8px 0 0;color:#674b39;font-size:15px}
+.page{width:min(1080px,100%);margin:auto}
+.hero{margin-bottom:18px}
+.hero h1{margin:0;font-size:clamp(32px,4vw,46px);line-height:1;font-weight:850;letter-spacing:-1px}
+.hero p{margin:8px 0 0;color:#654a38;font-size:15px}
+
 .layout{
   display:grid;
-  grid-template-columns:minmax(440px,680px) 310px;
+  grid-template-columns:minmax(450px,680px) 310px;
   gap:22px;
   align-items:start;
 }
 .card{
-  background:rgba(255,248,232,.95);
-  border:1px solid rgba(98,55,27,.18);
+  background:rgba(255,248,233,.96);
+  border:1px solid rgba(91,48,22,.18);
   border-radius:22px;
-  box-shadow:0 18px 45px rgba(80,42,18,.22);
+  box-shadow:0 18px 45px rgba(74,37,16,.22);
 }
-.board-card{padding:16px}
+.board-card{padding:15px}
+
 .board-frame{
-  padding:13px;
+  padding:18px;
   border-radius:16px;
-  background:linear-gradient(145deg,#8b4a25,#c98242 45%,#7b3e20);
-  box-shadow:inset 0 0 0 2px rgba(255,226,173,.22),0 10px 22px rgba(74,37,15,.24);
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.08),rgba(91,46,19,.08)),
+    repeating-linear-gradient(0deg,#a85e2f 0 8px,#b86d38 8px 16px,#a95f31 16px 24px);
+  box-shadow:
+    inset 0 0 0 2px rgba(255,225,169,.25),
+    inset 0 0 0 7px rgba(91,44,18,.2),
+    0 10px 24px rgba(71,34,14,.25);
 }
 #xiangqiboard{
   position:relative;
   width:100%;
-  aspect-ratio:9/10;
-  border-radius:10px;
+  aspect-ratio:8/9;
+  border-radius:7px;
   overflow:hidden;
   background:
-    linear-gradient(rgba(255,255,255,.14),rgba(255,255,255,.03)),
-    #e4b76f;
-  box-shadow:inset 0 0 0 2px rgba(86,45,20,.28);
+    radial-gradient(circle at 20% 15%,rgba(255,255,255,.18),transparent 30%),
+    radial-gradient(circle at 80% 70%,rgba(113,65,30,.06),transparent 36%),
+    repeating-linear-gradient(2deg,rgba(128,78,39,.035) 0 2px,transparent 2px 7px),
+    #e3b66e;
+  box-shadow:
+    inset 0 0 0 2px rgba(86,44,19,.30),
+    inset 0 0 24px rgba(104,57,25,.10);
 }
-.board-lines{
+
+.board-svg{
   position:absolute;
-  left:5.6%;
-  right:5.6%;
-  top:5%;
-  bottom:5%;
+  inset:0;
+  width:100%;
+  height:100%;
   z-index:1;
+}
+.board-svg line,
+.board-svg path{
+  stroke:#5b321c;
+  stroke-width:2.2;
+  fill:none;
+  stroke-linecap:square;
+}
+.board-svg .mark{
+  stroke-width:2.4;
+}
+.river-text{
+  position:absolute;
+  z-index:2;
+  left:12%;
+  right:12%;
+  top:50%;
+  transform:translateY(-50%);
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
   pointer-events:none;
+  font-family:"Times New Roman",serif;
+  font-weight:800;
+  font-size:clamp(20px,2.5vw,31px);
+  letter-spacing:4px;
+  color:rgba(92,49,25,.70);
 }
-.hline,.vline{position:absolute;background:var(--line);opacity:.9}
-.hline{left:0;right:0;height:1.5px;transform:translateY(-.75px)}
-.vline{top:0;bottom:0;width:1.5px;transform:translateX(-.75px)}
-.vline.inner{bottom:auto;height:44.444%}
-.vline.inner.bottom{top:auto;bottom:0;height:44.444%}
-.palace{position:absolute;width:25%;height:22.222%;left:37.5%}
-.palace.top{top:0}.palace.bottom{bottom:0}
-.palace::before,.palace::after{
-  content:"";position:absolute;left:50%;top:50%;width:141.5%;height:1.5px;background:var(--line);transform-origin:center
+
+#boardGrid{
+  position:absolute;
+  left:6.25%;
+  right:6.25%;
+  top:5.56%;
+  bottom:5.56%;
+  z-index:3;
 }
-.palace::before{transform:translate(-50%,-50%) rotate(41.6deg)}
-.palace::after{transform:translate(-50%,-50%) rotate(-41.6deg)}
-.river{
-  position:absolute;z-index:2;left:9%;right:9%;top:50%;transform:translateY(-50%);
-  display:flex;justify-content:space-around;align-items:center;
-  font-family:"Times New Roman",serif;font-weight:800;
-  font-size:clamp(18px,2.4vw,30px);color:rgba(92,49,26,.65);pointer-events:none
-}
-#boardGrid{position:absolute;left:5.6%;right:5.6%;top:5%;bottom:5%;z-index:3}
 .sq{
-  position:absolute;width:10.7%;height:9.5%;transform:translate(-50%,-50%);
-  display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%
+  position:absolute;
+  width:10.8%;
+  height:9.6%;
+  transform:translate(-50%,-50%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  border-radius:50%;
 }
-.sq.selected{background:rgba(255,222,75,.42)}
+.sq.selected{background:rgba(255,222,73,.42)}
 .sq.legal:after{
-  content:"";position:absolute;width:14%;aspect-ratio:1;border-radius:50%;
-  background:rgba(70,38,20,.62);z-index:1
+  content:"";
+  position:absolute;
+  width:15%;
+  aspect-ratio:1;
+  border-radius:50%;
+  background:rgba(73,39,20,.65);
+  z-index:1;
 }
 .piece{
-  width:86%;height:86%;object-fit:contain;position:relative;z-index:2;
+  width:87%;
+  height:87%;
+  object-fit:contain;
+  position:relative;
+  z-index:2;
   filter:drop-shadow(0 3px 2px rgba(0,0,0,.28));
-  user-select:none;-webkit-user-drag:none;
-  transition:transform .12s ease
+  user-select:none;
+  -webkit-user-drag:none;
+  transition:transform .12s ease;
 }
 .sq:hover .piece{transform:scale(1.04)}
+
 .side-card{padding:18px;position:sticky;top:18px}
 .status{
-  display:flex;align-items:center;gap:9px;
-  padding:12px 14px;border-radius:13px;
-  background:linear-gradient(180deg,#f6e8c9,#eed7ad);
-  border:1px solid rgba(103,63,30,.12);
-  font-weight:800;font-size:15px;margin-bottom:18px
+  padding:12px 14px;
+  border-radius:13px;
+  background:linear-gradient(180deg,#f6e8c9,#edd4a7);
+  border:1px solid rgba(103,62,28,.12);
+  font-weight:800;
+  margin-bottom:18px;
 }
-.section-title{font-size:14px;font-weight:800;margin:0 0 9px}
+.section-title{font-size:14px;font-weight:800;margin-bottom:9px}
 .mode-grid{display:grid;gap:9px}
 button{
-  width:100%;border:0;border-radius:12px;padding:11px 12px;
-  font:inherit;font-weight:750;color:#3c2819;background:#efe3cd;
-  cursor:pointer;transition:.16s ease;box-shadow:inset 0 0 0 1px rgba(90,52,27,.08)
+  width:100%;
+  border:0;
+  border-radius:12px;
+  padding:11px 12px;
+  font:inherit;
+  font-weight:750;
+  color:#3c2819;
+  background:#efe3cd;
+  cursor:pointer;
+  transition:.16s ease;
+  box-shadow:inset 0 0 0 1px rgba(90,52,27,.08);
 }
 button:hover{transform:translateY(-1px);filter:brightness(.98)}
 button.active{
-  color:#fff;background:linear-gradient(180deg,#c72c31,#a8191e);
-  box-shadow:0 7px 16px rgba(168,25,30,.22)
+  color:#fff;
+  background:linear-gradient(180deg,#ca3036,#a9191f);
+  box-shadow:0 7px 16px rgba(168,25,30,.22);
 }
 .new{
-  margin-top:13px;color:white;background:linear-gradient(180deg,#3b8a58,#286d43);
-  box-shadow:0 7px 16px rgba(40,109,67,.18)
+  margin-top:13px;
+  color:#fff;
+  background:linear-gradient(180deg,#3a8b58,#286d43);
 }
 .flip{margin-top:9px}
 .help{
-  margin-top:16px;padding-top:14px;border-top:1px solid rgba(94,50,28,.12);
-  color:var(--muted);font-size:13px;line-height:1.55
+  margin-top:16px;
+  padding-top:14px;
+  border-top:1px solid rgba(94,50,28,.12);
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.55;
 }
-.tips{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-.tip{font-size:11px;padding:5px 8px;border-radius:999px;background:#f3e6cf;color:#6f573f}
+.tips{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+.tip{font-size:11px;padding:5px 8px;border-radius:999px;background:#f2e4ca;color:#6c5540}
+
 @media(max-width:850px){
   body{padding:18px 12px 28px}
   .layout{grid-template-columns:1fr}
   .side-card{position:static;order:-1}
-  .hero{align-items:start}
 }
 @media(max-width:520px){
-  .board-card{padding:10px}.board-frame{padding:8px}
-  .side-card{padding:14px}.hero h1{font-size:32px}
+  .board-card{padding:9px}
+  .board-frame{padding:10px}
+  .side-card{padding:14px}
 }
 </style>
 </head>
 <body>
 <div class="page">
   <div class="hero">
-    <div>
-      <h1>♟ Cờ Tướng</h1>
-      <p>Chơi cùng bạn bè hoặc thử sức với AI.</p>
-    </div>
+    <h1>♟ Cờ Tướng</h1>
+    <p>Chơi cùng bạn bè hoặc thử sức với AI.</p>
   </div>
 
   <div class="layout">
     <section class="card board-card">
       <div class="board-frame">
         <div id="xiangqiboard">
-          <div class="board-lines">
-            <div class="hline" style="top:0%"></div>
-            <div class="hline" style="top:11.111111%"></div>
-            <div class="hline" style="top:22.222222%"></div>
-            <div class="hline" style="top:33.333333%"></div>
-            <div class="hline" style="top:44.444444%"></div>
-            <div class="hline" style="top:55.555556%"></div>
-            <div class="hline" style="top:66.666667%"></div>
-            <div class="hline" style="top:77.777778%"></div>
-            <div class="hline" style="top:88.888889%"></div>
-            <div class="hline" style="top:100%"></div>
 
-            <div class="vline" style="left:0%"></div>
-            <div class="vline inner" style="left:12.5%"></div><div class="vline inner bottom" style="left:12.5%"></div>
-            <div class="vline inner" style="left:25%"></div><div class="vline inner bottom" style="left:25%"></div>
-            <div class="vline inner" style="left:37.5%"></div><div class="vline inner bottom" style="left:37.5%"></div>
-            <div class="vline inner" style="left:50%"></div><div class="vline inner bottom" style="left:50%"></div>
-            <div class="vline inner" style="left:62.5%"></div><div class="vline inner bottom" style="left:62.5%"></div>
-            <div class="vline inner" style="left:75%"></div><div class="vline inner bottom" style="left:75%"></div>
-            <div class="vline inner" style="left:87.5%"></div><div class="vline inner bottom" style="left:87.5%"></div>
-            <div class="vline" style="left:100%"></div>
+          <!-- Bàn cờ chuẩn 9 đường dọc × 10 đường ngang -->
+          <svg class="board-svg" viewBox="0 0 800 900" preserveAspectRatio="none" aria-hidden="true">
+            <!-- horizontal lines -->
+            <line x1="50" y1="50" x2="750" y2="50"/>
+            <line x1="50" y1="138.889" x2="750" y2="138.889"/>
+            <line x1="50" y1="227.778" x2="750" y2="227.778"/>
+            <line x1="50" y1="316.667" x2="750" y2="316.667"/>
+            <line x1="50" y1="405.556" x2="750" y2="405.556"/>
+            <line x1="50" y1="494.444" x2="750" y2="494.444"/>
+            <line x1="50" y1="583.333" x2="750" y2="583.333"/>
+            <line x1="50" y1="672.222" x2="750" y2="672.222"/>
+            <line x1="50" y1="761.111" x2="750" y2="761.111"/>
+            <line x1="50" y1="850" x2="750" y2="850"/>
 
-            <div class="palace top"></div>
-            <div class="palace bottom"></div>
-          </div>
+            <!-- outer vertical lines -->
+            <line x1="50" y1="50" x2="50" y2="850"/>
+            <line x1="750" y1="50" x2="750" y2="850"/>
 
-          <div class="river"><span>楚 河</span><span>漢 界</span></div>
+            <!-- inner verticals, split at river -->
+            <line x1="137.5" y1="50" x2="137.5" y2="405.556"/>
+            <line x1="137.5" y1="494.444" x2="137.5" y2="850"/>
+
+            <line x1="225" y1="50" x2="225" y2="405.556"/>
+            <line x1="225" y1="494.444" x2="225" y2="850"/>
+
+            <line x1="312.5" y1="50" x2="312.5" y2="405.556"/>
+            <line x1="312.5" y1="494.444" x2="312.5" y2="850"/>
+
+            <line x1="400" y1="50" x2="400" y2="405.556"/>
+            <line x1="400" y1="494.444" x2="400" y2="850"/>
+
+            <line x1="487.5" y1="50" x2="487.5" y2="405.556"/>
+            <line x1="487.5" y1="494.444" x2="487.5" y2="850"/>
+
+            <line x1="575" y1="50" x2="575" y2="405.556"/>
+            <line x1="575" y1="494.444" x2="575" y2="850"/>
+
+            <line x1="662.5" y1="50" x2="662.5" y2="405.556"/>
+            <line x1="662.5" y1="494.444" x2="662.5" y2="850"/>
+
+            <!-- palace diagonals -->
+            <line x1="312.5" y1="50" x2="487.5" y2="227.778"/>
+            <line x1="487.5" y1="50" x2="312.5" y2="227.778"/>
+            <line x1="312.5" y1="672.222" x2="487.5" y2="850"/>
+            <line x1="487.5" y1="672.222" x2="312.5" y2="850"/>
+
+            <!-- position markers: cannon top -->
+            <path class="mark" d="M126 214 h-12 v-12 M149 214 h12 v-12 M126 241 h-12 v12 M149 241 h12 v12"/>
+            <path class="mark" d="M651 214 h-12 v-12 M674 214 h12 v-12 M651 241 h-12 v12 M674 241 h12 v12"/>
+
+            <!-- position markers: pawns top -->
+            <path class="mark" d="M61 303 h12 v-12 M61 330 h12 v12"/>
+            <path class="mark" d="M214 303 h-12 v-12 M236 303 h12 v-12 M214 330 h-12 v12 M236 330 h12 v12"/>
+            <path class="mark" d="M389 303 h-12 v-12 M411 303 h12 v-12 M389 330 h-12 v12 M411 330 h12 v12"/>
+            <path class="mark" d="M564 303 h-12 v-12 M586 303 h12 v-12 M564 330 h-12 v12 M586 330 h12 v12"/>
+            <path class="mark" d="M739 303 h-12 v-12 M739 330 h-12 v12"/>
+
+            <!-- position markers: pawns bottom -->
+            <path class="mark" d="M61 570 h12 v-12 M61 597 h12 v12"/>
+            <path class="mark" d="M214 570 h-12 v-12 M236 570 h12 v-12 M214 597 h-12 v12 M236 597 h12 v12"/>
+            <path class="mark" d="M389 570 h-12 v-12 M411 570 h12 v-12 M389 597 h-12 v12 M411 597 h12 v12"/>
+            <path class="mark" d="M564 570 h-12 v-12 M586 570 h12 v-12 M564 597 h-12 v12 M586 597 h12 v12"/>
+            <path class="mark" d="M739 570 h-12 v-12 M739 597 h-12 v12"/>
+
+            <!-- position markers: cannon bottom -->
+            <path class="mark" d="M126 658 h-12 v-12 M149 658 h12 v-12 M126 685 h-12 v12 M149 685 h12 v12"/>
+            <path class="mark" d="M651 658 h-12 v-12 M674 658 h12 v-12 M651 685 h-12 v12 M674 685 h12 v12"/>
+          </svg>
+
+          <div class="river-text"><span>楚 河</span><span>漢 界</span></div>
           <div id="boardGrid"></div>
         </div>
       </div>
@@ -206,12 +305,11 @@ button.active{
       <button class="flip" onclick="flipBoard()">↔ Đổi hướng bàn cờ</button>
 
       <div class="help">
-        Chọn quân của bên đang đi, sau đó chọn giao điểm đích.
-        Những vị trí có dấu chấm là nước đi hợp lệ.
+        Chọn quân rồi chọn giao điểm đích. Dấu chấm là nước đi hợp lệ.
         <div class="tips">
           <span class="tip">Đỏ đi trước</span>
           <span class="tip">AI tự động đi</span>
-          <span class="tip">Bấm Ván mới để reset</span>
+          <span class="tip">Bàn gỗ truyền thống</span>
         </div>
       </div>
     </aside>
