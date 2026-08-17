@@ -19,7 +19,7 @@ button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:
 .board{display:grid;grid-template-columns:repeat(19,38px);grid-template-rows:repeat(19,38px);gap:0;width:max-content;margin:auto;background:#fffef7;border-top:1px solid #91a8c2;border-left:1px solid #91a8c2}
 .cell{width:38px;height:38px;background:#fffef7;border-right:1px solid #91a8c2;border-bottom:1px solid #91a8c2;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:900;cursor:pointer;user-select:none}
 .cell:hover{background:#eef5ff}.cell.x{color:#c82732;text-shadow:0 1px #fff}.cell.o{color:#163d8c;text-shadow:0 1px #fff}.cell.last{background:#fff2b8;box-shadow:inset 0 0 0 2px rgba(196,139,25,.45)}
-.legend{font-size:12px;opacity:.72;margin-top:9px}.ai-info{font-size:12px;opacity:.78;margin-top:8px;min-height:18px}.ai-levels button.active{background:#6856c8;color:#fff}
+.legend{font-size:12px;opacity:.72;margin-top:9px}.ai-info{font-size:12px;opacity:.78;margin-top:8px;min-height:18px}
 @media(max-width:560px){body{padding:12px 7px}.board{grid-template-columns:repeat(19,32px);grid-template-rows:repeat(19,32px)}.cell{width:32px;height:32px;font-size:22px}}
 </style>
 </head>
@@ -36,14 +36,8 @@ button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:
     <button id="smallBtn" onclick="setBoardSize(3)">3×3</button>
     <button id="largeBtn" class="active" onclick="setBoardSize(19)">19×19</button>
   </div>
-  <div class="modes ai-levels" style="margin-top:9px">
-    <button id="aiEasy" onclick="setAiLevel('easy')">Dễ</button>
-    <button id="aiNormal" class="active" onclick="setAiLevel('normal')">Trung bình</button>
-    <button id="aiHard" onclick="setAiLevel('hard')">Khó</button>
-    <button id="aiExpert" onclick="setAiLevel('expert')">Cao thủ</button>
-  </div>
   <div class="status" id="status"></div>
-  <div class="ai-info" id="aiInfo"></div>
+  <div class="ai-info" id="aiInfo">🤖 AI Áp Đảo: chủ động chiếm trung tâm, ép thế liên tục và phòng thủ bắt buộc.</div>
 </div>
 <div class="board-wrap"><div class="board" id="board"></div></div>
 <div class="panel actions"><button class="new" onclick="resetGame()">↻ Ván mới</button></div>
@@ -53,13 +47,7 @@ button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:
 let N=19;
 let WIN=5;
 let board,currentPlayer,gameOver,mode='ai',aiThinking=false,lastMove=null;
-let aiLevel='normal';
-const AI_CFG={
-  easy:   {label:'Dễ',depth:1,time:120,width:6,random:0.45},
-  normal: {label:'Trung bình',depth:3,time:500,width:8,random:0.08},
-  hard:   {label:'Khó',depth:4,time:1200,width:10,random:0},
-  expert: {label:'Cao thủ',depth:7,time:4800,width:14,random:0}
-};
+const AI_CFG={depth:6,time:4200,width:14};
 const boardEl=document.getElementById('board'), statusEl=document.getElementById('status');
 
 function emptyBoard(){return Array.from({length:N},()=>Array(N).fill(null))}
@@ -76,22 +64,12 @@ function setBoardSize(size){
   document.getElementById('largeBtn').classList.toggle('active',size===19);
   resetGame();
 }
-function setAiLevel(level){
-  aiLevel=level;
-  for(const [k,id] of Object.entries({easy:'aiEasy',normal:'aiNormal',hard:'aiHard',expert:'aiExpert'})){
-    document.getElementById(id).classList.toggle('active',k===level);
-  }
-  updateAiInfo();
-}
 function updateAiInfo(){
   const el=document.getElementById('aiInfo');
   if(!el)return;
-  if(N===3){
-    el.textContent='3×3: AI Minimax tối ưu — nếu bạn đi chuẩn, máy không thể bị ép thua.';
-    return;
-  }
-  const c=AI_CFG[aiLevel];
-  el.textContent=`AI ${c.label}: depth tối đa ${c.depth} · ${(c.time/1000).toFixed(1)} giây · ${aiLevel==='expert'?'Threat-Space + Alpha-Beta + bộ nhớ thế cờ':(c.random?'có sai số chiến thuật':'Alpha-Beta')}.`;
+  el.textContent = N===3
+    ? '3×3: AI Minimax tối ưu.'
+    : '🤖 AI Áp Đảo: công mạnh, thủ chắc, ưu tiên ép 4 mở / song 3 / 3–4.';
 }
 function resetGame(){
   board=emptyBoard();currentPlayer='X';gameOver=false;aiThinking=false;lastMove=null;
@@ -232,7 +210,7 @@ function moveScore(m,p){
   const a=tacticalScore(m,p), d=tacticalScore(m,q);
   const mid=(N-1)/2;
   const center=80-(Math.abs(m.r-mid)+Math.abs(m.c-mid))*4;
-  return a.score*1.10+d.score*1.32+center;
+  return a.score*1.34+d.score*1.42+center;
 }
 
 function orderedMoves(player,limit){
@@ -426,22 +404,52 @@ function best3x3Move(){
   return best;
 }
 
+
+function aggressiveOpeningMove(){
+  // Trong 19x19, AI ưu tiên tạo thế gần trung tâm ngay từ đầu.
+  const stones=[];
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c])stones.push({r,c});
+  if(stones.length>7)return null;
+
+  const mid=Math.floor(N/2);
+  const preferred=[
+    {r:mid,c:mid},
+    {r:mid,c:mid+1},{r:mid+1,c:mid},{r:mid,c:mid-1},{r:mid-1,c:mid},
+    {r:mid+1,c:mid+1},{r:mid-1,c:mid-1},{r:mid+1,c:mid-1},{r:mid-1,c:mid+1},
+    {r:mid,c:mid+2},{r:mid+2,c:mid},{r:mid,c:mid-2},{r:mid-2,c:mid}
+  ].filter(m=>m.r>=0&&m.r<N&&m.c>=0&&m.c<N&&!board[m.r][m.c]);
+
+  if(!preferred.length)return null;
+
+  let best=preferred[0],bestV=-Infinity;
+  for(const m of preferred){
+    const v=moveScore(m,'O');
+    if(v>bestV){bestV=v;best=m;}
+  }
+  return best;
+}
+
 function aiMove(){
   if(gameOver||mode!=='ai'){aiThinking=false;return}
   if(N===3){
     const m=best3x3Move();aiThinking=false;if(m)play(m.r,m.c,'O');return;
   }
 
-  const cfg=AI_CFG[aiLevel];
+  const cfg=AI_CFG;
 
-  // 1) Mandatory tactical moves.
+  // 1) Thắng ngay nếu có.
   let best=immediateWinningMove('O');
+
+  // 2) Nếu đối thủ có nước thắng ngay thì bắt buộc chặn.
   if(!best)best=immediateWinningMove('X');
 
-  // 2) Cao thủ tries to find a forced tactical win before normal search.
-  if(!best&&aiLevel==='expert'){
-    const tacticalDeadline=Date.now()+Math.min(1800,cfg.time*.42);
-    const ts=threatSearch('O',5,tacticalDeadline);
+  // 3) Khai cuộc chủ động: chiếm trung tâm và tạo áp lực sớm.
+  if(!best)best=aggressiveOpeningMove();
+
+  // 4) Tìm chuỗi ép thắng và chặn các đe dọa chiến thuật lớn.
+  if(!best){
+    const tacticalDeadline=Date.now()+Math.min(2200,cfg.time*.52);
+    const ts=threatSearch('O',6,tacticalDeadline);
     if(ts&&ts.win)best=ts.move;
 
     // If opponent has a forcing sequence, occupy its strongest threat square.
@@ -451,15 +459,6 @@ function aiMove(){
     }
   }
 
-  // 3) Easy stays deliberately imperfect.
-  if(!best&&aiLevel==='easy'){
-    const cand=orderedMoves('O',Math.min(8,cfg.width));
-    if(cand.length){
-      best=Math.random()<cfg.random
-        ?cand[Math.floor(Math.random()*Math.min(4,cand.length))]
-        :cand[0];
-    }
-  }
 
   // 4) All serious levels use iterative deepening alpha-beta.
   if(!best)best=searchBestMove(cfg);
