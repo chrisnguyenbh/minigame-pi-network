@@ -19,12 +19,12 @@ button{cursor:pointer;background:#e7edf3;color:#172533}button.primary{background
 .tile{position:relative;border:1px solid #6b7b6a;background:#f7f5e8;color:#1d2a1f;padding:3px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;overflow:hidden}
 .tile .name{font-size:9px;font-weight:850;line-height:1.05;text-align:center}.tile .price{font-size:8px;text-align:center;opacity:.7}
 .tile .bar{height:7px;margin:-3px -3px 3px;background:#bbb}.tile.corner{background:#e9ead8;justify-content:center}
-.tokens{display:flex;flex-wrap:wrap;gap:2px;justify-content:center}.token{width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px #0007}
+.tokens{display:flex;flex-wrap:wrap;gap:1px;justify-content:center;align-items:center;min-height:30px}.chibi-token{width:27px;height:27px;border-radius:50%;overflow:hidden;border:2px solid #fff;background:#fff;box-shadow:0 3px 7px #0008;transition:transform .18s}.chibi-token.active{transform:translateY(-3px) scale(1.12);box-shadow:0 5px 10px #0009}.chibi-token img{width:100%;height:100%;object-fit:cover;display:block}
 .owner{position:absolute;right:2px;bottom:2px;width:7px;height:7px;border-radius:50%}.houses{font-size:9px;text-align:center;color:#0b7a3a;font-weight:900}
 .center{position:absolute;inset:17%;display:flex;align-items:center;justify-content:center;pointer-events:none}
 .center-card{background:#fff9;color:#203020;border:2px solid #57715c;padding:18px 25px;border-radius:15px;transform:rotate(-12deg);font-size:32px;font-weight:1000;letter-spacing:2px}
 .side{display:flex;flex-direction:column;gap:10px;position:sticky;top:10px}.turn{font-size:18px;font-weight:900;padding:10px;background:#ffffff0d;border-radius:10px}
-.players{display:grid;gap:7px}.player{padding:8px 9px;border-radius:10px;background:#ffffff0b;border-left:5px solid var(--pc)}.player.active{outline:2px solid var(--gold)}.player.bankrupt{opacity:.4;text-decoration:line-through}.ai-badge{font-size:10px;background:#ffffff1c;padding:2px 5px;border-radius:6px;margin-left:4px}
+.players{display:grid;gap:7px}.player-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;border:2px solid #fff}.player{padding:8px 9px;border-radius:10px;background:#ffffff0b;border-left:5px solid var(--pc)}.player.active{outline:2px solid var(--gold)}.player.bankrupt{opacity:.4;text-decoration:line-through}.ai-badge{font-size:10px;background:#ffffff1c;padding:2px 5px;border-radius:6px;margin-left:4px}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.actions button{width:100%}.dice{font-size:34px;text-align:center;min-height:48px}
 .property{padding:9px;background:#ffffff0a;border-radius:10px;font-size:13px;line-height:1.45}
 .log{margin-top:12px;max-height:180px;overflow:auto;font-size:12px;line-height:1.45}.entry{padding:3px 0;border-bottom:1px solid #ffffff0d}
@@ -33,7 +33,7 @@ button{cursor:pointer;background:#e7edf3;color:#172533}button.primary{background
 </head>
 <body>
 <div class="app">
-  <div class="top"><div><h1>🏙️ Cờ Tỷ Phú Sài Gòn</h1><div>Phiên bản TP.HCM · Chơi với người hoặc AI.</div></div><a href="../">← MiniGame Hub</a></div>
+  <div class="top"><div><h1>🏙️ Cờ Tỷ Phú Sài Gòn</h1><div>Phiên bản TP.HCM · Chibi di chuyển theo từng bước xúc xắc · Người vs AI.</div></div><a href="../">← MiniGame Hub</a></div>
 
   <div class="setup" id="setup">
     <b>Chế độ:</b>
@@ -139,7 +139,7 @@ function renderAll(){
   state.players.forEach((p,idx)=>{
     if(p.bankrupt)return;
     const tile=document.querySelector(`.tile[data-i="${p.pos}"] .tokens`);
-    if(tile)tile.innerHTML+=`<i class="token" style="background:${p.color}"></i>`;
+    if(tile)tile.innerHTML+=`<span class="chibi-token ${idx===state.current?'active':''}" title="${p.name}"><img src="../assets/monopoly/chibi_${(idx%4)+1}.webp" alt="${p.name}"></span>`;
   });
 
   Object.entries(state.properties).forEach(([pos,pr])=>{
@@ -150,7 +150,7 @@ function renderAll(){
     if(pr.houses)tile.querySelector('.houses').textContent=pr.houses>=5?'🏨':'🏠'.repeat(pr.houses);
   });
 
-  players.innerHTML=state.players.map((p,i)=>`<div class="player ${i===state.current?'active':''} ${p.bankrupt?'bankrupt':''}" style="--pc:${p.color}"><b>${p.name}</b> · ${p.cash} · Ô ${p.pos+1}${p.jail?' · 🔒 Jail':''}</div>`).join('');
+  players.innerHTML=state.players.map((p,i)=>`<div class="player ${i===state.current?'active':''} ${p.bankrupt?'bankrupt':''}" style="--pc:${p.color}"><img class="player-avatar" src="../assets/monopoly/chibi_${(i%4)+1}.webp"><b>${p.name}</b>${p.ai?'<span class="ai-badge">🤖 AI</span>':''} · $${p.cash} · Ô ${p.pos+1}${p.jail?' · 🔒 Nhà giam':''}</div>`).join('');
   const p=current(),loc=locByPos(p.pos);
   turn.textContent=state.gameOver?'Ván đã kết thúc':`Vòng ${state.round} · ${p.name}`;
   const typeLabel={
@@ -210,6 +210,8 @@ function aiBuildBest(){
   return true;
 }
 
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
 function maybeAiTurn(){
   if(!state||state.gameOver)return;
   const p=current();
@@ -218,42 +220,52 @@ function maybeAiTurn(){
   setTimeout(aiTakeTurn,650);
 }
 
-function aiTakeTurn(){
+async function aiTakeTurn(){
   if(!state||state.gameOver||!current().ai)return;
-  const p=current();
+  await rollDice();
+  await sleep(480);
+  if(!state||state.gameOver||!current().ai)return;
 
-  // Roll/move using the same rules as human.
-  rollDice();
+  const p=current(),loc=locByPos(p.pos);
+  if(state.pendingBuy && aiShouldBuy(p,loc)) buyProperty();
 
-  setTimeout(()=>{
-    if(!state||state.gameOver||!current().ai)return;
-    const p=current(),loc=locByPos(p.pos);
-
-    if(state.pendingBuy && aiShouldBuy(p,loc)) buyProperty();
-
-    // Build up to two profitable houses per turn while maintaining cash reserve.
-    let builds=0;
-    while(builds<2 && aiBuildBest()) builds++;
-
-    renderAll();
-    setTimeout(()=>endTurn(),700);
-  },700);
+  let builds=0;
+  while(builds<2 && aiBuildBest()){builds++;await sleep(180)}
+  renderAll();
+  await sleep(520);
+  endTurn();
 }
 
-function rollDice(){
+async function rollDice(){
   if(!state||state.gameOver||state.rolled)return;
   const p=current();
+
   if(p.jail>0){
-    const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);dice.textContent=`🎲 ${a} + 🎲 ${b}`;
+    const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);
+    dice.textContent=`🎲 ${a} + 🎲 ${b}`;
     if(a===b){p.jail=0;log(`${p.name} tung đôi và ra khỏi tù!`)}
-    else{p.jail--;state.rolled=true;log(`${p.name} còn ${p.jail} lượt trong tù.`);renderAll();return}
+    else{
+      p.jail--;state.rolled=true;log(`${p.name} còn ${p.jail} lượt trong tù.`);
+      renderAll();return;
+    }
   }
 
   const d1=1+Math.floor(Math.random()*6),d2=1+Math.floor(Math.random()*6),sum=d1+d2;
-  dice.textContent=`🎲 ${d1} + 🎲 ${d2} = ${sum}`;state.rolled=true;
-  const old=p.pos,pNew=(p.pos+sum)%40;
-  if(p.pos+sum>=40){p.cash+=200;p.laps++;log(`${p.name} qua KHỞI HÀNH và nhận $200.`)}
-  p.pos=pNew;log(`${p.name} đi ${sum} ô tới ${locByPos(p.pos).name}.`);
+  dice.textContent=`🎲 ${d1} + 🎲 ${d2} = ${sum}`;
+  state.rolled=true;renderAll();
+
+  // Chibi đi từng ô đúng bằng số xúc xắc.
+  for(let step=0;step<sum;step++){
+    p.pos=(p.pos+1)%40;
+    if(p.pos===0){
+      p.cash+=200;p.laps++;
+      log(`${p.name} qua KHỞI HÀNH và nhận $200.`);
+    }
+    renderAll();
+    await sleep(185);
+  }
+
+  log(`${p.name} dừng tại ${locByPos(p.pos).name}.`);
   resolveLanding();
 }
 
@@ -331,7 +343,7 @@ function drawCard(type){
     {t:'Trả $100',fn:()=>p.cash-=100},
     {t:'Nhận $50',fn:()=>p.cash+=50},
   ];
-  const c=cards[Math.floor(Math.random()*cards.length)];c.fn();log(`${type==='CHEST'?'KHÍ VẬN':'CƠ HỘI'}: ${c.t}.`);
+  const c=cards[Math.floor(Math.random()*cards.length)];c.fn();log(`${type==='Khí vận'?'KHÍ VẬN':'CƠ HỘI'}: ${c.t}.`);
 }
 
 function payTo(from,to,amt){
