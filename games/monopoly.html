@@ -37,13 +37,12 @@ button,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.35;cur
 .tile.corner{background:linear-gradient(145deg,#fff9df,#e7d4a6);justify-content:center}.tile .bar{height:11px;margin:-4px -3px 2px;border-bottom:1px solid #0002}.tile .name{font-size:9px;font-weight:1000;line-height:1.02;text-align:center}.tile .price{font-size:8px;text-align:center;font-weight:850}.tile.event::after{content:"?";font-size:24px;color:#e33440;text-align:center;font-weight:1000}.tile.chest::after{content:"🧰";font-size:19px;text-align:center}
 .houses{font-size:8px;text-align:center;color:#087a36;font-weight:1000;min-height:8px}.owner{position:absolute;right:3px;bottom:3px;width:9px;height:9px;border-radius:50%;border:1px solid #fff}
 .tokens{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);z-index:30;display:flex;overflow:visible;pointer-events:none}
-.chibi-token{width:68px;height:88px;overflow:visible;filter:drop-shadow(0 8px 5px #000b);transform-origin:50% 90%;transition:transform .15s}.chibi-token.active{transform:translateY(-11px) scale(1.08)}.chibi-token img{width:100%;height:100%;object-fit:contain;border:0;border-radius:0;background:transparent}
+.chibi-token{width:82px;height:106px;overflow:visible;filter:drop-shadow(0 8px 5px #000b);transform-origin:50% 90%;transition:transform .15s}.chibi-token.active{transform:translateY(-22px) scale(1.14)}.chibi-token img{width:100%;height:100%;object-fit:contain;border:0;border-radius:0;background:transparent}
 
-.center-scene{position:absolute;left:var(--corner);right:var(--corner);top:var(--corner);bottom:var(--corner);z-index:1;border:2px solid #6f5137;background:
- linear-gradient(#07284d33,#02151dbb),url('../assets/monopoly/v2/saigon_center.webp') center/cover no-repeat;overflow:hidden}
-.center-scene:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#06162b24,#06152155 50%,#020a12aa)}
+.center-scene{position:absolute;left:var(--corner);right:var(--corner);top:var(--corner);bottom:var(--corner);z-index:1;border:3px solid #b88943;border-radius:6px;background:linear-gradient(180deg,#03142b12,#02091266),url('../assets/monopoly/v2/saigon_center.webp') center/cover no-repeat;overflow:hidden;box-shadow:inset 0 0 45px #0008,0 0 22px #d59b4030}
+.center-scene:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 54%,transparent 0 30%,#02091418 58%,#01060db0 100%);pointer-events:none}
 .skyline{display:none}.saigon-title{position:absolute;z-index:2;left:0;right:0;top:31%;text-align:center;font-size:48px;font-weight:1000;letter-spacing:2px;color:#f8d68a;text-shadow:0 4px 0 #654621,0 10px 24px #000}
-.center-dice{position:absolute;z-index:3;left:50%;top:55%;transform:translate(-50%,-50%);font-size:58px;filter:drop-shadow(0 8px 6px #0009)}
+.center-dice{position:absolute;z-index:3;left:50%;top:55%;transform:translate(-50%,-50%);font-size:76px;filter:drop-shadow(0 10px 8px #000b) drop-shadow(0 0 16px #ffd76a66)}
 .spin-button{position:absolute;z-index:4;left:50%;top:76%;transform:translate(-50%,-50%);width:116px;height:116px;border-radius:50%;border:7px solid #f7cb38;background:radial-gradient(circle at 35% 25%,#59de58,#087c2e 74%);color:#fff;font-size:26px;font-weight:1000;box-shadow:0 0 0 4px #ffffff38,0 0 28px #ffd33c99}.spin-button small{display:block;font-size:9px;margin-top:2px}
 
 .right-panel{display:flex;flex-direction:column;gap:7px}.turn-card,.current-card,.property-card{background:#ffffff07;border-radius:9px;padding:8px}.turn-card h3,.current-card h3{margin:0 0 5px;font-size:13px}.dice-readout{text-align:center;font-size:20px;font-weight:1000}.actions{display:grid;gap:5px}.actions button{width:100%;border:0;border-radius:8px;padding:9px 6px;font-size:13px;font-weight:1000;color:#fff}
@@ -55,6 +54,11 @@ button,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.35;cur
 
 .modal{position:fixed;inset:0;background:#020710c9;display:none;align-items:center;justify-content:center;z-index:999;padding:18px}.modal.show{display:flex}.event-popup{width:min(410px,100%);background:linear-gradient(180deg,#fff4d5,#f2d9a7);color:#281a10;border-radius:18px;border:5px solid #d79a3e;box-shadow:0 28px 70px #000b;overflow:hidden;text-align:center}.event-head{padding:11px;font-size:23px;font-weight:1000;color:#fff}.event-head.chance{background:linear-gradient(#ed493d,#c61e25)}.event-head.fortune{background:linear-gradient(#2698e8,#1465ad)}.event-body{padding:19px}.event-icon{font-size:54px}.event-body h2{margin:7px 0 5px}.event-body p{font-size:16px}.event-close{margin:0 0 15px;border:0;border-radius:9px;background:#c92c2c;color:#fff;padding:9px 34px;font-weight:1000}
 
+
+.tile{box-shadow:inset 0 1px #fff9,inset 0 -2px #8b632933}.tile:hover{filter:brightness(1.06)}
+.spin-button{box-shadow:0 0 0 5px #f5c84b66,0 0 32px #ffc83d88,inset 0 3px #ffffff66!important;background:linear-gradient(180deg,#54d52f,#078c36)!important;border:3px solid #ffd65a!important;text-shadow:0 2px 2px #064b23;transform:translate(-50%,-50%) scale(1.08)}
+.actions button:not(:disabled){box-shadow:inset 0 2px #ffffff33,0 5px 12px #0005;transform:translateY(0);transition:.15s}.actions button:not(:disabled):active{transform:translateY(2px)}
+.player-avatar{width:58px;height:72px}.player{min-height:82px}.chibi-token{z-index:50}
 @media(max-width:1200px){.game-layout{grid-template-columns:180px minmax(700px,1fr) 190px}.board{--corner:80px;--h:63px;--v:54px}.chibi-token{width:62px;height:80px}.saigon-title{font-size:42px}}
 @media(max-width:900px){.header{grid-template-columns:1fr auto}.header-nav{display:none}.game-layout{display:block}.left-panel,.right-panel{margin-bottom:6px}.players{grid-template-columns:repeat(2,1fr)}.board{min-width:780px}.bottom-grid{grid-template-columns:1fr}.right-panel{display:grid;grid-template-columns:1fr 1fr}.actions{grid-column:1/-1;grid-template-columns:repeat(3,1fr)}}
 </style>

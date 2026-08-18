@@ -37,7 +37,7 @@ button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:
     <button id="largeBtn" class="active" onclick="setBoardSize(19)">19×19</button>
   </div>
   <div class="status" id="status"></div>
-  <div class="ai-info" id="aiInfo">🤖 AI Áp Đảo: chủ động chiếm trung tâm, ép thế liên tục và phòng thủ bắt buộc.</div>
+  <div class="ai-info" id="aiInfo">🤖 AI Cao thủ: tìm kiếm sâu hơn, ưu tiên thắng/chặn bắt buộc, chuỗi ép 3–4 và phản công chủ động.</div>
 </div>
 <div class="board-wrap"><div class="board" id="board"></div></div>
 <div class="panel actions"><button class="new" onclick="resetGame()">↻ Ván mới</button></div>
@@ -47,7 +47,7 @@ button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:
 let N=19;
 let WIN=5;
 let board,currentPlayer,gameOver,mode='ai',aiThinking=false,lastMove=null;
-const AI_CFG={depth:6,time:4200,width:14};
+const AI_CFG={depth:8,time:6500,width:18};
 const boardEl=document.getElementById('board'), statusEl=document.getElementById('status');
 
 function emptyBoard(){return Array.from({length:N},()=>Array(N).fill(null))}
@@ -448,8 +448,8 @@ function aiMove(){
 
   // 4) Tìm chuỗi ép thắng và chặn các đe dọa chiến thuật lớn.
   if(!best){
-    const tacticalDeadline=Date.now()+Math.min(2200,cfg.time*.52);
-    const ts=threatSearch('O',6,tacticalDeadline);
+    const tacticalDeadline=Date.now()+Math.min(3200,cfg.time*.55);
+    const ts=threatSearch('O',8,tacticalDeadline);
     if(ts&&ts.win)best=ts.move;
 
     // If opponent has a forcing sequence, occupy its strongest threat square.

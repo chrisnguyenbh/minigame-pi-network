@@ -13,8 +13,8 @@ let flipped = false;
 
 const HH='human-human', HA='human-ai', AH='ai-human';
 const STRONG_AI = {
-  depth: 24,
-  time: 5200,
+  depth: 32,
+  time: 8000,
   label: 'AI Mạnh nhất'
 };
 
@@ -288,14 +288,14 @@ function choosePuzzleAiMove(){
   if(!legal.length)return 0;
 
   // Cờ Thế Lão Làng: AI luôn phòng thủ ở mức mạnh nhất.
-  const time=1800;
+  const time=3000;
   const t=engine.getTimeControl();
   t.timeSet=1;
   t.time=time;
   t.stopTime=Date.now()+time;
   t.stopped=0;
   engine.setTimeControl(t);
-  return engine.search(12);
+  return engine.search(18);
 }
 
 
