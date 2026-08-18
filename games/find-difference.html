@@ -29,4 +29,5 @@ function pos(p,e){let im=p.querySelector('img'),r=im.getBoundingClientRect();if(
 function mark(i,c=''){let[x,y]=levels[L].spots[i];[A,B].forEach(p=>{let im=p.querySelector('img'),ir=im.getBoundingClientRect(),pr=p.getBoundingClientRect(),m=document.createElement('i');m.className='mark '+c;m.style.left=(ir.left-pr.left+ir.width*x/100)+'px';m.style.top=(ir.top-pr.top+ir.height*y/100)+'px';p.appendChild(m)})}
 function click(p,e){let q=pos(p,e);if(!q)return;let[x,y]=q,bi=-1,bd=999;levels[L].spots.forEach((s,i)=>{let d=Math.hypot(x-s[0],y-s[1]);if(d<bd){bd=d;bi=i}});if(bd<5.4&&!found.has(bi)){found.add(bi);mark(bi);ui()}else if(bd>=5.4){p.classList.remove('wrong');void p.offsetWidth;p.classList.add('wrong')}}
 A.onclick=e=>click(A,e);B.onclick=e=>click(B,e);hint.onclick=()=>{document.querySelectorAll('.hint').forEach(x=>x.remove());let a=levels[L].spots.map((_,i)=>i).filter(i=>!found.has(i));if(!a.length)return;let i=a[Math.floor(Math.random()*a.length)];mark(i,'hint');setTimeout(()=>document.querySelectorAll('.hint').forEach(x=>x.remove()),1800)};next.onclick=()=>load((L+1)%levels.length);load(0);
-</script></body></html>
+</script><script type="module" src="../assets/core/game-bridge.js"></script>
+</body></html>

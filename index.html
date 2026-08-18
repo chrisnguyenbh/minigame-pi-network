@@ -3,209 +3,67 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#090716">
+<meta name="theme-color" content="#080815">
 <title>MiniGame Hub — Pi Mainnet</title>
 <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-<style>
-:root{
-  --bg:#080712;--panel:#141126;--panel2:#1b1631;--line:#ffffff18;
-  --text:#f8f5ff;--muted:#afa7c7;--purple:#7c3aed;--pink:#d946ef;
-  --gold:#fbbf24;--green:#22c55e;--blue:#38bdf8;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0;min-height:100vh;color:var(--text);
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
-  background:
-    radial-gradient(circle at 15% -5%,#3b1260 0,transparent 30%),
-    radial-gradient(circle at 90% 0,#0d4961 0,transparent 26%),
-    linear-gradient(180deg,#090713,#070913 65%,#080711);
-}
-a{color:inherit;text-decoration:none}
-.shell{width:min(1240px,calc(100% - 28px));margin:auto;padding:18px 0 36px}
-.nav{
-  display:flex;align-items:center;gap:14px;padding:12px 15px;
-  background:#0f0c1fcc;border:1px solid var(--line);border-radius:18px;
-  position:sticky;top:8px;z-index:20;backdrop-filter:blur(16px);
-}
-.logo{font-weight:1000;font-size:22px;letter-spacing:-.6px}
-.logo span{color:#f6c44f}.nav .spacer{flex:1}
-.pill,.nav-btn{
-  border:1px solid var(--line);background:#ffffff0b;border-radius:12px;padding:8px 11px;
-  color:#ddd6f5;font-size:13px;font-weight:800
-}
-.nav-btn{cursor:pointer}
-.hero{
-  padding:54px 8px 32px;text-align:center;
-}
-.hero .eyebrow{color:#cbb8ff;font-weight:900;letter-spacing:1.4px;font-size:12px}
-.hero h1{
-  margin:8px auto 10px;font-size:clamp(38px,7vw,72px);line-height:.95;letter-spacing:-3px;
-  background:linear-gradient(90deg,#fff,#f7c55c,#ec73ff);-webkit-background-clip:text;color:transparent;
-}
-.hero p{margin:0 auto;color:var(--muted);max-width:670px;font-size:16px}
-.profile{
-  margin:18px auto 0;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap
-}
-.profile .avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#6d28d9}
-.profile b{font-size:14px}.coin{color:#fbd268;font-weight:900}
-.section-head{display:flex;align-items:end;justify-content:space-between;margin:12px 2px 12px;gap:12px}
-.section-head h2{margin:0;font-size:24px}.section-head span{color:var(--muted);font-size:12px}
-.feature-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.game-card{
-  position:relative;overflow:hidden;border:1px solid var(--line);border-radius:22px;
-  background:linear-gradient(180deg,#1b1630,#100d1d);
-  box-shadow:0 18px 40px #0005;transition:.22s transform,.22s border-color,.22s box-shadow;
-}
-.game-card:hover{transform:translateY(-6px);border-color:#a78bfa88;box-shadow:0 22px 55px #0008}
-.cover{height:205px;background:#161124 center/cover no-repeat;position:relative}
-.cover:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(transparent,#121020)}
-.card-body{padding:15px}
-.card-title{font-size:23px;font-weight:1000;letter-spacing:-.6px;margin-bottom:4px}
-.card-sub{font-size:13px;color:#c5bdd8;min-height:38px;line-height:1.42}
-.tags{display:flex;gap:6px;flex-wrap:wrap;margin:11px 0 13px}
-.tag{font-size:11px;font-weight:850;padding:5px 7px;border-radius:999px;background:#ffffff10;border:1px solid #ffffff12}
-.play{
-  width:100%;display:block;text-align:center;padding:11px;border-radius:12px;
-  font-weight:1000;background:linear-gradient(90deg,#6d28d9,#a855f7);box-shadow:inset 0 0 0 1px #fff2
-}
-.card-monopoly .play{background:linear-gradient(90deg,#d97706,#f59e0b)}
-.card-xiangqi .play{background:linear-gradient(90deg,#15803d,#22c55e)}
-.card-caro .play{background:linear-gradient(90deg,#0369a1,#38bdf8)}
-.card-find .play{background:linear-gradient(90deg,#7e22ce,#d946ef)}
-.card-monopoly .cover{background-image:url('assets/hub/monopoly.webp')}
-.card-xiangqi .cover{background-image:url('assets/hub/xiangqi.webp')}
-.card-caro .cover{background-image:url('assets/hub/caro.webp')}
-.card-find .cover{background-image:url('assets/hub/find.webp')}
-
-.other-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
-.small-card{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:16px;background:#ffffff08}
-.small-icon{width:54px;height:54px;border-radius:14px;background:#ffffff10;display:grid;place-items:center;font-size:28px}
-.small-card b{display:block;font-size:15px}.small-card span{color:var(--muted);font-size:12px}
-.pi-panel{
-  margin-top:22px;padding:17px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,#171126,#0f0c18)
-}
-.pi-panel h3{margin:0 0 6px}.pi-panel p{margin:0;color:var(--muted);font-size:13px}
-.pi-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.btn{border:0;border-radius:11px;padding:10px 13px;font-weight:850;cursor:pointer;background:#6d28d9;color:#fff}
-.btn.secondary{background:#ffffff12}
-.status{margin-top:8px;color:#d4c8ed;font-size:12px}
-.footer{display:flex;gap:16px;justify-content:center;color:#8f86a5;font-size:12px;padding:24px 0 4px}
-@media(max-width:980px){.feature-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:620px){
-  .shell{width:min(100% - 12px,1240px)}.nav{border-radius:14px}.logo{font-size:18px}
-  .nav .nav-btn{display:none}.hero{padding:38px 8px 24px}.hero h1{letter-spacing:-2px}
-  .feature-grid{grid-template-columns:1fr 1fr;gap:8px}.cover{height:145px}
-  .card-body{padding:11px}.card-title{font-size:18px}.card-sub{font-size:11px;min-height:46px}
-  .tags{margin:8px 0}.tag{font-size:9px}.play{padding:9px;font-size:12px}
-  .other-grid{grid-template-columns:1fr}.section-head h2{font-size:20px}
-}
-</style>
+<link rel="stylesheet" href="assets/hub-v2.css">
 </head>
 <body>
 <main class="shell">
-  <nav class="nav">
-    <div class="logo">🎮 MINI<span>GAME HUB</span></div>
+  <nav class="topbar">
+    <div class="logo">🎮 MINI<b>GAME HUB</b></div>
     <div class="spacer"></div>
-    <div class="pill" id="piStatus">Pi SDK…</div>
-    <button class="nav-btn" id="piLogin">Đăng nhập Pi</button>
+    <div class="status" id="piStatus">Pi SDK…</div>
+    <button class="top-btn" id="piLogin">Đăng nhập Pi</button>
   </nav>
 
   <section class="hero">
-    <div class="eyebrow">PI MAINNET · GAME CENTER</div>
-    <h1>CHỌN GAME</h1>
-    <p>Những game chính được đưa lên đầu trang, ảnh lớn, dễ chọn và vào chơi ngay.</p>
-    <div class="profile">
-      <div class="avatar">👤</div>
-      <b id="playerName">Pioneer</b>
-      <span class="coin">🪙 <span id="coins">10,000</span></span>
+    <div>
+      <div class="eyebrow">MINIGAME RUNTIME V1 · PI MAINNET</div>
+      <h1><span>CHỌN GAME</span><br>VÀ VÀO CHƠI</h1>
+      <p>Hub mới tách game, dữ liệu phiên và sự kiện thành các module độc lập. Game hiện tại vẫn giữ nguyên, nhưng từ đây có thể nâng AI, thành tích, bảng xếp hạng và Pi mà không làm vỡ các game khác.</p>
+    </div>
+    <div class="dashboard">
+      <div class="metric"><strong id="totalOpens">0</strong><span>Lượt mở game</span></div>
+      <div class="metric"><strong id="totalPlay">0 phút</strong><span>Thời gian chơi</span></div>
+      <div class="metric"><strong id="coins">10,000</strong><span>Điểm trên thiết bị</span></div>
+      <div class="metric"><strong id="playerName">Pioneer</strong><span>Tài khoản</span></div>
+      <div class="resume" id="resumeBox" hidden>
+        <small>CHƠI GẦN ĐÂY</small>
+        <a id="resumeLink" href="#"><span id="resumeTitle">Game</span><span>Tiếp tục →</span></a>
+      </div>
     </div>
   </section>
 
-  <div class="section-head"><h2>🔥 Game nổi bật</h2><span>4 game chính</span></div>
-  <section class="feature-grid">
-    <article class="game-card card-monopoly">
-      <div class="cover"></div>
-      <div class="card-body">
-        <div class="card-title">Cờ Tỷ Phú Sài Gòn</div>
-        <div class="card-sub">Mua đất TP.HCM · Cơ Hội · Khí Vận · nhân vật chibi di chuyển.</div>
-        <div class="tags"><span class="tag">👤 Người vs AI</span><span class="tag">🏙️ Sài Gòn</span></div>
-        <a class="play" href="games/monopoly.html">CHƠI NGAY</a>
-      </div>
-    </article>
+  <div class="section-head"><h2>🔥 Game nổi bật</h2><span>Registry tự dựng giao diện từ manifest</span></div>
+  <div class="filters">
+    <button class="filter active" data-filter="Tất cả">Tất cả</button>
+    <button class="filter" data-filter="AI">Đấu AI</button>
+    <button class="filter" data-filter="Chiến thuật">Chiến thuật</button>
+    <button class="filter" data-filter="Puzzle">Puzzle</button>
+    <button class="filter" data-filter="2 người">2 người</button>
+  </div>
+  <section class="game-grid" id="featuredGrid"></section>
 
-    <article class="game-card card-xiangqi">
-      <div class="cover"></div>
-      <div class="card-body">
-        <div class="card-title">Cờ Tướng</div>
-        <div class="card-sub">Cờ thường · Cờ Thế Lão làng · Cờ Úp · AI mạnh.</div>
-        <div class="tags"><span class="tag">🤖 AI</span><span class="tag">♟️ Chiến thuật</span></div>
-        <a class="play" href="games/apps/game_viewer/gui/game_viewer.html">CHƠI NGAY</a>
-      </div>
-    </article>
-
-    <article class="game-card card-caro">
-      <div class="cover"></div>
-      <div class="card-body">
-        <div class="card-title">Cờ Caro</div>
-        <div class="card-sub">3×3 và 19×19 · Người vs Người · AI áp đảo.</div>
-        <div class="tags"><span class="tag">❌⭕</span><span class="tag">🤖 AI</span></div>
-        <a class="play" href="games/caro.html">CHƠI NGAY</a>
-      </div>
-    </article>
-
-    <article class="game-card card-find">
-      <div class="cover"></div>
-      <div class="card-body">
-        <div class="card-title">Tìm Điểm Khác Nhau</div>
-        <div class="card-sub">Hai ảnh song song · nhiều level · thử thách quan sát.</div>
-        <div class="tags"><span class="tag">🔎 1 người</span><span class="tag">🧠 Puzzle</span></div>
-        <a class="play" href="games/find-difference.html">CHƠI NGAY</a>
-      </div>
-    </article>
-  </section>
-
-  <div class="section-head" style="margin-top:22px"><h2>🎲 Game khác</h2><span>Giải trí nhanh</span></div>
-  <section class="other-grid">
-    <a class="small-card" href="games/bbtan.html"><div class="small-icon">🧱</div><div><b>BBTAN</b><span>Bắn bóng phá gạch · săn điểm cao</span></div></a>
-    <a class="small-card" href="games/dungeon-battle.html"><div class="small-icon">⚔️</div><div><b>Dungeon Battle</b><span>RPG · chiến đấu · Boss</span></div></a>
-  </section>
+  <div class="section-head"><h2>🎲 Game khác</h2><span>Module độc lập</span></div>
+  <section class="more-grid" id="otherGrid"></section>
 
   <section class="pi-panel">
     <h3>💜 Pi Mainnet</h3>
-    <p>Đăng nhập Pi và luồng thanh toán hiện tại vẫn được giữ nguyên.</p>
+    <p>Pi được giữ thành một integration riêng, không trộn vào logic của từng game.</p>
     <div class="pi-actions">
       <button class="btn" id="payBtn">Thanh toán 0.01 Pi</button>
-      <button class="btn secondary" id="resetScores">Xóa dữ liệu game</button>
+      <button class="btn secondary" id="resetScores">Xóa dữ liệu runtime</button>
     </div>
-    <div class="status" id="paymentStatus">Chưa bắt đầu giao dịch.</div>
-    <div class="status" id="debugStatus"></div>
+    <div class="debug" id="paymentStatus">Chưa bắt đầu giao dịch.</div>
+    <div class="debug" id="debugStatus"></div>
   </section>
 
-  <footer class="footer"><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms</a><span>MiniGame Hub</span></footer>
+  <footer class="footer">
+    <a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms</a><span>MiniGame Runtime V1</span>
+  </footer>
 </main>
-
 <script src="assets/pi.js"></script>
-<script>
-const statusEl=document.getElementById('piStatus'),loginBtn=document.getElementById('piLogin');
-const paymentStatus=document.getElementById('paymentStatus'),debugStatus=document.getElementById('debugStatus'),payBtn=document.getElementById('payBtn');
-document.getElementById('coins').textContent=(+(localStorage.mg_coins||10000)).toLocaleString();
-
-MiniPi.init(statusEl).then(()=>{
-  const u=MiniPi.cachedUsername();
-  if(u){statusEl.textContent='@'+u;document.getElementById('playerName').textContent='@'+u;loginBtn.textContent='Đăng nhập lại'}
-});
-loginBtn.onclick=async()=>{const a=await MiniPi.login(statusEl,loginBtn);if(a?.user?.username)document.getElementById('playerName').textContent='@'+a.user.username};
-resetScores.onclick=()=>{if(confirm('Xóa toàn bộ dữ liệu game trên thiết bị này?')){Object.keys(localStorage).filter(k=>k.startsWith('mg_')).forEach(k=>localStorage.removeItem(k));location.reload()}};
-payBtn.onclick=async()=>{
-  payBtn.disabled=true;paymentStatus.textContent='Đang chuẩn bị thanh toán…';debugStatus.textContent='';
-  try{
-    const auth=await MiniPi.ensureAuth(statusEl,loginBtn);if(!auth?.accessToken)throw new Error('Không lấy được Pi access token.');
-    const result=await MiniPi.createPayment({amount:.01,memo:'MiniGame Mainnet transaction',metadata:{kind:'minigame_u2a_step10',createdAt:new Date().toISOString()},statusEl:paymentStatus});
-    paymentStatus.textContent='🎉 Giao dịch hoàn tất.';debugStatus.textContent=`Payment ID: ${result?.identifier||result?.payment?.identifier||'xem log'}`;
-  }catch(err){console.error(err);paymentStatus.textContent='❌ '+(err?.message||'Thanh toán thất bại.');payBtn.disabled=false}
-};
-</script>
+<script type="module" src="assets/hub-v2.js"></script>
 </body>
 </html>
