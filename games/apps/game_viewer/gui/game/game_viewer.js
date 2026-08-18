@@ -14,7 +14,7 @@ let flipped = false;
 const HH='human-human', HA='human-ai', AH='ai-human';
 const STRONG_AI = {
   depth: 32,
-  time: 8000,
+  time: 9500,
   label: 'AI Mạnh nhất'
 };
 
