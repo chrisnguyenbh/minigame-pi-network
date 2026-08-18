@@ -65,6 +65,171 @@ button,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.35;cur
 /* ===== Character Select V3 ===== */
 .character-select{position:fixed;inset:0;z-index:1200;background:rgba(2,7,16,.90);backdrop-filter:blur(9px);display:none;align-items:center;justify-content:center;padding:18px}.character-select.show{display:flex}.character-panel{width:min(1180px,96vw);max-height:94vh;overflow:auto;background:linear-gradient(180deg,#0d2035,#07111d);border:1px solid #d7a83d66;border-radius:22px;box-shadow:0 30px 90px #000,0 0 40px #1d8dff22;padding:18px}.character-panel h2{margin:0;text-align:center;color:#ffd86d;font-size:27px}.character-panel .sub{text-align:center;color:#aebed0;font-size:12px;margin:5px 0 14px}.character-grid{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));gap:10px}.character-card{position:relative;min-width:0;border:2px solid #294a67;background:linear-gradient(180deg,#11283c,#081522);border-radius:15px;padding:8px;color:#fff;transition:.16s;overflow:hidden}.character-card:hover{transform:translateY(-4px);border-color:#62b9ff}.character-card.selected{border-color:#ffd34f;box-shadow:0 0 0 2px #ffd34f44,0 0 25px #ffc62d55;transform:translateY(-5px)}.character-card img{display:block;width:100%;height:210px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 9px 6px #000b)}.character-card .cname{text-align:center;font-weight:1000;font-size:13px;color:#ffe3a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.character-card .ctitle{text-align:center;font-size:9px;color:#8fb3d4;margin-top:2px}.character-card .new{position:absolute;right:7px;top:7px;background:#e73131;color:#fff;font-size:9px;font-weight:1000;border-radius:5px;padding:3px 5px}.character-preview{display:grid;grid-template-columns:170px 1fr auto;gap:15px;align-items:center;margin-top:14px;padding:12px;border:1px solid #ffffff18;border-radius:14px;background:#ffffff06}.character-preview img{width:160px;height:180px;object-fit:contain;filter:drop-shadow(0 10px 7px #000c)}.character-preview h3{margin:0 0 5px;color:#ffd86d;font-size:22px}.character-preview p{margin:2px 0;color:#b7c6d6;font-size:12px}.confirm-character{border:2px solid #ffe16d;background:linear-gradient(#40ce5b,#087d2d);color:white;border-radius:12px;padding:14px 24px;font-weight:1000;font-size:18px;box-shadow:0 0 22px #3cff7655}.chibi-token{width:70px;height:92px}.chibi-token img{object-fit:contain;object-position:center bottom;filter:drop-shadow(0 9px 6px #000d)}.player-avatar{object-fit:contain;object-position:center}@media(max-width:1000px){.character-grid{grid-template-columns:repeat(4,1fr)}.character-card img{height:170px}}@media(max-width:620px){.character-grid{grid-template-columns:repeat(2,1fr)}.character-preview{grid-template-columns:100px 1fr}.character-preview img{width:95px;height:120px}.confirm-character{grid-column:1/-1;width:100%}}
 
+
+/* ===== TOKEN + 3D DICE FIX 2026-08-18 ===== */
+
+/* Token is still anchored to its tile, but each board side pushes it INWARD.
+   This prevents top/bottom/left/right tokens from being clipped by board-wrap. */
+.tokens{
+  position:absolute;
+  z-index:90;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  pointer-events:none;
+  overflow:visible;
+  white-space:nowrap;
+  gap:0;
+}
+.tokens.side-top{
+  left:50%; top:100%;
+  transform:translate(-50%,-12%);
+}
+.tokens.side-bottom{
+  left:50%; top:0;
+  transform:translate(-50%,-84%);
+}
+.tokens.side-left{
+  left:100%; top:50%;
+  transform:translate(-14%,-50%);
+}
+.tokens.side-right{
+  left:0; top:50%;
+  transform:translate(-86%,-50%);
+}
+.tokens.side-corner{
+  left:50%; top:50%;
+  transform:translate(-50%,-46%);
+}
+
+.chibi-token{
+  width:54px!important;
+  height:70px!important;
+  display:inline-block;
+  position:relative;
+  overflow:visible;
+  margin:0 -9px!important;
+  transform-origin:50% 92%;
+  transition:transform .16s ease,filter .16s ease;
+  filter:drop-shadow(0 6px 4px #000b);
+}
+.chibi-token.active{
+  transform:translateY(-6px) scale(1.08)!important;
+  filter:drop-shadow(0 8px 5px #000d) drop-shadow(0 0 7px #ffd45d88);
+  z-index:10;
+}
+.chibi-token img{
+  width:100%!important;height:100%!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  border:0!important;border-radius:0!important;background:transparent!important;
+}
+.chibi-token.stack-0{transform:translateX(-5px)}
+.chibi-token.stack-1{transform:translateX(5px)}
+.chibi-token.stack-2{transform:translate(-8px,-7px)}
+.chibi-token.stack-3{transform:translate(8px,-7px)}
+.chibi-token.active.stack-0{transform:translate(-5px,-6px) scale(1.08)!important}
+.chibi-token.active.stack-1{transform:translate(5px,-6px) scale(1.08)!important}
+.chibi-token.active.stack-2{transform:translate(-8px,-12px) scale(1.08)!important}
+.chibi-token.active.stack-3{transform:translate(8px,-12px) scale(1.08)!important}
+
+/* Dice are real UI elements instead of Unicode glyphs. */
+.dice-stage{
+  position:absolute;
+  z-index:5;
+  left:50%;top:54%;
+  transform:translate(-50%,-50%);
+  display:flex;
+  gap:25px;
+  align-items:center;
+  justify-content:center;
+  perspective:700px;
+  filter:drop-shadow(0 16px 13px #000a);
+}
+.die3d{
+  width:76px;height:76px;
+  position:relative;
+  border-radius:17px;
+  background:
+    radial-gradient(circle at 28% 20%,#fff 0 7%,transparent 8%),
+    linear-gradient(145deg,#fffef5 0%,#f5f0df 42%,#d9cfba 100%);
+  border:1px solid #fffce8;
+  box-shadow:
+    inset 8px 8px 13px #ffffff,
+    inset -9px -10px 14px #b7aa91,
+    0 13px 16px #0009,
+    0 0 24px #ffd66e80;
+  transform:rotate(-7deg) rotateX(7deg) rotateY(-8deg);
+}
+.die3d:nth-child(2){
+  transform:rotate(8deg) rotateX(-5deg) rotateY(9deg);
+}
+.die3d:after{
+  content:"";
+  position:absolute;
+  left:8px;right:8px;top:7px;height:24px;
+  border-radius:14px 14px 50% 50%;
+  background:linear-gradient(#ffffffb8,#ffffff00);
+  pointer-events:none;
+}
+.die3d.rolling{animation:diceRoll .48s cubic-bezier(.2,.8,.25,1)}
+.die3d:nth-child(2).rolling{animation:diceRoll2 .48s cubic-bezier(.2,.8,.25,1)}
+@keyframes diceRoll{
+  0%{transform:translateY(0) rotate(-7deg) rotateX(7deg)}
+  35%{transform:translateY(-25px) rotate(120deg) rotateX(80deg) scale(1.08)}
+  70%{transform:translateY(5px) rotate(245deg) rotateY(95deg)}
+  100%{transform:translateY(0) rotate(353deg) rotateX(367deg)}
+}
+@keyframes diceRoll2{
+  0%{transform:translateY(0) rotate(8deg) rotateY(9deg)}
+  35%{transform:translateY(-30px) rotate(-135deg) rotateY(95deg) scale(1.08)}
+  70%{transform:translateY(6px) rotate(-255deg) rotateX(110deg)}
+  100%{transform:translateY(0) rotate(-352deg) rotateY(369deg)}
+}
+.pip{
+  position:absolute;
+  width:12px;height:12px;
+  margin:-6px 0 0 -6px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#454545,#0b0b0b 68%);
+  box-shadow:inset 1px 1px 2px #777,0 1px 1px #fff5;
+}
+.pip.p1{left:24%;top:24%}.pip.p2{left:50%;top:24%}.pip.p3{left:76%;top:24%}
+.pip.p4{left:24%;top:50%}.pip.p5{left:50%;top:50%}.pip.p6{left:76%;top:50%}
+.pip.p7{left:24%;top:76%}.pip.p8{left:50%;top:76%}.pip.p9{left:76%;top:76%}
+
+.spin-button{
+  top:78%!important;
+  width:126px!important;height:126px!important;
+  font-size:28px!important;
+  border:5px solid #ffd34c!important;
+  background:
+    radial-gradient(circle at 36% 22%,#8aff74 0 7%,transparent 8%),
+    linear-gradient(180deg,#47dc45 0%,#149632 54%,#057426 100%)!important;
+  box-shadow:
+    inset 0 0 0 3px #ffffff4c,
+    inset 0 -12px 20px #044d17a8,
+    0 0 0 5px #ffd85a35,
+    0 0 32px #ffd23f99,
+    0 14px 20px #0008!important;
+  text-shadow:0 3px 3px #06491f!important;
+}
+.spin-button:not(:disabled):hover{
+  filter:brightness(1.08);
+  box-shadow:
+    inset 0 0 0 3px #ffffff65,
+    inset 0 -12px 20px #044d17a8,
+    0 0 0 6px #ffd85a45,
+    0 0 42px #ffd23fbb,
+    0 15px 22px #0009!important;
+}
+@media(max-width:1200px){
+  .chibi-token{width:49px!important;height:64px!important;margin:0 -8px!important}
+  .die3d{width:66px;height:66px}
+  .dice-stage{gap:19px}
+  .spin-button{width:112px!important;height:112px!important;font-size:25px!important}
+}
+
 </style>
 </head>
 <body>
@@ -111,7 +276,7 @@ button,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.35;cur
               <i class="bld" style="height:47%"></i><i class="bld" style="height:91%"></i><i class="bld" style="height:63%"></i>
             </div>
             <div class="saigon-title">SÀI GÒN</div>
-            <div class="center-dice" id="centerDice">⚄ ⚀</div>
+            <div class="dice-stage" id="centerDice"><div class="die3d" id="dieA"></div><div class="die3d" id="dieB"></div></div>
             <button class="spin-button" id="centerRoll" onclick="rollDice()" disabled>QUAY<small>Nhấn để đổ xúc xắc</small></button>
           </div>
         </div>
@@ -252,7 +417,8 @@ function renderBoard(){
     if(loc.setId)d.innerHTML+=`<div class="bar" style="background:${SET_COLORS[loc.setId]}"></div>`;
     d.innerHTML+=`<div class="name">${loc.name}</div>`;
     if(loc.cost)d.innerHTML+=`<div class="price">${money(loc.cost)}</div>`;
-    d.innerHTML+=`<div class="houses"></div><div class="tokens"></div>`;
+    const tokenSide = [0,10,20,30].includes(i) ? 'side-corner' : (i<10 ? 'side-bottom' : i<20 ? 'side-left' : i<30 ? 'side-top' : 'side-right');
+    d.innerHTML+=`<div class="houses"></div><div class="tokens ${tokenSide}"></div>`;
     b.appendChild(d);
   }
 }
@@ -263,10 +429,18 @@ function renderAll(){
   document.querySelectorAll('.owner').forEach(x=>x.remove());
   document.querySelectorAll('.houses').forEach(x=>x.textContent='');
 
+  const tokenGroups=new Map();
   state.players.forEach((p,idx)=>{
     if(p.bankrupt)return;
-    const tile=document.querySelector(`.tile[data-i="${p.pos}"] .tokens`);
-    if(tile)tile.innerHTML+=`<span class="chibi-token ${idx===state.current?'active':''}"><img src="${p.character.img}" alt="${p.character.name}"></span>`;
+    if(!tokenGroups.has(p.pos))tokenGroups.set(p.pos,[]);
+    tokenGroups.get(p.pos).push({p,idx});
+  });
+  tokenGroups.forEach((items,pos)=>{
+    const tile=document.querySelector(`.tile[data-i="${pos}"] .tokens`);
+    if(!tile)return;
+    items.forEach(({p,idx},slot)=>{
+      tile.innerHTML+=`<span class="chibi-token stack-${Math.min(slot,3)} ${idx===state.current?'active':''}"><img src="${p.character.img}" alt="${p.character.name}"></span>`;
+    });
   });
 
   Object.entries(state.properties).forEach(([pos,pr])=>{
@@ -310,6 +484,37 @@ function landingMessage(title,text){
   $('landingTitle').textContent=title;$('landingText').textContent=text;
 }
 
+
+function setDie(el,n){
+  if(!el)return;
+  const pattern={
+    1:[5],
+    2:[1,9],
+    3:[1,5,9],
+    4:[1,3,7,9],
+    5:[1,3,5,7,9],
+    6:[1,3,4,6,7,9]
+  }[n]||[];
+  el.innerHTML=pattern.map(i=>`<i class="pip p${i}"></i>`).join('');
+}
+function setCenterDice(a,b){
+  setDie($('dieA'),a);setDie($('dieB'),b);
+}
+async function animateCenterDice(a,b){
+  const da=$('dieA'),db=$('dieB');
+  if(!da||!db)return;
+  da.classList.remove('rolling');db.classList.remove('rolling');
+  void da.offsetWidth;
+  da.classList.add('rolling');db.classList.add('rolling');
+  const flicker=setInterval(()=>{
+    setCenterDice(1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6));
+  },70);
+  await sleep(480);
+  clearInterval(flicker);
+  da.classList.remove('rolling');db.classList.remove('rolling');
+  setCenterDice(a,b);
+}
+
 async function rollDice(){
   if(!state||state.gameOver||state.rolled||state.pendingCard||state.modalOpen)return;
   const p=current();
@@ -317,13 +522,13 @@ async function rollDice(){
   if(p.jail>0){
     const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);
     $('dice').textContent=`🎲 ${a} + 🎲 ${b}`;
-    $('centerDice').textContent=`${dieFace(a)} ${dieFace(b)}`;
+    await animateCenterDice(a,b);
     if(a===b){p.jail=0;addLog(`${p.name} tung đôi và ra khỏi nhà giam!`)}
     else{p.jail--;state.rolled=true;addLog(`${p.name} còn ${p.jail} lượt trong nhà giam.`);renderAll();return}
   }
 
   const d1=1+Math.floor(Math.random()*6),d2=1+Math.floor(Math.random()*6),sum=d1+d2;
-  $('dice').textContent=`🎲 ${d1} + 🎲 ${d2} = ${sum}`;$('centerDice').textContent=`${dieFace(d1)} ${dieFace(d2)}`;
+  $('dice').textContent=`🎲 ${d1} + 🎲 ${d2} = ${sum}`;await animateCenterDice(d1,d2);
   state.rolled=true;renderAll();
 
   for(let step=0;step<sum;step++){
@@ -488,7 +693,7 @@ function endTurn(){
   state.rolled=false;state.pendingBuy=false;
   let next=state.current,loops=0;
   do{next=(next+1)%state.players.length;if(next===0)state.round++;loops++}while(state.players[next].bankrupt&&loops<=state.players.length);
-  state.current=next;$('dice').textContent='🎲 + 🎲';$('centerDice').textContent='⚄ ⚀';
+  state.current=next;$('dice').textContent='🎲 + 🎲';setCenterDice(5,1);
   landingMessage('🎲 Lượt mới','Đổ xúc xắc để tiếp tục.');checkWin();renderAll();maybeAiTurn();
 }
 function checkWin(){
