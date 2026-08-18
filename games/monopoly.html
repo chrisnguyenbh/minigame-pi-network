@@ -5,58 +5,140 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>Cờ Tỷ Phú Sài Gòn</title>
 <style>
-:root{--bg:#06101b;--panel:#0b1624;--line:#ffffff1a;--cream:#fff3cf;--ink:#171718;--gold:#f7be28}
-*{box-sizing:border-box}html,body{margin:0;background:#06101b;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
-body{min-height:100vh;background:radial-gradient(circle at 50% 0,#183654,#06101b 55%,#040a11)}
-button,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.35;cursor:not-allowed}
-.app{width:min(1520px,100%);margin:auto;padding:6px 8px 10px}
-.header{height:62px;display:grid;grid-template-columns:230px 1fr 210px;align-items:center}
-.brand{font-size:26px;line-height:.92;font-weight:1000;color:#ffc638;text-shadow:0 3px 10px #000}.brand span{display:block;color:#31cf7a;font-size:19px;margin-top:5px}
-.header-nav{display:flex;justify-content:center;gap:8px}.header-nav button,.hub-link,.header-right button{border:1px solid #ffffff20;background:#0b1725;color:#fff;border-radius:10px;padding:8px 14px;font-weight:850;text-decoration:none}.header-right{display:flex;justify-content:flex-end;gap:6px}
-.setup{background:#0b1725;border:1px solid #ffffff17;border-radius:10px;padding:7px 9px;margin-bottom:6px;display:flex;gap:7px;align-items:center;flex-wrap:wrap;font-size:12px}.setup select,.setup button{border:0;border-radius:7px;padding:6px 8px}.setup button{background:#24a95e;color:#fff;font-weight:900}
+:root{
+  --bg:#06101b;--panel:#0b1624;--panel2:#101d2b;--line:#ffffff1b;
+  --gold:#ffc83d;--cream:#fff3cf;--ink:#17181b;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#06101b;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+body{min-height:100vh;background:radial-gradient(circle at 50% -5%,#183c5d,#06101b 58%,#030911)}
+button,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.38;cursor:not-allowed}
+.app{width:min(1550px,100%);margin:auto;padding:7px 9px 12px}
+.header{height:66px;display:grid;grid-template-columns:245px 1fr 220px;align-items:center;gap:8px}
+.brand{font-size:27px;line-height:.9;font-weight:1000;color:#ffca38;text-shadow:0 4px 15px #000}
+.brand span{display:block;color:#2ed27a;font-size:20px;margin-top:6px}
+.header-nav{display:flex;justify-content:center;gap:8px}
+.header-nav button,.hub-link,.header-right button{
+  border:1px solid #ffffff22;background:#091523;color:#fff;border-radius:10px;
+  padding:8px 14px;font-weight:900;text-decoration:none;box-shadow:inset 0 0 0 1px #0005
+}
+.header-right{display:flex;justify-content:flex-end;gap:6px}
+.setup{background:#0a1725;border:1px solid #ffffff18;border-radius:10px;padding:7px 9px;margin-bottom:6px;display:flex;gap:7px;align-items:center;flex-wrap:wrap;font-size:12px}
+.setup select,.setup button{border:0;border-radius:7px;padding:6px 8px}.setup button{background:#22a95b;color:#fff;font-weight:900}
 
-.game-layout{display:grid;grid-template-columns:205px minmax(760px,1fr) 218px;gap:8px;align-items:start}
-.panel{background:linear-gradient(180deg,#0a1523,#07101a);border:1px solid #ffffff1b;border-radius:13px;box-shadow:0 14px 34px #0005}
-.left-panel,.right-panel{padding:8px}.panel-title{font-size:14px;font-weight:1000;color:#ffe6a6;margin:2px 0 7px}
+.game-layout{display:grid;grid-template-columns:205px minmax(770px,1fr) 222px;gap:8px;align-items:start}
+.panel{background:linear-gradient(180deg,#0a1523,#07101a);border:1px solid #ffffff1b;border-radius:13px;box-shadow:0 16px 36px #0007}
+.left-panel,.right-panel{padding:8px}.panel-title{font-size:14px;font-weight:1000;color:#ffe8ac;margin:2px 0 7px}
 .players{display:grid;gap:6px}
-.player{display:grid;grid-template-columns:52px 1fr;gap:6px;align-items:center;min-height:72px;border:2px solid var(--pc);border-radius:10px;padding:5px;background:#ffffff07}
-.player.active{box-shadow:0 0 0 2px #ffd53d inset,0 0 18px #ffc10733}.player.bankrupt{opacity:.3;filter:grayscale(1)}
-.player-avatar{width:48px;height:62px;object-fit:contain;filter:drop-shadow(0 5px 3px #0009);background:transparent;border:0}
-.player-name{font-size:13px;font-weight:950}.player-money{font-size:17px;font-weight:1000;color:var(--pc)}.player-meta{font-size:9px;color:#b6c1cb}.ai-badge{font-size:8px;background:#ffffff18;padding:1px 4px;border-radius:4px}
+.player{display:grid;grid-template-columns:50px 1fr;gap:6px;align-items:center;min-height:73px;border:2px solid var(--pc);border-radius:10px;padding:5px;background:#ffffff07}
+.player.active{box-shadow:0 0 0 2px #ffd740 inset,0 0 20px #ffc10733}.player.bankrupt{opacity:.3;filter:grayscale(1)}
+.player-avatar{width:46px;height:46px;object-fit:cover;border-radius:50%;border:3px solid #fff;background:#fff;box-shadow:0 5px 9px #0009}
+.player-name{font-size:13px;font-weight:950}.player-money{font-size:17px;font-weight:1000;color:var(--pc)}.player-meta{font-size:9px;color:#b7c2cc}.ai-badge{font-size:8px;background:#ffffff18;padding:1px 4px;border-radius:4px}
 .info-card{margin-top:7px;background:#ffffff07;border-radius:9px;padding:8px;font-size:10px;line-height:1.45}
 
-.board-shell{display:flex;flex-direction:column;gap:6px;min-width:0}.board-wrap{overflow:auto}
+.board-shell{display:flex;flex-direction:column;gap:6px;min-width:0}.board-wrap{overflow:auto;padding:1px}
 .board{
- --corner:86px;--h:69px;--v:58px;
- position:relative;margin:auto;
- width:calc(var(--corner)*2 + var(--h)*9);height:calc(var(--corner)*2 + var(--v)*9);
- display:grid;grid-template-columns:var(--corner) repeat(9,var(--h)) var(--corner);grid-template-rows:var(--corner) repeat(9,var(--v)) var(--corner);
- background:#d9c8a5;border:6px solid #8f6631;border-radius:16px;box-shadow:0 20px 42px #000a,inset 0 0 0 2px #fff6;overflow:visible
+  --corner:88px;--h:70px;--v:59px;
+  position:relative;margin:auto;
+  width:calc(var(--corner)*2 + var(--h)*9);height:calc(var(--corner)*2 + var(--v)*9);
+  display:grid;grid-template-columns:var(--corner) repeat(9,var(--h)) var(--corner);grid-template-rows:var(--corner) repeat(9,var(--v)) var(--corner);
+  background:#ddcaa6;border:7px solid #916631;border-radius:17px;
+  box-shadow:0 22px 46px #000a,inset 0 0 0 3px #fff6;overflow:visible
 }
-.tile{position:relative;background:linear-gradient(#fff7dc,#eeddb9);color:var(--ink);border:1px solid #6e5b46;padding:4px 3px;display:flex;flex-direction:column;justify-content:space-between;overflow:visible;z-index:2}
-.tile.corner{background:linear-gradient(145deg,#fff9df,#e7d4a6);justify-content:center}.tile .bar{height:11px;margin:-4px -3px 2px;border-bottom:1px solid #0002}.tile .name{font-size:9px;font-weight:1000;line-height:1.02;text-align:center}.tile .price{font-size:8px;text-align:center;font-weight:850}.tile.event::after{content:"?";font-size:24px;color:#e33440;text-align:center;font-weight:1000}.tile.chest::after{content:"🧰";font-size:19px;text-align:center}
-.houses{font-size:8px;text-align:center;color:#087a36;font-weight:1000;min-height:8px}.owner{position:absolute;right:3px;bottom:3px;width:9px;height:9px;border-radius:50%;border:1px solid #fff}
-.tokens{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);z-index:30;display:flex;overflow:visible;pointer-events:none}
-.chibi-token{width:68px;height:88px;overflow:visible;filter:drop-shadow(0 8px 5px #000b);transform-origin:50% 90%;transition:transform .15s}.chibi-token.active{transform:translateY(-11px) scale(1.08)}.chibi-token img{width:100%;height:100%;object-fit:contain;border:0;border-radius:0;background:transparent}
+.tile{
+  position:relative;background:linear-gradient(180deg,#fff9df,#efdfb9);color:var(--ink);
+  border:1px solid #725d46;padding:4px 3px;display:flex;flex-direction:column;justify-content:space-between;
+  overflow:visible;z-index:2;box-shadow:inset 0 -3px 0 #0000000b
+}
+.tile.corner{background:linear-gradient(145deg,#fffbe6,#e8d4a5);justify-content:center}
+.tile .bar{height:12px;margin:-4px -3px 3px;border-bottom:1px solid #0002;box-shadow:0 2px 2px #0002}
+.tile .name{font-size:9px;font-weight:1000;line-height:1.02;text-align:center}.tile .price{font-size:8px;text-align:center;font-weight:850}
+.tile.event::after{content:"?";font-size:24px;color:#e43240;text-align:center;font-weight:1000}.tile.chest::after{content:"🧰";font-size:18px;text-align:center}
+.owner{position:absolute;right:3px;bottom:3px;width:9px;height:9px;border-radius:50%;border:1px solid #fff}.houses{font-size:8px;text-align:center;color:#087b36;font-weight:1000;min-height:8px}
 
-.center-scene{position:absolute;left:var(--corner);right:var(--corner);top:var(--corner);bottom:var(--corner);z-index:1;border:2px solid #6f5137;background:
- linear-gradient(#06101b22,#02070c55),url('../assets/monopoly/reference_ui.png') center 48%/cover no-repeat;overflow:hidden}
-.center-scene:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#06162b10,#06152118 55%,#020a1266);pointer-events:none}
-.skyline{display:none}.saigon-title{position:absolute;z-index:2;left:0;right:0;top:31%;text-align:center;font-size:48px;font-weight:1000;letter-spacing:2px;color:#f8d68a;text-shadow:0 4px 0 #654621,0 10px 24px #000}
-.center-dice{position:absolute;z-index:3;left:50%;top:54%;transform:translate(-50%,-50%);display:flex;gap:18px;filter:drop-shadow(0 12px 9px #000b)}.die3d{display:grid;place-items:center;width:82px;height:82px;border-radius:16px;background:linear-gradient(145deg,#fffdf3,#e9ddc7);border:2px solid #fff;color:#161616;font-size:64px;line-height:1;box-shadow:inset -8px -10px 15px #9c8b7255,inset 5px 5px 10px #fff,0 7px 0 #b9a98e,0 12px 20px #0008;transform:rotate(-7deg)}.die3d+ .die3d{transform:rotate(7deg)}
-.spin-button{position:absolute;z-index:4;left:50%;top:76%;transform:translate(-50%,-50%);width:132px;height:132px;border-radius:50%;border:7px solid #ffd84b;background:radial-gradient(circle at 38% 25%,#70ef63 0 10%,#25b83e 38%,#08752a 78%);color:#fff;font-size:30px;font-weight:1000;text-shadow:0 2px 3px #06491f;box-shadow:inset 0 0 0 4px #ffffff38,inset 0 -12px 20px #004d22aa,0 0 0 5px #986a16,0 0 32px #ffd43bcc,0 12px 20px #000a}.spin-button small{display:block;font-size:9px;margin-top:2px}
+/* Chibi token: larger, raised above the tile, with colored pedestal. */
+.tokens{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:35;display:flex;overflow:visible;pointer-events:none}
+.chibi-token{
+  width:62px;height:74px;position:relative;overflow:visible;filter:drop-shadow(0 9px 5px #000c);
+  transform-origin:50% 100%;transition:transform .16s ease
+}
+.chibi-token::after{
+  content:"";position:absolute;left:9px;right:9px;bottom:-1px;height:15px;border-radius:50%;
+  background:var(--token-color,#e33);box-shadow:inset 0 0 0 3px #ffffff55,0 4px 8px #0007;z-index:-1
+}
+.chibi-token.active{transform:translateY(-10px) scale(1.09)}
+.chibi-token img{width:100%;height:100%;object-fit:cover;border-radius:50%;clip-path:ellipse(45% 49% at 50% 50%);background:transparent}
 
-.right-panel{display:flex;flex-direction:column;gap:7px}.turn-card,.current-card,.property-card{background:#ffffff07;border-radius:9px;padding:8px}.turn-card h3,.current-card h3{margin:0 0 5px;font-size:13px}.dice-readout{text-align:center;font-size:20px;font-weight:1000}.actions{display:grid;gap:5px}.actions button{width:100%;border:0;border-radius:8px;padding:9px 6px;font-size:13px;font-weight:1000;color:#fff}
-#rollBtn{background:linear-gradient(#188fec,#0862b9)}#buyBtn{background:linear-gradient(#f7bc20,#d38d00);color:#221500}#buildBtn{background:linear-gradient(#43c64b,#12842d)}#cardBtn{background:linear-gradient(#a45be2,#6631a6)}#endBtn{background:linear-gradient(#ed4444,#b51c1c)}
+/* CLEAN city background only. */
+.center-scene{
+  position:absolute;left:var(--corner);right:var(--corner);top:var(--corner);bottom:var(--corner);
+  z-index:1;border:2px solid #704d32;overflow:hidden;
+  background:
+    linear-gradient(180deg,#06132712 0,#071c2a38 54%,#030b13cc 100%),
+    url('../assets/monopoly/pro/saigon_panorama.webp') center/cover no-repeat
+}
+.center-scene:after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 68%,transparent 0 28%,#03101b22 58%,#02091288 100%)}
+.skyline{display:none}
+.saigon-title{
+  position:absolute;z-index:2;left:0;right:0;top:22%;text-align:center;
+  font-size:50px;font-weight:1000;letter-spacing:2px;color:#f8d88d;
+  text-shadow:0 4px 0 #64431f,0 10px 28px #000
+}
+
+/* Real-looking CSS dice */
+.dice-stage{position:absolute;z-index:4;left:50%;top:49%;transform:translate(-50%,-50%);display:flex;gap:24px;perspective:500px}
+.die3d{
+  width:72px;height:72px;border-radius:16px;background:linear-gradient(145deg,#fffef5,#e8e1ce 72%);
+  box-shadow:inset 7px 7px 12px #fff,inset -7px -9px 14px #b9ae98,0 12px 13px #0008;
+  position:relative;transform:rotate(-7deg)
+}
+.die3d:nth-child(2){transform:rotate(8deg)}
+.die3d::before{content:"";position:absolute;inset:7px;border-radius:12px;border:1px solid #fff9}
+.pip{width:11px;height:11px;border-radius:50%;background:#171717;position:absolute;box-shadow:inset 1px 1px 2px #555}
+.p1{left:12px;top:12px}.p2{left:30px;top:12px}.p3{right:12px;top:12px}.p4{left:12px;top:30px}.p5{left:30px;top:30px}.p6{right:12px;top:30px}.p7{left:12px;bottom:12px}.p8{left:30px;bottom:12px}.p9{right:12px;bottom:12px}
+
+/* Glossy QUAY button */
+.spin-button{
+  position:absolute;z-index:5;left:50%;top:73%;transform:translate(-50%,-50%);
+  width:132px;height:132px;border-radius:50%;border:7px solid #ffd23f;
+  background:
+    radial-gradient(circle at 38% 26%,#75ef70 0 8%,transparent 9%),
+    linear-gradient(180deg,#49d94f,#10922f 55%,#057326);
+  color:#fff;font-size:30px;font-weight:1000;letter-spacing:.3px;
+  box-shadow:inset 0 0 0 3px #ffffff55,inset 0 -12px 20px #034915aa,0 0 0 4px #ffffff24,0 0 32px #ffd33fba,0 13px 20px #0009
+}
+.spin-button:before{content:"";position:absolute;left:19px;right:19px;top:13px;height:35px;border-radius:50%;background:linear-gradient(#ffffff66,#ffffff00)}
+.spin-button small{display:block;font-size:10px;font-weight:700;margin-top:3px;opacity:.9}
+
+.right-panel{display:flex;flex-direction:column;gap:7px}.turn-card,.current-card,.property-card{background:#ffffff07;border-radius:9px;padding:8px}.turn-card h3,.current-card h3{margin:0 0 5px;font-size:13px}.dice-readout{text-align:center;font-size:20px;font-weight:1000}
+.actions{display:grid;gap:6px}.actions button{
+  width:100%;border:1px solid #ffffff24;border-radius:9px;padding:10px 7px;font-size:13px;font-weight:1000;color:#fff;
+  box-shadow:inset 0 1px 0 #ffffff44,inset 0 -5px 10px #0003,0 5px 9px #0006;transition:.12s
+}
+.actions button:not(:disabled):active{transform:translateY(2px);box-shadow:inset 0 4px 8px #0004}
+#rollBtn{background:linear-gradient(#1494f4,#0965bc);box-shadow:inset 0 1px 0 #fff5,0 0 18px #1e9bf066,0 5px 9px #0006}
+#buyBtn{background:linear-gradient(#ffd02d,#e19a00);color:#211500}
+#buildBtn{background:linear-gradient(#4bd151,#158934)}
+#cardBtn{background:linear-gradient(#a75ce9,#6733aa)}
+#endBtn{background:linear-gradient(#f24c4c,#b71d1d)}
 .current-symbol{font-size:38px;text-align:center;color:#f34a55}.property-card{font-size:10px;line-height:1.4}
 
 .bottom-grid{display:grid;grid-template-columns:1fr 1.15fr 1.25fr;gap:6px}.bottom-box{background:#091522;border:1px solid #ffffff17;border-radius:10px;padding:8px;min-height:88px}.bottom-box h3{font-size:12px;margin:0 0 5px}
-.card-decks{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}.deck{border:2px solid currentColor;background:#151823;color:#fff;border-radius:10px;padding:6px;min-height:74px;text-align:center;font-weight:1000}.deck.red{color:#ff5665}.deck.blue{color:#4db8ff}.deck.enabled{cursor:pointer;box-shadow:0 0 0 2px currentColor,0 0 20px currentColor}.deck.disabled{opacity:.3}.deck .icon{font-size:27px;display:block}.deck small{font-size:9px;color:#fff9}.or{font-size:11px;font-weight:1000}.log{max-height:84px;overflow:auto;font-size:9px;line-height:1.4}.entry{padding:2px 0;border-bottom:1px solid #ffffff0d}
+.card-decks{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}.deck{border:2px solid currentColor;background:#151823;color:#fff;border-radius:10px;padding:6px;min-height:74px;text-align:center;font-weight:1000;box-shadow:inset 0 -5px 10px #0004}.deck.red{color:#ff5665}.deck.blue{color:#4db8ff}.deck.enabled{cursor:pointer;box-shadow:0 0 0 2px currentColor,0 0 20px currentColor}.deck.disabled{opacity:.3}.deck .icon{font-size:27px;display:block}.deck small{font-size:9px;color:#fff9}.or{font-size:11px;font-weight:1000}.log{max-height:84px;overflow:auto;font-size:9px;line-height:1.4}.entry{padding:2px 0;border-bottom:1px solid #ffffff0d}
 
 .modal{position:fixed;inset:0;background:#020710c9;display:none;align-items:center;justify-content:center;z-index:999;padding:18px}.modal.show{display:flex}.event-popup{width:min(410px,100%);background:linear-gradient(180deg,#fff4d5,#f2d9a7);color:#281a10;border-radius:18px;border:5px solid #d79a3e;box-shadow:0 28px 70px #000b;overflow:hidden;text-align:center}.event-head{padding:11px;font-size:23px;font-weight:1000;color:#fff}.event-head.chance{background:linear-gradient(#ed493d,#c61e25)}.event-head.fortune{background:linear-gradient(#2698e8,#1465ad)}.event-body{padding:19px}.event-icon{font-size:54px}.event-body h2{margin:7px 0 5px}.event-body p{font-size:16px}.event-close{margin:0 0 15px;border:0;border-radius:9px;background:#c92c2c;color:#fff;padding:9px 34px;font-weight:1000}
 
-@media(max-width:1200px){.game-layout{grid-template-columns:180px minmax(700px,1fr) 190px}.board{--corner:80px;--h:63px;--v:54px}.chibi-token{width:62px;height:80px}.saigon-title{font-size:42px}}
-@media(max-width:900px){.header{grid-template-columns:1fr auto}.header-nav{display:none}.game-layout{display:block}.left-panel,.right-panel{margin-bottom:6px}.players{grid-template-columns:repeat(2,1fr)}.board{min-width:780px}.bottom-grid{grid-template-columns:1fr}.right-panel{display:grid;grid-template-columns:1fr 1fr}.actions{grid-column:1/-1;grid-template-columns:repeat(3,1fr)}}
+@media(max-width:1200px){
+  .game-layout{grid-template-columns:180px minmax(710px,1fr) 195px}
+  .board{--corner:81px;--h:64px;--v:54px}.saigon-title{font-size:42px}
+  .die3d{width:62px;height:62px}.spin-button{width:116px;height:116px;font-size:26px}
+}
+@media(max-width:900px){
+  .header{grid-template-columns:1fr auto}.header-nav{display:none}.game-layout{display:block}
+  .left-panel,.right-panel{margin-bottom:6px}.players{grid-template-columns:repeat(2,1fr)}
+  .board{min-width:790px}.bottom-grid{grid-template-columns:1fr}
+  .right-panel{display:grid;grid-template-columns:1fr 1fr}.actions{grid-column:1/-1;grid-template-columns:repeat(3,1fr)}
+}
 </style>
 </head>
 <body>
@@ -101,7 +183,10 @@ button,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.35;cur
               <i class="bld" style="height:47%"></i><i class="bld" style="height:91%"></i><i class="bld" style="height:63%"></i>
             </div>
             <div class="saigon-title">SÀI GÒN</div>
-            <div class="center-dice" id="centerDice"><span class="die3d">⚄</span><span class="die3d">⚀</span></div>
+            <div class="dice-stage" id="centerDice">
+         <div class="die3d" id="dieA"></div>
+         <div class="die3d" id="dieB"></div>
+       </div>
             <button class="spin-button" id="centerRoll" onclick="rollDice()" disabled>QUAY<small>Nhấn để đổ xúc xắc</small></button>
           </div>
         </div>
@@ -251,7 +336,7 @@ function renderAll(){
   state.players.forEach((p,idx)=>{
     if(p.bankrupt)return;
     const tile=document.querySelector(`.tile[data-i="${p.pos}"] .tokens`);
-    if(tile)tile.innerHTML+=`<span class="chibi-token ${idx===state.current?'active':''}"><img src="../assets/monopoly/v2/chibi_${(idx%4)+1}.png"></span>`;
+    if(tile)tile.innerHTML+=`<span class="chibi-token ${idx===state.current?'active':''}" style="--token-color:${p.color}"><img src="../assets/monopoly/pro/chibi_${(idx%4)+1}.webp"></span>`;
   });
 
   Object.entries(state.properties).forEach(([pos,pr])=>{
@@ -262,7 +347,7 @@ function renderAll(){
 
   $('players').innerHTML=state.players.map((p,i)=>`
     <div class="player ${i===state.current?'active':''} ${p.bankrupt?'bankrupt':''}" style="--pc:${p.color}">
-      <img class="player-avatar" src="../assets/monopoly/v2/chibi_${(i%4)+1}.png">
+      <img class="player-avatar" src="../assets/monopoly/pro/chibi_${(i%4)+1}.webp">
       <div><div class="player-name">${p.name} ${p.ai?'<span class="ai-badge">🤖 AI</span>':''}</div>
       <div class="player-money">${money(p.cash)}</div>
       <div class="player-meta">Tài sản: ${money(netWorth(p))} · Ô ${p.pos+1}${p.jail?' · 🔒':''}</div></div>
@@ -302,13 +387,13 @@ async function rollDice(){
   if(p.jail>0){
     const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);
     $('dice').textContent=`🎲 ${a} + 🎲 ${b}`;
-    $('centerDice').textContent=`${dieFace(a)} ${dieFace(b)}`;
+    setCenterDice(a,b);
     if(a===b){p.jail=0;addLog(`${p.name} tung đôi và ra khỏi nhà giam!`)}
     else{p.jail--;state.rolled=true;addLog(`${p.name} còn ${p.jail} lượt trong nhà giam.`);renderAll();return}
   }
 
   const d1=1+Math.floor(Math.random()*6),d2=1+Math.floor(Math.random()*6),sum=d1+d2;
-  $('dice').textContent=`🎲 ${d1} + 🎲 ${d2} = ${sum}`;$('centerDice').textContent=`${dieFace(d1)} ${dieFace(d2)}`;
+  $('dice').textContent=`🎲 ${d1} + 🎲 ${d2} = ${sum}`;setCenterDice(d1,d2);
   state.rolled=true;renderAll();
 
   for(let step=0;step<sum;step++){
@@ -321,6 +406,20 @@ async function rollDice(){
   resolveLanding();
 }
 
+
+function setDie(el,n){
+  if(!el)return;
+  const show={
+    1:[5],
+    2:[1,9],
+    3:[1,5,9],
+    4:[1,3,7,9],
+    5:[1,3,5,7,9],
+    6:[1,3,4,6,7,9]
+  }[n]||[];
+  el.innerHTML=show.map(i=>`<i class="pip p${i}"></i>`).join('');
+}
+function setCenterDice(a,b){setDie($('dieA'),a);setDie($('dieB'),b)}
 function dieFace(n){return['','⚀','⚁','⚂','⚃','⚄','⚅'][n]}
 
 function resolveLanding(){
@@ -473,7 +572,7 @@ function endTurn(){
   state.rolled=false;state.pendingBuy=false;
   let next=state.current,loops=0;
   do{next=(next+1)%state.players.length;if(next===0)state.round++;loops++}while(state.players[next].bankrupt&&loops<=state.players.length);
-  state.current=next;$('dice').textContent='🎲 + 🎲';$('centerDice').textContent='⚄ ⚀';
+  state.current=next;$('dice').textContent='🎲 + 🎲';setCenterDice(5,1);
   landingMessage('🎲 Lượt mới','Đổ xúc xắc để tiếp tục.');checkWin();renderAll();maybeAiTurn();
 }
 function checkWin(){
@@ -491,6 +590,7 @@ function netWorth(p){
 function finish(msg){state.gameOver=true;addLog('🏆 '+msg);$('turn').textContent='🏆 '+msg;renderAll()}
 
 renderBoard();
+setCenterDice(5,1);
 landingMessage('🎲 Sẵn sàng','Chọn chế độ và bắt đầu ván.');
 </script>
 </body>
