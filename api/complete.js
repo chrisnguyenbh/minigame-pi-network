@@ -7,8 +7,17 @@ function json(res, status, body) {
 }
 
 function redisConfig() {
-  const url = String(process.env.UPSTASH_REDIS_REST_URL || "").replace(/\/+$/, "");
-  const token = String(process.env.UPSTASH_REDIS_REST_TOKEN || "");
+  const url = String(
+    process.env.UPSTASH_REDIS_REST_URL ||
+    process.env.UPSTASH_REDIS_REST_KV_REST_API_URL ||
+    ""
+  ).replace(/\/+$/, "");
+
+  const token = String(
+    process.env.UPSTASH_REDIS_REST_TOKEN ||
+    process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN ||
+    ""
+  );
   if (!url || !token) return null;
   return { url, token };
 }
