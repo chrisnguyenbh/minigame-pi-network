@@ -37,7 +37,7 @@ button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:
     <button id="largeBtn" class="active" onclick="setBoardSize(19)">19×19</button>
   </div>
   <div class="status" id="status"></div>
-  <div class="ai-info" id="aiInfo">🤖 AI Cao thủ: tìm kiếm sâu hơn, ưu tiên thắng/chặn bắt buộc, chuỗi ép 3–4 và phản công chủ động.</div>
+  <div class="ai-info" id="aiInfo">🤖 AI Mạnh Nhất: ưu tiên thắng/chặn bắt buộc, nhận diện thế ép, song 3, song 4 và phản công chủ động.</div>
 </div>
 <div class="board-wrap"><div class="board" id="board"></div></div>
 <div class="panel actions"><button class="new" onclick="resetGame()">↻ Ván mới</button></div>
@@ -47,7 +47,7 @@ button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:
 let N=19;
 let WIN=5;
 let board,currentPlayer,gameOver,mode='ai',aiThinking=false,lastMove=null;
-const AI_CFG={depth:9,time:7200,width:20};
+const AI_CFG={depth:10,time:9000,width:24};
 const boardEl=document.getElementById('board'), statusEl=document.getElementById('status');
 
 function emptyBoard(){return Array.from({length:N},()=>Array(N).fill(null))}
@@ -69,7 +69,7 @@ function updateAiInfo(){
   if(!el)return;
   el.textContent = N===3
     ? '3×3: AI Minimax tối ưu.'
-    : '🤖 AI Áp Đảo: công mạnh, thủ chắc, ưu tiên ép 4 mở / song 3 / 3–4.';
+    : '🤖 AI Mạnh Nhất: công thủ toàn diện, ưu tiên thắng bắt buộc, song 4, 3–4, song 3 và thế ép liên hoàn.';
 }
 function resetGame(){
   board=emptyBoard();currentPlayer='X';gameOver=false;aiThinking=false;lastMove=null;
@@ -198,19 +198,107 @@ function classifyMove(r,c,p){
   return {win:false,open4,four,open3,three,two,score};
 }
 
-function tacticalScore(m,p){
+
+function inBoard(r,c){return r>=0&&r<N&&c>=0&&c<N}
+
+function linePattern(r,c,dr,dc,p,radius=5){
+  let s='';
+  for(let k=-radius;k<=radius;k++){
+    const rr=r+k*dr,cc=c+k*dc;
+    if(!inBoard(rr,cc)){s+='B';continue}
+    const v=board[rr][cc];
+    s+=v===p?'P':v? 'E':'_';
+  }
+  return s;
+}
+
+function patternThreatScore(r,c,p){
+  // board[r][c] is assumed already set to p.
+  // Detects broken as well as contiguous Gomoku threats around the move.
+  let score=0;
+  let fourThreats=0, threeThreats=0;
+
+  const patterns4 = [
+    "_PPPP_", "_PPP_P_", "_PP_PP_", "_P_PPP_",
+    "EPPPP_", "_PPPPE", "BPPPP_", "_PPPPB"
+  ];
+  const patterns3 = [
+    "__PPP__", "_PPP___", "___PPP_",
+    "_PP_P__", "__P_PP_", "_P_PP__", "__PP_P_",
+    "_P_P_P_"
+  ];
+
+  for(const [dr,dc] of [[1,0],[0,1],[1,1],[1,-1]]){
+    const s=linePattern(r,c,dr,dc,p,5);
+
+    if(s.includes("PPPPP")) return {score:1e13,fours:9,threes:9,win:true};
+
+    let local4=0,local3=0;
+    for(const pat of patterns4) if(s.includes(pat)) local4++;
+    for(const pat of patterns3) if(s.includes(pat)) local3++;
+
+    // Sliding 5-cell windows: one empty + four stones is a direct winning threat.
+    for(let i=0;i<=s.length-5;i++){
+      const w=s.slice(i,i+5);
+      if(w.includes('E')||w.includes('B'))continue;
+      const pc=[...w].filter(x=>x==='P').length;
+      const ec=[...w].filter(x=>x==='_').length;
+      if(pc===4&&ec===1)local4+=2;
+      else if(pc===3&&ec===2)local3+=0.4;
+    }
+
+    if(local4){
+      fourThreats+=local4;
+      score+=local4*4.0e8;
+    }
+    if(local3){
+      threeThreats+=local3;
+      score+=local3*1.2e7;
+    }
+  }
+
+  if(fourThreats>=2)score+=5.0e9;              // double four / two winning points
+  if(fourThreats>=1&&threeThreats>=1)score+=2.5e9; // 4 + 3
+  if(threeThreats>=2)score+=9.0e8;             // double three
+  return {score,fours:fourThreats,threes:threeThreats,win:false};
+}
+
+function fullTacticalScore(m,p){
   board[m.r][m.c]=p;
-  const c=classifyMove(m.r,m.c,p);
+  const base=classifyMove(m.r,m.c,p);
+  const pat=patternThreatScore(m.r,m.c,p);
   board[m.r][m.c]=null;
-  return c;
+  return {
+    ...base,
+    patternScore:pat.score,
+    patternFours:pat.fours,
+    patternThrees:pat.threes,
+    score:Math.max(base.score,pat.score)+Math.min(base.score,pat.score)*0.18,
+    win:base.win||pat.win
+  };
+}
+
+function tacticalScore(m,p){
+  return fullTacticalScore(m,p);
 }
 
 function moveScore(m,p){
   const q=p==='O'?'X':'O';
   const a=tacticalScore(m,p), d=tacticalScore(m,q);
   const mid=(N-1)/2;
-  const center=80-(Math.abs(m.r-mid)+Math.abs(m.c-mid))*4;
-  return a.score*1.34+d.score*1.42+center;
+  const center=120-(Math.abs(m.r-mid)+Math.abs(m.c-mid))*5;
+
+  // Strong AI is slightly defense-biased unless it has a forcing attack.
+  let attack=a.score*1.48;
+  let defense=d.score*1.62;
+
+  if(a.win)attack+=1e14;
+  if(d.win)defense+=9e13;
+  if(a.patternFours>=2||a.open4>=1)attack+=7e9;
+  if(d.patternFours>=2||d.open4>=1)defense+=8e9;
+  if(d.patternThrees>=2||d.open3>=2)defense+=1.4e9;
+
+  return attack+defense+center;
 }
 
 function orderedMoves(player,limit){
@@ -221,13 +309,44 @@ function orderedMoves(player,limit){
     .map(x=>x.m);
 }
 
+
+function urgentThreatMoves(player){
+  const out=[];
+  for(const m of candidateCells()){
+    const c=tacticalScore(m,player);
+    let sev=0;
+    if(c.win)sev=10;
+    else if(c.open4||c.patternFours>=2)sev=9;
+    else if(c.four>=2)sev=8.5;
+    else if((c.four&&c.open3)||(c.patternFours>=1&&c.patternThrees>=1))sev=8;
+    else if(c.open3>=2||c.patternThrees>=2)sev=7;
+    else if(c.four||c.patternFours>=1)sev=6;
+    else if(c.open3||c.patternThrees>=1)sev=4;
+    if(sev)out.push({m,c,sev,v:moveScore(m,player)});
+  }
+  return out.sort((a,b)=>b.sev-a.sev||b.v-a.v);
+}
+
+function bestMandatoryDefense(){
+  const threats=urgentThreatMoves('X');
+  if(!threats.length)return null;
+
+  // If X has a direct win or a forcing double threat, block the strongest square immediately.
+  if(threats[0].sev>=7)return threats[0].m;
+
+  // For lesser threats, compare with O's strongest forcing attack.
+  const my=urgentThreatMoves('O');
+  if(my.length&&my[0].sev>threats[0].sev)return my[0].m;
+  return threats[0].sev>=6?threats[0].m:null;
+}
+
 function winningThreatMoves(player){
   const result=[];
   for(const m of candidateCells()){
     board[m.r][m.c]=player;
     const c=classifyMove(m.r,m.c,player);
     board[m.r][m.c]=null;
-    if(c.win||c.open4||c.four>=2||(c.four&&c.open3)||c.open3>=2) result.push({m,c});
+    if(c.win||c.open4||c.four>=2||(c.four&&c.open3)||c.open3>=2||c.patternFours>=1||c.patternThrees>=2) result.push({m,c});
   }
   return result.sort((a,b)=>b.c.score-a.c.score);
 }
@@ -238,7 +357,7 @@ function forcingMoves(player,limit=10){
     board[m.r][m.c]=player;
     const c=classifyMove(m.r,m.c,player);
     board[m.r][m.c]=null;
-    if(c.win||c.open4||c.four||c.open3>=2||(c.open3&&c.three)) out.push({m,c});
+    if(c.win||c.open4||c.four||c.open3>=2||(c.open3&&c.three)||c.patternFours>=1||c.patternThrees>=2) out.push({m,c});
   }
   return out.sort((a,b)=>b.c.score-a.c.score).slice(0,limit).map(x=>x.m);
 }
@@ -299,7 +418,9 @@ function boardEval(){
     if(o>bestO){secondO=bestO;bestO=o}else if(o>secondO)secondO=o;
     if(x>bestX){secondX=bestX;bestX=x}else if(x>secondX)secondX=x;
   }
-  return bestO+secondO*.22-(bestX+secondX*.28)*1.14;
+  // Defense is intentionally weighted more heavily so the AI does not ignore
+  // an opponent's developing fork while pursuing a cosmetic attack.
+  return bestO+secondO*.30-(bestX+secondX*.34)*1.22;
 }
 
 let SEARCH_DEADLINE=0, SEARCH_ABORT=false, SEARCH_WIDTH=10;
@@ -443,24 +564,26 @@ function aiMove(){
   // 2) Nếu đối thủ có nước thắng ngay thì bắt buộc chặn.
   if(!best)best=immediateWinningMove('X');
 
-  // 3) Khai cuộc chủ động: chiếm trung tâm và tạo áp lực sớm.
-  if(!best)best=aggressiveOpeningMove();
+  // 3) Phòng thủ bắt buộc trước mọi khai cuộc: không được bỏ qua song 3 / 3-4 / song 4.
+  if(!best)best=bestMandatoryDefense();
 
-  // 4) Tìm chuỗi ép thắng và chặn các đe dọa chiến thuật lớn.
+  // 4) Tìm chuỗi ép thắng chủ động.
   if(!best){
-    const tacticalDeadline=Date.now()+Math.min(3200,cfg.time*.55);
-    const ts=threatSearch('O',8,tacticalDeadline);
+    const tacticalDeadline=Date.now()+Math.min(4200,cfg.time*.50);
+    const ts=threatSearch('O',10,tacticalDeadline);
     if(ts&&ts.win)best=ts.move;
-
-    // If opponent has a forcing sequence, occupy its strongest threat square.
-    if(!best){
-      const oppThreats=winningThreatMoves('X');
-      if(oppThreats.length)best=oppThreats[0].m;
-    }
   }
 
+  // 5) Nếu đối thủ có chuỗi ép mạnh, chiếm ngay điểm đe dọa nguy hiểm nhất.
+  if(!best){
+    const oppThreats=winningThreatMoves('X');
+    if(oppThreats.length)best=oppThreats[0].m;
+  }
 
-  // 4) All serious levels use iterative deepening alpha-beta.
+  // 6) Chỉ dùng khai cuộc chủ động khi bàn cờ thực sự chưa có đe dọa chiến thuật.
+  if(!best)best=aggressiveOpeningMove();
+
+  // 7) Iterative deepening alpha-beta là lớp cuối cùng.
   if(!best)best=searchBestMove(cfg);
 
   aiThinking=false;
