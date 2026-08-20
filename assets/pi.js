@@ -36,7 +36,23 @@ window.MiniPi = (() => {
         ["username", "payments"],
         payment => {
           console.warn("Incomplete Pi payment found", payment);
-          if (statusEl) statusEl.textContent = "Đang kiểm tra giao dịch trước đó…";
+          if (statusEl) statusEl.textContent = "Đang hoàn tất giao dịch trước đó…";
+
+          const paymentId = payment?.identifier;
+          const txid = payment?.transaction?.txid;
+          if (paymentId && txid) {
+            fetch("/api/complete", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ paymentId, txid })
+            }).then(r => r.json().catch(() => ({})))
+              .then(data => {
+                if (statusEl) statusEl.textContent = data?.ok ? "Giao dịch trước đã được hoàn tất." : "Cần kiểm tra giao dịch trước.";
+              })
+              .catch(() => {
+                if (statusEl) statusEl.textContent = "Cần kiểm tra giao dịch trước.";
+              });
+          }
         }
       );
 

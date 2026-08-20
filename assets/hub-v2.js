@@ -47,7 +47,6 @@ function renderDashboard() {
   const totalOpens = Object.values(snap.stats).reduce((sum,s)=>sum+(s.opens||0),0);
   $("totalOpens").textContent = totalOpens;
   $("totalPlay").textContent = fmtTime(totalPlayMs);
-  $("coins").textContent = (+(localStorage.mg_coins || snap.profile.coins || 10000)).toLocaleString();
 
   const lastId = snap.recentGameIds[0];
   const game = lastId && Runtime.games.get(lastId);
@@ -86,54 +85,114 @@ wireLaunchEvents();
 
 Runtime.events.emit("hub:ready", { games: Runtime.games.all().length });
 
-// Pi integration remains optional and isolated from the hub runtime.
-const statusEl=$("piStatus"),loginBtn=$("piLogin");
+// Pi + MG Credits
+const statusEl = $("piStatus");
+const loginBtn = $("piLogin");
+const mgBalanceEl = $("mgBalance");
+const mgWalletStatus = $("mgWalletStatus");
+const paymentStatus = $("paymentStatus");
+const refreshMgBtn = $("refreshMgBtn");
+
+function setMgBalance(value) {
+  const n = Number.isFinite(Number(value)) ? Number(value) : 0;
+  if (mgBalanceEl) mgBalanceEl.textContent = `${n.toLocaleString()} MG`;
+}
+
+async function refreshMgBalance(auth = null) {
+  try {
+    const current = auth || window.MiniPi?.getAuth?.();
+    if (!current?.accessToken) {
+      if (mgWalletStatus) mgWalletStatus.textContent = "Đăng nhập Pi để xem số dư MG.";
+      return null;
+    }
+    if (mgWalletStatus) mgWalletStatus.textContent = "Đang tải số dư MG…";
+    const data = await window.MG.balance(current.accessToken);
+    setMgBalance(data.balance);
+    if (mgWalletStatus) {
+      mgWalletStatus.textContent = data.username
+        ? `@${data.username} · ${data.balance} MG`
+        : `${data.balance} MG`;
+    }
+    return data;
+  } catch (error) {
+    console.error("MG balance error", error);
+    if (mgWalletStatus) mgWalletStatus.textContent = "Chưa tải được số dư MG.";
+    return null;
+  }
+}
+
+function setMgPackageDisabled(disabled) {
+  document.querySelectorAll(".mg-pack").forEach(btn => btn.disabled = disabled);
+}
+
 if (window.MiniPi) {
-  MiniPi.init(statusEl).then(()=>{
-    const u=MiniPi.cachedUsername();
-    if(u){statusEl.textContent='@'+u;$("playerName").textContent='@'+u;loginBtn.textContent='Đã đăng nhập'}
-  }).catch(()=>{statusEl.textContent="Pi chưa sẵn sàng"});
-  loginBtn.onclick=async()=>{
-    const a=await MiniPi.login(statusEl,loginBtn);
-    if(a?.user?.username){
-      $("playerName").textContent='@'+a.user.username;
-      loginBtn.textContent='Đã đăng nhập';
+  MiniPi.init(statusEl).then(() => {
+    const username = MiniPi.cachedUsername();
+    if (username) {
+      statusEl.textContent = "@" + username;
+      $("playerName").textContent = "@" + username;
+      loginBtn.textContent = "Đã đăng nhập";
+    }
+  }).catch(() => {
+    statusEl.textContent = "Pi chưa sẵn sàng";
+  });
+
+  loginBtn.onclick = async () => {
+    const auth = await MiniPi.login(statusEl, loginBtn);
+    if (auth?.user?.username) {
+      $("playerName").textContent = "@" + auth.user.username;
+      loginBtn.textContent = "Đã đăng nhập";
+      await refreshMgBalance(auth);
     }
   };
 } else {
-  statusEl.textContent="Pi SDK offline";
+  statusEl.textContent = "Pi SDK offline";
 }
 
+if (refreshMgBtn) {
+  refreshMgBtn.onclick = async () => {
+    const auth = await MiniPi.ensureAuth(statusEl, loginBtn);
+    if (auth?.user?.username) $("playerName").textContent = "@" + auth.user.username;
+    await refreshMgBalance(auth);
+  };
+}
 
-$("payBtn").onclick=async()=>{
-  const paymentStatus=$("paymentStatus");
-  const payBtn=$("payBtn");
+document.querySelectorAll(".mg-pack").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const piAmount = Number(btn.dataset.pi);
+    const mgCredits = Number(btn.dataset.mg);
 
-  if(!window.MiniPi){
-    paymentStatus.textContent="Pi Network hiện chưa sẵn sàng.";
-    return;
-  }
+    if (!Number.isFinite(piAmount) || !Number.isInteger(mgCredits) || mgCredits <= 0) return;
+    if (!window.MiniPi) {
+      paymentStatus.textContent = "Pi Network hiện chưa sẵn sàng.";
+      return;
+    }
 
-  payBtn.disabled=true;
-  payBtn.textContent="Đang xử lý…";
-  paymentStatus.textContent="Đang chuẩn bị thanh toán…";
+    setMgPackageDisabled(true);
+    paymentStatus.textContent = `Đang chuẩn bị nạp ${mgCredits} MG…`;
 
-  try{
-    const auth=await MiniPi.ensureAuth(statusEl,loginBtn);
-    if(!auth?.accessToken)throw new Error("Không thể xác thực tài khoản Pi.");
+    try {
+      const auth = await MiniPi.ensureAuth(statusEl, loginBtn);
+      if (!auth?.accessToken) throw new Error("Không thể xác thực tài khoản Pi.");
 
-    await MiniPi.createPayment({
-      amount:.01,
-      memo:"MiniGame Hub payment",
-      metadata:{kind:"minigame_hub",createdAt:new Date().toISOString()},
-      statusEl:paymentStatus
-    });
+      await MiniPi.createPayment({
+        amount: piAmount,
+        memo: `Nạp ${mgCredits} MG Credits`,
+        metadata: {
+          kind: "mg_credit_topup",
+          credits: mgCredits,
+          rate: "0.01_pi_per_mg",
+          createdAt: new Date().toISOString()
+        },
+        statusEl: paymentStatus
+      });
 
-    paymentStatus.textContent="✅ Thanh toán thành công";
-    payBtn.textContent="Đã thanh toán";
-  }catch(error){
-    paymentStatus.textContent="❌ "+(error?.message||"Thanh toán chưa hoàn tất.");
-    payBtn.disabled=false;
-    payBtn.textContent="Thanh toán 0.01 Pi";
-  }
-};
+      paymentStatus.textContent = `✅ Đã nạp ${mgCredits} MG`;
+      await refreshMgBalance(auth);
+    } catch (error) {
+      paymentStatus.textContent = "❌ " + (error?.message || "Nạp MG chưa hoàn tất.");
+    } finally {
+      setMgPackageDisabled(false);
+    }
+  });
+});
