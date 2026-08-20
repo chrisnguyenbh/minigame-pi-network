@@ -19,9 +19,9 @@
 
   <section class="hero">
     <div>
-      <div class="eyebrow">MINIGAME RUNTIME V1 · PI MAINNET</div>
+      <div class="eyebrow">MINIGAME HUB · PI MAINNET</div>
       <h1><span>CHỌN GAME</span><br>VÀ VÀO CHƠI</h1>
-      <p>Hub mới tách game, dữ liệu phiên và sự kiện thành các module độc lập. Game hiện tại vẫn giữ nguyên, nhưng từ đây có thể nâng AI, thành tích, bảng xếp hạng và Pi mà không làm vỡ các game khác.</p>
+      <p>Khám phá các trò chơi chiến thuật, giải trí và thử thách hấp dẫn trong một MiniGame Hub.</p>
     </div>
     <div class="dashboard">
       <div class="metric"><strong id="totalOpens">0</strong><span>Lượt mở game</span></div>
@@ -35,7 +35,7 @@
     </div>
   </section>
 
-  <div class="section-head"><h2>🔥 Game nổi bật</h2><span>Registry tự dựng giao diện từ manifest</span></div>
+  <div class="section-head"><h2>🔥 Game nổi bật</h2><span>Chọn trò chơi bạn yêu thích</span></div>
   <div class="filters">
     <button class="filter active" data-filter="Tất cả">Tất cả</button>
     <button class="filter" data-filter="AI">Đấu AI</button>
@@ -45,22 +45,20 @@
   </div>
   <section class="game-grid" id="featuredGrid"></section>
 
-  <div class="section-head"><h2>🎲 Game khác</h2><span>Module độc lập</span></div>
+  <div class="section-head"><h2>🎲 Trò chơi khác</h2><span>Khám phá thêm</span></div>
   <section class="more-grid" id="otherGrid"></section>
 
   <section class="pi-panel">
     <h3>💜 Pi Mainnet</h3>
-    <p>Pi được giữ thành một integration riêng, không trộn vào logic của từng game.</p>
+    <p>Đăng nhập và thanh toán an toàn với Pi Network Mainnet.</p>
     <div class="pi-actions">
       <button class="btn" id="payBtn">Thanh toán 0.01 Pi</button>
-      <button class="btn secondary" id="resetScores">Xóa dữ liệu runtime</button>
     </div>
-    <div class="debug" id="paymentStatus">Chưa bắt đầu giao dịch.</div>
-    <div class="debug" id="debugStatus"></div>
+    <div class="debug" id="paymentStatus" aria-live="polite"></div>
   </section>
 
   <footer class="footer">
-    <a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms</a><span>MiniGame Runtime V1</span>
+    <a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms</a><span>MiniGame Hub</span>
   </footer>
 </main>
 <script src="assets/pi.js"></script>

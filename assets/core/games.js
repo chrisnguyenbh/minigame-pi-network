@@ -3,7 +3,7 @@ export const GAMES = [
   {
     id: "monopoly",
     title: "Cờ Tỷ Phú Sài Gòn",
-    subtitle: "TP.HCM · Cơ Hội · Khí Vận · Người vs AI",
+    subtitle: "Mua bán bất động sản, xây dựng tài sản và cạnh tranh với AI hoặc bạn bè.",
     href: "games/monopoly.html",
     cover: "assets/hub/monopoly.webp",
     icon: "🏙️",
@@ -14,7 +14,7 @@ export const GAMES = [
   {
     id: "xiangqi",
     title: "Cờ Tướng",
-    subtitle: "Cờ thường · Cờ Thế · Cờ Úp · AI mạnh",
+    subtitle: "Cờ Tướng truyền thống với chế độ đấu AI, Cờ Thế và Cờ Úp.",
     href: "games/apps/game_viewer/gui/game_viewer.html",
     cover: "assets/hub/xiangqi.webp",
     icon: "♟️",
@@ -25,7 +25,7 @@ export const GAMES = [
   {
     id: "caro",
     title: "Cờ Caro",
-    subtitle: "3×3 · 19×19 · Người vs Người · AI",
+    subtitle: "Thử thách chiến thuật trên bàn cờ Caro, chơi với AI hoặc 2 người.",
     href: "games/caro.html",
     cover: "assets/hub/caro.webp",
     icon: "❌",
@@ -36,7 +36,7 @@ export const GAMES = [
   {
     id: "find-difference",
     title: "Tìm Điểm Khác Nhau",
-    subtitle: "Hai ảnh song song · nhiều level · thử thách quan sát",
+    subtitle: "Quan sát hai hình ảnh và tìm ra các điểm khác biệt trong thời gian ngắn nhất.",
     href: "games/find-difference.html",
     cover: "assets/hub/find.webp",
     icon: "🔎",
@@ -47,7 +47,7 @@ export const GAMES = [
   {
     id: "bbtan",
     title: "BBTAN",
-    subtitle: "Bắn bóng phá gạch · săn điểm cao",
+    subtitle: "Phá gạch, ghi điểm cao và chinh phục các màn chơi ngày càng khó.",
     href: "games/bbtan.html",
     icon: "🧱",
     accent: "orange",
@@ -56,7 +56,7 @@ export const GAMES = [
   {
     id: "dungeon",
     title: "Dungeon Battle",
-    subtitle: "RPG · chiến đấu · Boss",
+    subtitle: "Phiêu lưu, chiến đấu với kẻ địch và đối đầu các boss mạnh.",
     href: "games/dungeon-battle.html",
     icon: "⚔️",
     accent: "red",

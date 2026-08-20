@@ -101,3 +101,9 @@ a{color:inherit;text-decoration:none}
   .dashboard{grid-template-columns:1fr 1fr}
   .more-grid{grid-template-columns:1fr}
 }
+
+
+/* Production polish */
+#paymentStatus:empty{display:none}
+#paymentStatus{margin-top:10px;font-size:11px}
+#payBtn:disabled{opacity:.72;cursor:not-allowed}

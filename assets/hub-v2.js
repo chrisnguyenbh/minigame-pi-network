@@ -91,41 +91,49 @@ const statusEl=$("piStatus"),loginBtn=$("piLogin");
 if (window.MiniPi) {
   MiniPi.init(statusEl).then(()=>{
     const u=MiniPi.cachedUsername();
-    if(u){statusEl.textContent='@'+u;$("playerName").textContent='@'+u;loginBtn.textContent='Đăng nhập lại'}
+    if(u){statusEl.textContent='@'+u;$("playerName").textContent='@'+u;loginBtn.textContent='Đã đăng nhập'}
   }).catch(()=>{statusEl.textContent="Pi chưa sẵn sàng"});
   loginBtn.onclick=async()=>{
     const a=await MiniPi.login(statusEl,loginBtn);
-    if(a?.user?.username)$("playerName").textContent='@'+a.user.username;
+    if(a?.user?.username){
+      $("playerName").textContent='@'+a.user.username;
+      loginBtn.textContent='Đã đăng nhập';
+    }
   };
 } else {
   statusEl.textContent="Pi SDK offline";
 }
 
-$("resetScores").onclick=()=>{
-  if(confirm("Xóa dữ liệu MiniGame Runtime trên thiết bị này?")){
-    Runtime.store.resetRuntimeData();
-    Object.keys(localStorage).filter(k=>k.startsWith("mg_") && k!=="mg_runtime_v1").forEach(k=>localStorage.removeItem(k));
-    location.reload();
-  }
-};
 
 $("payBtn").onclick=async()=>{
   const paymentStatus=$("paymentStatus");
-  if(!window.MiniPi){paymentStatus.textContent="Pi SDK chưa sẵn sàng.";return}
-  $("payBtn").disabled=true;
-  paymentStatus.textContent="Đang chuẩn bị giao dịch…";
+  const payBtn=$("payBtn");
+
+  if(!window.MiniPi){
+    paymentStatus.textContent="Pi Network hiện chưa sẵn sàng.";
+    return;
+  }
+
+  payBtn.disabled=true;
+  payBtn.textContent="Đang xử lý…";
+  paymentStatus.textContent="Đang chuẩn bị thanh toán…";
+
   try{
     const auth=await MiniPi.ensureAuth(statusEl,loginBtn);
-    if(!auth?.accessToken)throw new Error("Không lấy được Pi access token.");
-    const result=await MiniPi.createPayment({
-      amount:.01,memo:"MiniGame Mainnet transaction",
-      metadata:{kind:"minigame_runtime_v1",createdAt:new Date().toISOString()},
+    if(!auth?.accessToken)throw new Error("Không thể xác thực tài khoản Pi.");
+
+    await MiniPi.createPayment({
+      amount:.01,
+      memo:"MiniGame Hub payment",
+      metadata:{kind:"minigame_hub",createdAt:new Date().toISOString()},
       statusEl:paymentStatus
     });
-    paymentStatus.textContent="🎉 Giao dịch hoàn tất.";
-    $("debugStatus").textContent=`Payment ID: ${result?.identifier||result?.payment?.identifier||"xem log"}`;
+
+    paymentStatus.textContent="✅ Thanh toán thành công";
+    payBtn.textContent="Đã thanh toán";
   }catch(error){
-    paymentStatus.textContent="❌ "+(error?.message||"Thanh toán thất bại.");
-    $("payBtn").disabled=false;
+    paymentStatus.textContent="❌ "+(error?.message||"Thanh toán chưa hoàn tất.");
+    payBtn.disabled=false;
+    payBtn.textContent="Thanh toán 0.01 Pi";
   }
 };
