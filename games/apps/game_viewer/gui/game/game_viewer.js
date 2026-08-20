@@ -18,6 +18,10 @@ const STRONG_AI = {
   label: 'AI Mạnh nhất'
 };
 
+// AI luôn tự động đi ở các chế độ có máy.
+// Engine tìm kiếm theo iterative deepening và dừng theo giới hạn thời gian.
+const AI_AUTO_PLAY = true;
+
 const PUZZLES = [
   {title:'Thế 01 · Song Pháo Khóa Cung', desc:'LÃO LÀNG · Đỏ tiên · Phải thắng trong tối đa 5 nước của Đỏ.', fen:'3ak4/4a4/4b4/2p3p2/9/9/2P3P2/1C5C1/4A4/3AK4 w - - 0 1', maxMoves:5},
   {title:'Thế 02 · Xe Pháo Ép Thành', desc:'LÃO LÀNG · Đỏ tiên · Phải thắng trong tối đa 6 nước của Đỏ.', fen:'4k4/3aa4/4b4/2p3p2/9/9/2P3P2/2R3C2/4A4/3AK4 w - - 0 1', maxMoves:6},
@@ -68,7 +72,7 @@ function setGameMode(m){ gameMode=m; setActiveControls(); newGame(); }
 function updateAiStrengthInfo(){
   const el=document.getElementById('aiStrengthInfo');
   if(!el)return;
-  el.textContent=`🤖 AI Mạnh nhất · depth tối đa ${STRONG_AI.depth} · khoảng ${(STRONG_AI.time/1000).toFixed(1)} giây/nước · tìm kiếm sâu.`;
+  el.textContent=`🤖 AI Mạnh nhất · tự động đi · tìm kiếm sâu tối đa ${STRONG_AI.depth} ply · khoảng ${(STRONG_AI.time/1000).toFixed(1)} giây/nước.`;
 }
 
 function setActiveControls(){
@@ -346,38 +350,88 @@ function chooseNormalAiMove(){
 }
 
 function scheduleAI(){
-  if(gameOver||aiThinking)return;
-  aiThinking=true; updateStatus();
+  if(!AI_AUTO_PLAY || gameOver || aiThinking) return;
 
-  setTimeout(()=>{
-    try{
-      if(appMode==='hidden'){
-        if(hiddenIsHumanTurn()){aiThinking=false;updateStatus();return;}
-        const mv=chooseHiddenAiMove();
-        if(!mv){gameOver=true;aiThinking=false;updateStatus('🏁 Không còn nước đi.');return;}
-        applyHiddenMove(hiddenBoard,mv.fr,mv.fc,mv.tr,mv.tc,true);
-        hiddenSide^=1; selectedSquare=null; aiThinking=false; afterHiddenMove();
-        return;
-      }
+  aiThinking=true;
+  selectedSquare=null;
+  updateStatus();
+  render();
 
-      if(isHumanTurn()){aiThinking=false;updateStatus();return;}
-      const mv=appMode==='puzzle' ? choosePuzzleAiMove() : chooseNormalAiMove();
-      if(!mv){gameOver=true;aiThinking=false;updateStatus('🏁 Không còn nước đi.');return;}
-      engine.makeMove(mv); aiThinking=false;
-      if(appMode==='puzzle' && puzzlePlayerMoves>=PUZZLES[puzzleIndex].maxMoves){
-        render();
-        if(engine.generateLegalMoves().length===0){
-          afterStandardMove();
-        }else{
-          failPuzzleByBudget();
+  // Cho trình duyệt kịp vẽ trạng thái "AI đang suy nghĩ" trước khi
+  // engine chạy tìm kiếm đồng bộ.
+  requestAnimationFrame(()=>{
+    setTimeout(()=>{
+      try{
+        if(appMode==='hidden'){
+          if(hiddenIsHumanTurn()){
+            aiThinking=false;
+            updateStatus();
+            return;
+          }
+          const mv=chooseHiddenAiMove();
+          if(!mv){
+            gameOver=true;
+            aiThinking=false;
+            updateStatus('🏁 Không còn nước đi.');
+            return;
+          }
+          applyHiddenMove(hiddenBoard,mv.fr,mv.fc,mv.tr,mv.tc,true);
+          hiddenSide^=1;
+          selectedSquare=null;
+          aiThinking=false;
+          afterHiddenMove();
+          return;
         }
-        return;
+
+        if(isHumanTurn()){
+          aiThinking=false;
+          updateStatus();
+          return;
+        }
+
+        const mv=appMode==='puzzle' ? choosePuzzleAiMove() : chooseNormalAiMove();
+
+        if(!mv){
+          gameOver=true;
+          aiThinking=false;
+          updateStatus('🏁 Không còn nước đi.');
+          return;
+        }
+
+        const ok=engine.makeMove(mv);
+        aiThinking=false;
+
+        if(ok===0){
+          // Trường hợp hiếm: engine trả về nước không hợp lệ.
+          // Chọn nước hợp lệ đầu tiên để ván không bị đứng.
+          const legal=engine.generateLegalMoves();
+          if(legal.length){
+            engine.makeMove(legal[0].move);
+          }else{
+            gameOver=true;
+            updateStatus('🏁 Không còn nước đi.');
+            return;
+          }
+        }
+
+        if(appMode==='puzzle' && puzzlePlayerMoves>=PUZZLES[puzzleIndex].maxMoves){
+          render();
+          if(engine.generateLegalMoves().length===0){
+            afterStandardMove();
+          }else{
+            failPuzzleByBudget();
+          }
+          return;
+        }
+
+        afterStandardMove();
+      }catch(err){
+        console.error('Xiangqi AI error:',err);
+        aiThinking=false;
+        updateStatus('AI gặp lỗi — hãy bấm Ván mới.');
       }
-      afterStandardMove();
-    }catch(err){
-      console.error(err); aiThinking=false; updateStatus('AI gặp lỗi — hãy bấm Ván mới.');
-    }
-  },90);
+    },120);
+  });
 }
 
 /* =========================
