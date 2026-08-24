@@ -1,17 +1,26 @@
-# MiniGame Hub — Entertainment v1 (Pi Mainnet)
+# Chiến Trường Tu Tiên — MVP
 
-## 5 game
-- Cờ Tỉ Phú — bản giao diện mới, Game Coin nội bộ, mua đất/xây cấp.
-- Dungeon Battle
-- Caro
-- Tìm điểm khác nhau
-- BBTAN
+Bản thử nghiệm sinh tồn cho MiniGame Hub.
 
-## Mô hình
-- Pi Mainnet U2A transaction hiện tại được giữ nguyên.
-- Game Coin chỉ là tiền ảo nội bộ dùng cho gameplay.
-- Không có chức năng đổi Game Coin thành Pi.
-- Không yêu cầu Secret Seed/passphrase của người chơi.
+Có sẵn:
+- Điều khiển WASD / joystick mobile
+- Quái spawn ngày càng đông
+- Auto attack
+- EXP + Level Up
+- Mỗi lần lên cấp chọn 1 trong 3 nâng cấp
+- 3 skill chính: Hỏa Cầu, Thiên Lôi, Kiếm Trận
+- Passive: Cường Công, Thân Pháp, Luyện Thể
+- Skill thay đổi rõ qua từng level
+- Boss bắt đầu xuất hiện sau khoảng 85 giây
+- Không phụ thuộc thư viện ngoài, chỉ 1 file HTML
 
-## Deploy
-Giữ các Environment Variables Pi hiện tại của project đang chạy. Không thay API key/Secret Seed chỉ để đổi giao diện game.
+Cách tích hợp:
+1. Copy `games/survivor.html` vào project.
+2. Thêm game mới vào `assets/core/games.js`.
+3. href: `games/survivor.html`
+
+Gợi ý metadata:
+- id: survivor
+- title: Chiến Trường Tu Tiên
+- subtitle: Sinh tồn giữa biển quái, tự động tấn công và tiến hóa kỹ năng qua từng cấp.
+- tags: AI/Action/Survival

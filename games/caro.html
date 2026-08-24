@@ -47,7 +47,7 @@ button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:
 let N=19;
 let WIN=5;
 let board,currentPlayer,gameOver,mode='ai',aiThinking=false,lastMove=null;
-const AI_CFG={depth:10,time:9000,width:24};
+const AI_CFG={depth:8,time:6500,width:18};
 const boardEl=document.getElementById('board'), statusEl=document.getElementById('status');
 
 function emptyBoard(){return Array.from({length:N},()=>Array(N).fill(null))}
@@ -343,9 +343,7 @@ function bestMandatoryDefense(){
 function winningThreatMoves(player){
   const result=[];
   for(const m of candidateCells()){
-    board[m.r][m.c]=player;
-    const c=classifyMove(m.r,m.c,player);
-    board[m.r][m.c]=null;
+    const c=fullTacticalScore(m,player);
     if(c.win||c.open4||c.four>=2||(c.four&&c.open3)||c.open3>=2||c.patternFours>=1||c.patternThrees>=2) result.push({m,c});
   }
   return result.sort((a,b)=>b.c.score-a.c.score);
@@ -354,12 +352,60 @@ function winningThreatMoves(player){
 function forcingMoves(player,limit=10){
   const out=[];
   for(const m of candidateCells()){
-    board[m.r][m.c]=player;
-    const c=classifyMove(m.r,m.c,player);
-    board[m.r][m.c]=null;
+    const c=fullTacticalScore(m,player);
     if(c.win||c.open4||c.four||c.open3>=2||(c.open3&&c.three)||c.patternFours>=1||c.patternThrees>=2) out.push({m,c});
   }
   return out.sort((a,b)=>b.c.score-a.c.score).slice(0,limit).map(x=>x.m);
+}
+
+function threatSeverity(c){
+  if(c.win)return 100;
+  if(c.open4||c.patternFours>=2)return 90;
+  if(c.four>=2)return 86;
+  if((c.four&&c.open3)||(c.patternFours>=1&&c.patternThrees>=1))return 82;
+  if(c.open3>=2||c.patternThrees>=2)return 76;
+  if(c.four||c.patternFours>=1)return 68;
+  if(c.open3||c.patternThrees>=1)return 46;
+  if(c.three)return 24;
+  return 0;
+}
+
+function opponentDangerAfter(move){
+  board[move.r][move.c]='O';
+  const direct=immediateWinningMove('X');
+  if(direct){board[move.r][move.c]=null;return 1e18;}
+
+  let maxSev=0, severeCount=0, sum=0;
+  for(const m of candidateCells()){
+    const c=fullTacticalScore(m,'X');
+    const sev=threatSeverity(c);
+    if(sev>maxSev)maxSev=sev;
+    if(sev>=68)severeCount++;
+    if(sev)sum+=sev*sev;
+  }
+  board[move.r][move.c]=null;
+  // Multiple simultaneous threats are much more dangerous than one isolated threat.
+  return maxSev*1e9 + severeCount*2e8 + sum*1e5;
+}
+
+function safestDefensiveMove(){
+  const opp=urgentThreatMoves('X');
+  if(!opp.length||opp[0].sev<4)return null;
+
+  const candidates=new Map();
+  for(const t of opp.slice(0,12))candidates.set(t.m.r*N+t.m.c,t.m);
+  for(const m of orderedMoves('O',12))candidates.set(m.r*N+m.c,m);
+
+  let best=null,bestDanger=Infinity,bestOwn=-Infinity;
+  for(const m of candidates.values()){
+    if(board[m.r][m.c])continue;
+    const danger=opponentDangerAfter(m);
+    const own=moveScore(m,'O');
+    if(danger<bestDanger||(danger===bestDanger&&own>bestOwn)){
+      best=m;bestDanger=danger;bestOwn=own;
+    }
+  }
+  return best;
 }
 
 function hasImmediateWin(player){
@@ -564,7 +610,9 @@ function aiMove(){
   // 2) Nếu đối thủ có nước thắng ngay thì bắt buộc chặn.
   if(!best)best=immediateWinningMove('X');
 
-  // 3) Phòng thủ bắt buộc trước mọi khai cuộc: không được bỏ qua song 3 / 3-4 / song 4.
+  // 3) Phòng thủ bắt buộc: mô phỏng từng nước chặn và chọn nước làm giảm
+  //    nguy cơ của X nhiều nhất. Không chỉ chặn ô có điểm heuristic cao nhất.
+  if(!best)best=safestDefensiveMove();
   if(!best)best=bestMandatoryDefense();
 
   // 4) Tìm chuỗi ép thắng chủ động.
