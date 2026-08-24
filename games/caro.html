@@ -47,7 +47,7 @@ button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:
 let N=19;
 let WIN=5;
 let board,currentPlayer,gameOver,mode='ai',aiThinking=false,lastMove=null;
-const AI_CFG={depth:8,time:6500,width:18};
+const AI_CFG={depth:12,time:9500,width:18};
 const boardEl=document.getElementById('board'), statusEl=document.getElementById('status');
 
 function emptyBoard(){return Array.from({length:N},()=>Array(N).fill(null))}
@@ -69,7 +69,7 @@ function updateAiInfo(){
   if(!el)return;
   el.textContent = N===3
     ? '3×3: AI Minimax tối ưu.'
-    : '🤖 AI Mạnh Nhất: công thủ toàn diện, ưu tiên thắng bắt buộc, song 4, 3–4, song 3 và thế ép liên hoàn.';
+    : '🤖 AI Tournament V3: kiểm tra fork chính xác, tìm thắng cưỡng bức và Alpha-Beta sâu.';
 }
 function resetGame(){
   board=emptyBoard();currentPlayer='X';gameOver=false;aiThinking=false;lastMove=null;
@@ -412,6 +412,101 @@ function hasImmediateWin(player){
   return immediateWinningMove(player)!==null;
 }
 
+
+// Exact tactical verifier. Instead of trusting pattern scores only, it asks a
+// concrete question: after this move, how many distinct winning squares exist
+// for the same player on the next turn? Two or more is a real fork.
+function exactAfterMoveProfile(m,player){
+  if(board[m.r][m.c])return {win:false,wins:[],fork:false,forcing:false};
+  board[m.r][m.c]=player;
+  const win=checkWin(m.r,m.c,player);
+  let wins=[];
+  if(!win)wins=immediateWinningMoves(player);
+  board[m.r][m.c]=null;
+  return {win,wins,fork:wins.length>=2,forcing:wins.length>=1};
+}
+
+function exactForkMoves(player,scanLimit=26){
+  // Heuristic ordering is only used to choose what to verify first; whether a
+  // move is a fork is decided by exact board simulation.
+  const pool=orderedMoves(player,Math.min(scanLimit,candidateCells().length));
+  const out=[];
+  for(const m of pool){
+    const x=exactAfterMoveProfile(m,player);
+    if(x.win||x.fork||x.forcing){
+      out.push({m,x,score:(x.win?1e16:0)+(x.fork?5e14:0)+x.wins.length*1e13+moveScore(m,player)});
+    }
+  }
+  return out.sort((a,b)=>b.score-a.score);
+}
+
+// Evaluate a defensive move by exact tactical consequences, not cosmetic
+// positional score. This makes the engine very reluctant to leave a fork.
+function exactDangerAfterDefense(m){
+  if(board[m.r][m.c])return Infinity;
+  board[m.r][m.c]='O';
+  const direct=immediateWinningMoves('X');
+  if(direct.length){board[m.r][m.c]=null;return 9e18+direct.length*1e17;}
+
+  let forkCount=0, forceCount=0, bestHeuristic=0;
+  const pool=orderedMoves('X',22);
+  for(const x of pool){
+    const prof=exactAfterMoveProfile(x,'X');
+    if(prof.fork)forkCount++;
+    else if(prof.forcing)forceCount++;
+    const h=moveScore(x,'X');
+    if(h>bestHeuristic)bestHeuristic=h;
+  }
+  board[m.r][m.c]=null;
+  return forkCount*2e17+forceCount*2e15+bestHeuristic;
+}
+
+function strongestExactDefense(){
+  const direct=immediateWinningMoves('X');
+  if(direct.length===1)return direct[0];
+  if(direct.length>1)return direct[0]; // already tactically lost; prolong best line.
+
+  const oppForks=exactForkMoves('X',30).filter(t=>t.x.fork);
+  if(!oppForks.length)return null;
+
+  const map=new Map();
+  for(const t of oppForks.slice(0,10))map.set(t.m.r*N+t.m.c,t.m);
+  for(const m of orderedMoves('O',14))map.set(m.r*N+m.c,m);
+
+  let best=null,bestDanger=Infinity,bestOwn=-Infinity;
+  for(const m of map.values()){
+    const danger=exactDangerAfterDefense(m);
+    const own=moveScore(m,'O');
+    if(danger<bestDanger || (danger===bestDanger&&own>bestOwn)){
+      best=m;bestDanger=danger;bestOwn=own;
+    }
+  }
+  return best;
+}
+
+function exactForcingMoves(player,limit=10){
+  const opp=player==='O'?'X':'O';
+  const wins=immediateWinningMoves(player);
+  if(wins.length)return wins;
+  const blocks=immediateWinningMoves(opp);
+  if(blocks.length)return blocks;
+
+  const exact=exactForkMoves(player,Math.max(18,limit*2));
+  const seen=new Set(),out=[];
+  for(const t of exact){
+    if(!(t.x.fork||t.x.forcing))continue;
+    const k=t.m.r*N+t.m.c;
+    if(!seen.has(k)){seen.add(k);out.push(t.m)}
+    if(out.length>=limit)return out;
+  }
+  for(const m of forcingMoves(player,limit)){
+    const k=m.r*N+m.c;
+    if(!seen.has(k)){seen.add(k);out.push(m)}
+    if(out.length>=limit)break;
+  }
+  return out;
+}
+
 // Threat-space search: asks whether attacker can force a win through forcing moves.
 // Defender is allowed to choose the strongest defensive replies.
 function threatSearch(attacker,depth,deadline){
@@ -422,7 +517,7 @@ function threatSearch(attacker,depth,deadline){
   if(iw)return {win:true,move:iw};
   if(depth<=0)return {win:false,move:null};
 
-  const threats=forcingMoves(attacker,9);
+  const threats=exactForcingMoves(attacker,9);
   for(const m of threats){
     if(Date.now()>deadline)break;
     board[m.r][m.c]=attacker;
@@ -486,17 +581,83 @@ function timeUp(){
   return false;
 }
 
+function immediateWinningMoves(player){
+  const wins=[];
+  for(const m of candidateCells()){
+    board[m.r][m.c]=player;
+    const win=checkWin(m.r,m.c,player);
+    board[m.r][m.c]=null;
+    if(win)wins.push(m);
+  }
+  return wins;
+}
+
+// Tactical move generator used inside the search tree. A normal heuristic
+// search is not allowed to ignore a one-move win or a mandatory block.
+function searchMoves(player,limit){
+  const opp=player==='O'?'X':'O';
+  const ownWins=immediateWinningMoves(player);
+  if(ownWins.length)return ownWins;
+
+  const oppWins=immediateWinningMoves(opp);
+  if(oppWins.length){
+    // Every opponent winning point is a mandatory defensive square.
+    // If there are 2+, the position is generally already lost, but searching
+    // each block lets alpha-beta prove that instead of hiding it in heuristic.
+    return oppWins;
+  }
+
+  const forcing=exactForcingMoves(player,Math.min(10,limit));
+  const ordered=orderedMoves(player,limit);
+  const seen=new Set(), out=[];
+  for(const m of [...forcing,...ordered]){
+    const k=m.r*N+m.c;
+    if(!seen.has(k)&&!board[m.r][m.c]){seen.add(k);out.push(m)}
+    if(out.length>=limit)break;
+  }
+  return out;
+}
+
+function tacticalLeaf(maximizing,alpha,beta,plies){
+  if(timeUp())return 0;
+  const player=maximizing?'O':'X';
+  const opp=maximizing?'X':'O';
+  const ownWins=immediateWinningMoves(player);
+  if(ownWins.length)return maximizing?1e13:-1e13;
+  const oppWins=immediateWinningMoves(opp);
+  if(plies<=0 && !oppWins.length)return boardEval();
+
+  let moves;
+  if(oppWins.length)moves=oppWins;
+  else moves=exactForcingMoves(player,6);
+  if(!moves.length)return boardEval();
+
+  let value=maximizing?-Infinity:Infinity;
+  for(const m of moves){
+    if(board[m.r][m.c])continue;
+    board[m.r][m.c]=player;
+    let v;
+    if(checkWin(m.r,m.c,player))v=maximizing?1e13:-1e13;
+    else v=tacticalLeaf(!maximizing,alpha,beta,plies-1);
+    board[m.r][m.c]=null;
+    if(maximizing){value=Math.max(value,v);alpha=Math.max(alpha,value)}
+    else{value=Math.min(value,v);beta=Math.min(beta,value)}
+    if(alpha>=beta||SEARCH_ABORT)break;
+  }
+  return Number.isFinite(value)?value:boardEval();
+}
+
 function alphabeta(depth,alpha,beta,maximizing,lastMove,lastPlayer){
   if(timeUp())return 0;
   if(lastMove&&checkWin(lastMove.r,lastMove.c,lastPlayer))
     return lastPlayer==='O'?1e13+depth:-1e13-depth;
-  if(depth===0)return boardEval();
+  if(depth===0)return tacticalLeaf(maximizing,alpha,beta,2);
 
   const player=maximizing?'O':'X';
   const key=depth>=2?boardKey(player,depth):null;
   if(key&&TT.has(key))return TT.get(key);
 
-  let moves=orderedMoves(player,SEARCH_WIDTH);
+  let moves=searchMoves(player,SEARCH_WIDTH);
   if(!moves.length)return 0;
 
   let value=maximizing?-Infinity:Infinity;
@@ -519,12 +680,12 @@ function alphabeta(depth,alpha,beta,maximizing,lastMove,lastPlayer){
       if(alpha>=beta)break;
     }
   }
-  if(key&&TT.size<50000)TT.set(key,value);
+  if(key&&TT.size<120000)TT.set(key,value);
   return value;
 }
 
 function searchBestMove(cfg){
-  const roots=orderedMoves('O',cfg.width);
+  const roots=searchMoves('O',cfg.width);
   if(!roots.length)return null;
   let completedBest=roots[0];
   SEARCH_DEADLINE=Date.now()+cfg.time;
@@ -576,7 +737,7 @@ function aggressiveOpeningMove(){
   // Trong 19x19, AI ưu tiên tạo thế gần trung tâm ngay từ đầu.
   const stones=[];
   for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c])stones.push({r,c});
-  if(stones.length>7)return null;
+  if(stones.length>0)return null;
 
   const mid=Math.floor(N/2);
   const preferred=[
@@ -610,29 +771,39 @@ function aiMove(){
   // 2) Nếu đối thủ có nước thắng ngay thì bắt buộc chặn.
   if(!best)best=immediateWinningMove('X');
 
-  // 3) Phòng thủ bắt buộc: mô phỏng từng nước chặn và chọn nước làm giảm
-  //    nguy cơ của X nhiều nhất. Không chỉ chặn ô có điểm heuristic cao nhất.
-  if(!best)best=safestDefensiveMove();
-  if(!best)best=bestMandatoryDefense();
+  // 3) Kiểm tra fork thật bằng mô phỏng: nếu X có thể tạo hai điểm thắng
+  //    độc lập ở lượt kế, phải triệt ngay trước khi xét điểm heuristic.
+  if(!best)best=strongestExactDefense();
 
-  // 4) Tìm chuỗi ép thắng chủ động.
+  // 4) Nếu O tự tạo được fork thật (>=2 ô thắng kế tiếp), ưu tiên ép đối thủ.
+  if(!best){
+    const ownExact=exactForkMoves('O',30);
+    const killer=ownExact.find(t=>t.x.fork);
+    if(killer)best=killer.m;
+  }
+
+  // 5) Phòng thủ heuristic bổ sung cho các thế đang hình thành nhưng chưa thành fork thật.
+  if(!best)best=safestDefensiveMove();
+
+  // 6) Tìm chuỗi ép thắng chủ động.
   if(!best){
     const tacticalDeadline=Date.now()+Math.min(4200,cfg.time*.50);
     const ts=threatSearch('O',10,tacticalDeadline);
     if(ts&&ts.win)best=ts.move;
   }
 
-  // 5) Nếu đối thủ có chuỗi ép mạnh, chiếm ngay điểm đe dọa nguy hiểm nhất.
+  // 7) Nếu đối thủ có chuỗi ép mạnh, chiếm ngay điểm đe dọa nguy hiểm nhất.
   if(!best){
     const oppThreats=winningThreatMoves('X');
     if(oppThreats.length)best=oppThreats[0].m;
   }
 
-  // 6) Chỉ dùng khai cuộc chủ động khi bàn cờ thực sự chưa có đe dọa chiến thuật.
-  if(!best)best=aggressiveOpeningMove();
-
-  // 7) Iterative deepening alpha-beta là lớp cuối cùng.
+  // 8) Mọi thế cờ có quân trên bàn đều phải qua Alpha-Beta. Không dùng
+  //    heuristic khai cuộc để bỏ qua tìm kiếm như phiên bản cũ.
   if(!best)best=searchBestMove(cfg);
+
+  // 9) Chỉ khi bàn hoàn toàn trống mới dùng nước khai cuộc trung tâm.
+  if(!best)best=aggressiveOpeningMove();
 
   aiThinking=false;
   if(best)play(best.r,best.c,'O');
