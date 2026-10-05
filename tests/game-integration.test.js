@@ -6,11 +6,13 @@ function gameEnvironment(html){
  const sandbox={console,document,localStorage:storage(),innerWidth:1000,innerHeight:750,devicePixelRatio:1,performance,Math,location:{reload(){}},Image:class{constructor(){this.complete=false;this.naturalWidth=0;this.naturalHeight=0;}},requestAnimationFrame(){},addEventListener(){},setTimeout:fn=>{queueMicrotask(fn);return 1;},clearTimeout(){},setInterval:()=>1,clearInterval(){},ResizeObserver:class{observe(){}},queueMicrotask};
  sandbox.window=sandbox;return {context:vm.createContext(sandbox),document,map};
 }
-test('Survivor starts, updates, receives ranged damage and respects invulnerability',()=>{
- const html=source('games/survivor.html'),{context}=gameEnvironment(html);
+for(const newline of ['LF','CRLF'])test(`Survivor starts, updates, receives ranged damage and respects invulnerability (${newline})`,()=>{
+ const html=source('games/survivor.html').replace(/\r?\n/g,newline==='CRLF'?'\r\n':'\n'),{context}=gameEnvironment(html);
  vm.runInContext(source('games/js/data/game-data.js'),context);vm.runInContext(source('games/js/systems/game-systems.js'),context);
  let code=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).find(s=>s.includes('const CHARACTERS'));
- code=code.replace(/\n  requestAnimationFrame\(loop\);\n\}\)\(\);/,`\n  window.__gameTest={initGame,update,damagePlayer,state:()=>({player,enemies,enemyBullets}),setEnemies:e=>enemies=e};\n  requestAnimationFrame(loop);\n})();`);
+ const bootstrap=/\r?\n[ \t]*requestAnimationFrame\(loop\);[ \t]*\r?\n[ \t]*\}\)\(\);/;
+ assert.match(code,bootstrap,'Survivor bootstrap must be found before exposing test controls');
+ code=code.replace(bootstrap,`\n  window.__gameTest={initGame,update,damagePlayer,state:()=>({player,enemies,enemyBullets}),setEnemies:e=>enemies=e};\n  requestAnimationFrame(loop);\n})();`);
  vm.runInContext(code,context);const game=context.__gameTest;assert.ok(game);game.initGame();for(let i=0;i<100;i++)game.update(.02);
  const {player}=game.state();assert.ok(Number.isFinite(player.x)&&Number.isFinite(player.hp));
  game.setEnemies([{x:player.x+100,y:player.y,r:8,hp:999,maxHp:999,speed:0,damage:12,score:30,attackType:'ranged',preferredDistance:100,shootInterval:2,shotTimer:0,attackRange:300,hitCd:0,boss:false,flash:0}]);
