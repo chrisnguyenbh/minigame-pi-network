@@ -1,0 +1,12 @@
+{
+  "name": "minigame-pi-mainnet",
+  "version": "9.7.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": "22.x" },
+  "scripts": {
+    "start": "node scripts/dev-server.js",
+    "test": "node --test tests/*.test.js",
+    "check": "node scripts/check-source.js"
+  }
+}

@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Cờ Caro</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<script src="../assets/pi.js"></script>
+<style>
+*{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:radial-gradient(circle at top,#26365c,#101426 65%);color:#fff;padding:20px 12px}
+.app{width:min(760px,100%);margin:auto;text-align:center}
+h1{margin:0 0 6px;font-size:30px}.sub{opacity:.72;margin-bottom:14px}
+.panel{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px;margin-bottom:12px}
+.modes,.actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+button{border:0;border-radius:11px;padding:10px 15px;font-weight:800;font-size:14px;cursor:pointer;background:#e9edf8;color:#18203a}
+button.active{background:#25b879;color:#fff}button.new{background:#ef5261;color:#fff}
+.status{font-weight:850;font-size:17px;margin-top:11px;min-height:24px}
+.board-wrap{overflow:auto;max-width:100%;border-radius:10px;padding:12px;background:#f8f5e9;box-shadow:0 14px 35px rgba(0,0,0,.3);-webkit-overflow-scrolling:touch}
+.board{display:grid;grid-template-columns:repeat(19,38px);grid-template-rows:repeat(19,38px);gap:0;width:max-content;margin:auto;background:#fffef7;border-top:1px solid #91a8c2;border-left:1px solid #91a8c2}
+.cell{width:38px;height:38px;background:#fffef7;border-right:1px solid #91a8c2;border-bottom:1px solid #91a8c2;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:900;cursor:pointer;user-select:none}
+.cell:hover{background:#eef5ff}.cell.x{color:#c82732;text-shadow:0 1px #fff}.cell.o{color:#163d8c;text-shadow:0 1px #fff}.cell.last{background:#fff2b8;box-shadow:inset 0 0 0 2px rgba(196,139,25,.45)}
+.legend{font-size:12px;opacity:.72;margin-top:9px}.ai-info{font-size:12px;opacity:.78;margin-top:8px;min-height:18px}
+@media(max-width:560px){body{padding:12px 7px}.board{grid-template-columns:repeat(19,32px);grid-template-rows:repeat(19,32px)}.cell{width:32px;height:32px;font-size:22px}}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>⭕ CỜ CARO ❌</h1>
+<div class="sub">5 quân liên tiếp để chiến thắng</div>
+<div class="panel">
+  <div class="modes">
+    <button id="pvpBtn" onclick="setMode('pvp')">👥 Người vs Người</button>
+    <button id="aiBtn" class="active" onclick="setMode('ai')">👤 Người vs 🤖 Máy</button>
+  </div>
+  <div class="modes" style="margin-top:9px">
+    <button id="smallBtn" onclick="setBoardSize(3)">3×3</button>
+    <button id="largeBtn" class="active" onclick="setBoardSize(19)">19×19</button>
+  </div>
+  <div class="status" id="status"></div>
+  <div class="ai-info" id="aiInfo">🤖 AI Mạnh Nhất: ưu tiên thắng/chặn bắt buộc, nhận diện thế ép, song 3, song 4 và phản công chủ động.</div>
+</div>
+<div class="board-wrap"><div class="board" id="board"></div></div>
+<div class="panel actions"><button class="new" onclick="resetGame()">↻ Ván mới</button></div>
+<div class="legend">Bạn đánh X khi chơi với máy. Máy đánh O.</div>
+</div>
+<script>
+let N=19;
+let WIN=5;
+let board,currentPlayer,gameOver,mode='ai',aiThinking=false,lastMove=null;
+let aiTimer=null;
+const AI_CFG={depth:8,time:650,width:16};
+const boardEl=document.getElementById('board'), statusEl=document.getElementById('status');
+
+function emptyBoard(){return Array.from({length:N},()=>Array(N).fill(null))}
+function setMode(m){
+  mode=m;
+  document.getElementById('pvpBtn').classList.toggle('active',m==='pvp');
+  document.getElementById('aiBtn').classList.toggle('active',m==='ai');
+  resetGame();
+}
+function setBoardSize(size){
+  N=size;
+  WIN=size===3?3:5;
+  document.getElementById('smallBtn').classList.toggle('active',size===3);
+  document.getElementById('largeBtn').classList.toggle('active',size===19);
+  resetGame();
+}
+function updateAiInfo(){
+  const el=document.getElementById('aiInfo');
+  if(!el)return;
+  el.textContent = N===3
+    ? '3×3: AI Minimax tối ưu.'
+    : '🤖 AI Mạnh Nhất: công thủ toàn diện, ưu tiên thắng bắt buộc, song 4, 3–4, song 3 và thế ép liên hoàn.';
+}
+function resetGame(){
+  clearTimeout(aiTimer); aiTimer=null;
+  board=emptyBoard();currentPlayer='X';gameOver=false;aiThinking=false;lastMove=null;
+  document.querySelector('.sub').textContent=N===3?'3 quân liên tiếp để chiến thắng':'5 quân liên tiếp để chiến thắng';
+  document.querySelector('.legend').textContent=N===3?'Chế độ 3×3: AI chơi tối ưu. Bạn đánh X, máy đánh O.':'Chế độ 19×19: 5 quân liên tiếp. Bạn đánh X, máy đánh O.';
+  render();updateStatus();updateAiInfo();
+}
+function render(){
+  boardEl.innerHTML='';
+  const cellSize=N===3?88:(window.innerWidth<=560?32:38);
+  boardEl.style.gridTemplateColumns=`repeat(${N},${cellSize}px)`;
+  boardEl.style.gridTemplateRows=`repeat(${N},${cellSize}px)`;
+  boardEl.style.fontSize=N===3?'42px':'25px';
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const d=document.createElement('div');d.className='cell';d.style.width=cellSize+'px';d.style.height=cellSize+'px';d.style.fontSize=(N===3?48:(window.innerWidth<=560?22:25))+'px';
+    if(board[r][c]){d.textContent=board[r][c];d.classList.add(board[r][c].toLowerCase())}
+    if(lastMove&&lastMove.r===r&&lastMove.c===c)d.classList.add('last');
+    d.onclick=()=>humanClick(r,c);boardEl.appendChild(d);
+  }
+}
+function updateStatus(msg){
+  if(msg){statusEl.textContent=msg;return}
+  if(gameOver)return;
+  if(aiThinking){statusEl.textContent='🤖 Máy đang suy nghĩ…';return}
+  if(mode==='ai') statusEl.textContent=currentPlayer==='X'?'Lượt bạn — X':'Lượt máy — O';
+  else statusEl.textContent=`Lượt người chơi ${currentPlayer}`;
+}
+function humanClick(r,c){
+  if(gameOver||aiThinking||board[r][c])return;
+  if(mode==='ai'&&currentPlayer!=='X')return;
+  play(r,c,currentPlayer);
+}
+function play(r,c,p){
+  if(gameOver||!board[r]||board[r][c]||p!==currentPlayer)return;
+  board[r][c]=p;lastMove={r,c};render();
+  if(checkWin(r,c,p)){
+    gameOver=true;
+    updateStatus(mode==='ai'?(p==='X'?'🏆 Bạn thắng!':'🤖 Máy thắng!'):`🏆 Người chơi ${p} thắng!`);
+    return;
+  }
+  if(board.every(row=>row.every(Boolean))){gameOver=true;updateStatus('🤝 Hòa cờ!');return}
+  currentPlayer=p==='X'?'O':'X';updateStatus();
+  if(mode==='ai'&&currentPlayer==='O'){aiThinking=true;updateStatus();aiTimer=setTimeout(aiMove,180)}
+}
+function countDir(r,c,dr,dc,p){
+  let n=0;r+=dr;c+=dc;
+  while(r>=0&&r<N&&c>=0&&c<N&&board[r][c]===p){n++;r+=dr;c+=dc}
+  return n;
+}
+function checkWin(r,c,p){
+  return [[1,0],[0,1],[1,1],[1,-1]].some(([dr,dc])=>1+countDir(r,c,dr,dc,p)+countDir(r,c,-dr,-dc,p)>=WIN)
+}
+function lineScore(r,c,p){
+  let score=0;
+  for(const [dr,dc] of [[1,0],[0,1],[1,1],[1,-1]]){
+    let a=countDir(r,c,dr,dc,p),b=countDir(r,c,-dr,-dc,p),n=1+a+b;
+    let r1=r+(a+1)*dr,c1=c+(a+1)*dc,r2=r-(b+1)*dr,c2=c-(b+1)*dc;
+    let open=(r1>=0&&r1<N&&c1>=0&&c1<N&&!board[r1][c1]?1:0)+(r2>=0&&r2<N&&c2>=0&&c2<N&&!board[r2][c2]?1:0);
+    if(n>=WIN)score+=1000000;else if(n===4&&open===2)score+=80000;else if(n===4)score+=15000;
+    else if(n===3&&open===2)score+=6000;else if(n===3)score+=800;else if(n===2&&open===2)score+=250;else score+=n*8;
+  } return score;
+}
+function candidateCells(){
+  if(N===3){
+    const out=[];
+    for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(!board[r][c])out.push({r,c});
+    return out;
+  }
+  const out=[];let any=false;
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c]){
+    any=true;
+    for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++){
+      let rr=r+dr,cc=c+dc;
+      if(rr>=0&&rr<N&&cc>=0&&cc<N&&!board[rr][cc])out.push(rr*N+cc);
+    }
+  }
+  if(!any){
+    const mid=Math.floor(N/2);
+    return [{r:mid,c:mid}];
+  }
+  return [...new Set(out)].map(v=>({r:Math.floor(v/N),c:v%N}));
+}
+function immediateWinningMove(player){
+  for(const m of candidateCells()){
+    board[m.r][m.c]=player;
+    const win=checkWin(m.r,m.c,player);
+    board[m.r][m.c]=null;
+    if(win)return m;
+  }
+  return null;
+}
+
+function dirInfo(r,c,dr,dc,p){
+  let a=0,b=0;
+  let rr=r+dr,cc=c+dc;
+  while(rr>=0&&rr<N&&cc>=0&&cc<N&&board[rr][cc]===p){a++;rr+=dr;cc+=dc}
+  const open1=rr>=0&&rr<N&&cc>=0&&cc<N&&!board[rr][cc];
+  rr=r-dr;cc=c-dc;
+  while(rr>=0&&rr<N&&cc>=0&&cc<N&&board[rr][cc]===p){b++;rr-=dr;cc-=dc}
+  const open2=rr>=0&&rr<N&&cc>=0&&cc<N&&!board[rr][cc];
+  return {len:1+a+b,open:(open1?1:0)+(open2?1:0)};
+}
+
+function classifyMove(r,c,p){
+  // board[r][c] is assumed already set to p
+  let open4=0,four=0,open3=0,three=0,two=0;
+  for(const [dr,dc] of [[1,0],[0,1],[1,1],[1,-1]]){
+    const x=dirInfo(r,c,dr,dc,p);
+    if(x.len>=5)return {win:true,open4:9,four:9,open3:9,score:1e12};
+    if(x.len===4&&x.open===2)open4++;
+    else if(x.len===4&&x.open===1)four++;
+    else if(x.len===3&&x.open===2)open3++;
+    else if(x.len===3&&x.open===1)three++;
+    else if(x.len===2&&x.open===2)two++;
+  }
+  let score =
+    open4*2.0e9 +
+    four*2.5e8 +
+    open3*1.5e7 +
+    three*7.0e5 +
+    two*2.5e4;
+  // Compound threats are the heart of strong Gomoku.
+  if(open4>=1&&four>=1)score+=4e9;
+  if(four>=2)score+=3.5e9;
+  if(open3>=2)score+=8e8;        // double-three
+  if(open3>=1&&four>=1)score+=1.6e9; // three-four
+  return {win:false,open4,four,open3,three,two,score};
+}
+
+
+function inBoard(r,c){return r>=0&&r<N&&c>=0&&c<N}
+
+function linePattern(r,c,dr,dc,p,radius=5){
+  let s='';
+  for(let k=-radius;k<=radius;k++){
+    const rr=r+k*dr,cc=c+k*dc;
+    if(!inBoard(rr,cc)){s+='B';continue}
+    const v=board[rr][cc];
+    s+=v===p?'P':v? 'E':'_';
+  }
+  return s;
+}
+
+function winningPointsInLine(line,center=5){
+  const points=new Set();
+  for(let start=Math.max(0,center-4);start<=Math.min(center,line.length-5);start++){
+    const w=line.slice(start,start+5);
+    if(w.includes('E')||w.includes('B'))continue;
+    if([...w].filter(v=>v==='P').length===4&&[...w].filter(v=>v==='_').length===1)points.add(start+w.indexOf('_'));
+  }
+  return points;
+}
+function patternThreatScore(r,c,p){
+  let score=0,fourThreats=0,threeThreats=0;
+  for(const [dr,dc] of [[1,0],[0,1],[1,1],[1,-1]]){
+    const line=linePattern(r,c,dr,dc,p,5);
+    for(let start=1;start<=5;start++)if(line.slice(start,start+5)==='PPPPP')return {score:1e13,fours:9,threes:9,win:true};
+    const wins=winningPointsInLine(line);
+    // Count independent directions, not overlapping representations of the same stones.
+    if(wins.size){fourThreats++;score+=wins.size>=2?2e9:4e8;continue;}
+    let openThree=false;
+    for(let i=1;i<line.length-1;i++){
+      if(line[i]!=='_')continue;
+      const extended=line.slice(0,i)+'P'+line.slice(i+1);
+      const next=winningPointsInLine(extended);
+      if(next.size>=2){openThree=true;break;}
+    }
+    if(openThree){threeThreats++;score+=1.2e7;}
+  }
+  if(fourThreats>=2)score+=5e9;
+  if(fourThreats>=1&&threeThreats>=1)score+=2.5e9;
+  if(threeThreats>=2)score+=9e8;
+  return {score,fours:fourThreats,threes:threeThreats,win:false};
+}
+
+function fullTacticalScore(m,p){
+  const previous=board[m.r][m.c];
+  board[m.r][m.c]=p;
+  const base=classifyMove(m.r,m.c,p);
+  const pat=patternThreatScore(m.r,m.c,p);
+  board[m.r][m.c]=previous;
+  return {
+    ...base,
+    patternScore:pat.score,
+    patternFours:pat.fours,
+    patternThrees:pat.threes,
+    score:Math.max(base.score,pat.score)+Math.min(base.score,pat.score)*0.18,
+    win:base.win||pat.win
+  };
+}
+
+function tacticalScore(m,p){
+  return fullTacticalScore(m,p);
+}
+
+function moveScore(m,p){
+  const q=p==='O'?'X':'O';
+  const a=tacticalScore(m,p), d=tacticalScore(m,q);
+  const mid=(N-1)/2;
+  const center=120-(Math.abs(m.r-mid)+Math.abs(m.c-mid))*5;
+
+  // Strong AI is slightly defense-biased unless it has a forcing attack.
+  let attack=a.score*1.48;
+  let defense=d.score*1.62;
+
+  if(a.win)attack+=1e14;
+  if(d.win)defense+=9e13;
+  if(a.patternFours>=2||a.open4>=1)attack+=7e9;
+  if(d.patternFours>=2||d.open4>=1)defense+=8e9;
+  if(d.patternThrees>=2||d.open3>=2)defense+=1.4e9;
+
+  return attack+defense+center;
+}
+
+function orderedMoves(player,limit){
+  return candidateCells()
+    .map(m=>({m,v:moveScore(m,player)}))
+    .sort((a,b)=>b.v-a.v)
+    .slice(0,limit)
+    .map(x=>x.m);
+}
+
+
+function urgentThreatMoves(player){
+  const out=[];
+  for(const m of candidateCells()){
+    const c=tacticalScore(m,player);
+    let sev=0;
+    if(c.win)sev=10;
+    else if(c.open4||c.patternFours>=2)sev=9;
+    else if(c.four>=2)sev=8.5;
+    else if((c.four&&c.open3)||(c.patternFours>=1&&c.patternThrees>=1))sev=8;
+    else if(c.open3>=2||c.patternThrees>=2)sev=7;
+    else if(c.four||c.patternFours>=1)sev=6;
+    else if(c.open3||c.patternThrees>=1)sev=4;
+    if(sev)out.push({m,c,sev,v:moveScore(m,player)});
+  }
+  return out.sort((a,b)=>b.sev-a.sev||b.v-a.v);
+}
+
+function bestMandatoryDefense(){
+  const threats=urgentThreatMoves('X');
+  if(!threats.length)return null;
+
+  // If X has a direct win or a forcing double threat, block the strongest square immediately.
+  if(threats[0].sev>=7)return threats[0].m;
+
+  // For lesser threats, compare with O's strongest forcing attack.
+  const my=urgentThreatMoves('O');
+  if(my.length&&my[0].sev>threats[0].sev)return my[0].m;
+  return threats[0].sev>=6?threats[0].m:null;
+}
+
+function winningThreatMoves(player){
+  const result=[];
+  for(const m of candidateCells()){
+    const c=tacticalScore(m,player);
+    if(c.win||c.open4||c.four>=2||(c.four&&c.open3)||c.open3>=2||c.patternFours>=1||c.patternThrees>=2) result.push({m,c});
+  }
+  return result.sort((a,b)=>b.c.score-a.c.score);
+}
+
+function forcingMoves(player,limit=10){
+  const out=[];
+  for(const m of candidateCells()){
+    const c=tacticalScore(m,player);
+    if(c.win||c.open4||c.four||c.open3>=2||(c.open3&&c.three)||c.patternFours>=1||c.patternThrees>=2) out.push({m,c});
+  }
+  return out.sort((a,b)=>b.c.score-a.c.score).slice(0,limit).map(x=>x.m);
+}
+
+function hasImmediateWin(player){
+  return immediateWinningMove(player)!==null;
+}
+
+// Threat-space search: asks whether attacker can force a win through forcing moves.
+// Defender is allowed to choose the strongest defensive replies.
+function threatSearch(attacker,depth,deadline){
+  if(Date.now()>deadline)return null;
+  const defender=attacker==='O'?'X':'O';
+
+  const iw=immediateWinningMove(attacker);
+  if(iw)return {win:true,move:iw};
+  if(depth<=0)return {win:false,move:null};
+
+  const threats=forcingMoves(attacker,9);
+  for(const m of threats){
+    if(Date.now()>deadline)break;
+    board[m.r][m.c]=attacker;
+    if(checkWin(m.r,m.c,attacker)){board[m.r][m.c]=null;return {win:true,move:m}}
+
+    // Defender first gets direct win; then must address attacker's immediate threats.
+    const defWin=immediateWinningMove(defender);
+    if(defWin){board[m.r][m.c]=null;continue;}
+
+    let defenses=[];
+    const attackerWin=immediateWinningMove(attacker);
+    if(attackerWin){
+      defenses=[attackerWin]; // occupy the winning square
+    }else{
+      // strongest defender tactical moves, including counter-threats
+      defenses=orderedMoves(defender,6);
+    }
+
+    let allLose=true;
+    for(const d of defenses){
+      if(board[d.r][d.c])continue;
+      board[d.r][d.c]=defender;
+      const r=threatSearch(attacker,depth-1,deadline);
+      board[d.r][d.c]=null;
+      if(!r||!r.win){allLose=false;break;}
+    }
+    board[m.r][m.c]=null;
+    if(allLose)return {win:true,move:m};
+  }
+  return {win:false,move:null};
+}
+
+function boardEval(){
+  const cand=candidateCells();
+  let bestO=0,bestX=0,secondO=0,secondX=0;
+  for(const m of cand){
+    const o=tacticalScore(m,'O').score;
+    const x=tacticalScore(m,'X').score;
+    if(o>bestO){secondO=bestO;bestO=o}else if(o>secondO)secondO=o;
+    if(x>bestX){secondX=bestX;bestX=x}else if(x>secondX)secondX=x;
+  }
+  // Defense is intentionally weighted more heavily so the AI does not ignore
+  // an opponent's developing fork while pursuing a cosmetic attack.
+  return bestO+secondO*.30-(bestX+secondX*.34)*1.22;
+}
+
+let SEARCH_DEADLINE=0, SEARCH_ABORT=false, SEARCH_WIDTH=10;
+const TT=new Map();
+
+function boardKey(player,depth){
+  // Compact enough for a browser-side transposition table.
+  let str=player+depth+':';
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const v=board[r][c];
+    if(v)str+=r.toString(36)+c.toString(36)+v;
+  }
+  return str;
+}
+function timeUp(){
+  if(Date.now()>SEARCH_DEADLINE){SEARCH_ABORT=true;return true}
+  return false;
+}
+
+function alphabeta(depth,alpha,beta,maximizing,lastMove,lastPlayer){
+  if(timeUp())return 0;
+  if(lastMove&&checkWin(lastMove.r,lastMove.c,lastPlayer))
+    return lastPlayer==='O'?1e13+depth:-1e13-depth;
+  if(depth===0)return boardEval();
+
+  const player=maximizing?'O':'X';
+  const key=depth>=2?boardKey(player,depth):null;
+  const originalAlpha=alpha,originalBeta=beta;
+  if(key&&TT.has(key)){
+    const cached=TT.get(key);
+    if(cached.flag==='exact')return cached.value;
+    if(cached.flag==='lower')alpha=Math.max(alpha,cached.value);
+    if(cached.flag==='upper')beta=Math.min(beta,cached.value);
+    if(alpha>=beta)return cached.value;
+  }
+
+  let moves=orderedMoves(player,SEARCH_WIDTH);
+  if(!moves.length)return 0;
+
+  let value=maximizing?-Infinity:Infinity;
+  if(maximizing){
+    for(const m of moves){
+      board[m.r][m.c]='O';
+      const v=alphabeta(depth-1,alpha,beta,false,m,'O');
+      board[m.r][m.c]=null;
+      if(SEARCH_ABORT)return value===-Infinity?0:value;
+      value=Math.max(value,v); alpha=Math.max(alpha,value);
+      if(alpha>=beta)break;
+    }
+  }else{
+    for(const m of moves){
+      board[m.r][m.c]='X';
+      const v=alphabeta(depth-1,alpha,beta,true,m,'X');
+      board[m.r][m.c]=null;
+      if(SEARCH_ABORT)return value===Infinity?0:value;
+      value=Math.min(value,v); beta=Math.min(beta,value);
+      if(alpha>=beta)break;
+    }
+  }
+  if(key&&TT.size<50000)TT.set(key,{value,flag:value<=originalAlpha?'upper':value>=originalBeta?'lower':'exact'});
+  return value;
+}
+
+function searchBestMove(cfg){
+  const roots=orderedMoves('O',cfg.width);
+  if(!roots.length)return null;
+  let completedBest=roots[0];
+  SEARCH_DEADLINE=Date.now()+cfg.time;
+  SEARCH_WIDTH=cfg.width;
+  TT.clear();
+
+  for(let depth=2;depth<=cfg.depth;depth++){
+    SEARCH_ABORT=false;
+    let roundBest=completedBest,roundValue=-Infinity;
+    for(const m of roots){
+      if(timeUp())break;
+      board[m.r][m.c]='O';
+      const v=alphabeta(depth-1,-Infinity,Infinity,false,m,'O');
+      board[m.r][m.c]=null;
+      if(SEARCH_ABORT)break;
+      if(v>roundValue){roundValue=v;roundBest=m}
+    }
+    if(!SEARCH_ABORT)completedBest=roundBest;
+    else break;
+  }
+  return completedBest;
+}
+
+function terminal3(){
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c]&&checkWin(r,c,board[r][c]))return board[r][c];
+  return board.every(row=>row.every(Boolean))?'D':null;
+}
+function minimax3(isMax,depth){
+  const e=terminal3();
+  if(e==='O')return 10-depth;if(e==='X')return depth-10;if(e==='D')return 0;
+  let best=isMax?-Infinity:Infinity,p=isMax?'O':'X';
+  for(const m of candidateCells()){
+    board[m.r][m.c]=p;const v=minimax3(!isMax,depth+1);board[m.r][m.c]=null;
+    best=isMax?Math.max(best,v):Math.min(best,v);
+  }
+  return best;
+}
+function best3x3Move(){
+  let best=null,v=-Infinity;
+  for(const m of candidateCells()){
+    board[m.r][m.c]='O';const x=minimax3(false,0);board[m.r][m.c]=null;
+    if(x>v){v=x;best=m}
+  }
+  return best;
+}
+
+
+function aggressiveOpeningMove(){
+  // Trong 19x19, AI ưu tiên tạo thế gần trung tâm ngay từ đầu.
+  const stones=[];
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c])stones.push({r,c});
+  if(stones.length>7)return null;
+
+  const mid=Math.floor(N/2);
+  const preferred=[
+    {r:mid,c:mid},
+    {r:mid,c:mid+1},{r:mid+1,c:mid},{r:mid,c:mid-1},{r:mid-1,c:mid},
+    {r:mid+1,c:mid+1},{r:mid-1,c:mid-1},{r:mid+1,c:mid-1},{r:mid-1,c:mid+1},
+    {r:mid,c:mid+2},{r:mid+2,c:mid},{r:mid,c:mid-2},{r:mid-2,c:mid}
+  ].filter(m=>m.r>=0&&m.r<N&&m.c>=0&&m.c<N&&!board[m.r][m.c]);
+
+  if(!preferred.length)return null;
+
+  let best=preferred[0],bestV=-Infinity;
+  for(const m of preferred){
+    const v=moveScore(m,'O');
+    if(v>bestV){bestV=v;best=m;}
+  }
+  return best;
+}
+
+function aiMove(){
+  if(gameOver||mode!=='ai'||currentPlayer!=='O'){aiThinking=false;return}
+  if(N===3){
+    const m=best3x3Move();aiThinking=false;if(m)play(m.r,m.c,'O');return;
+  }
+
+  const cfg=AI_CFG;
+
+  // 1) Thắng ngay nếu có.
+  let best=immediateWinningMove('O');
+
+  // 2) Nếu đối thủ có nước thắng ngay thì bắt buộc chặn.
+  if(!best)best=immediateWinningMove('X');
+
+  // 3) Phòng thủ bắt buộc trước mọi khai cuộc: không được bỏ qua song 3 / 3-4 / song 4.
+  if(!best)best=bestMandatoryDefense();
+
+  // 4) Tìm chuỗi ép thắng chủ động.
+  if(!best){
+    const tacticalDeadline=Date.now()+Math.min(4200,cfg.time*.50);
+    const ts=threatSearch('O',10,tacticalDeadline);
+    if(ts&&ts.win)best=ts.move;
+  }
+
+  // 5) Nếu đối thủ có chuỗi ép mạnh, chiếm ngay điểm đe dọa nguy hiểm nhất.
+  if(!best){
+    const oppThreats=winningThreatMoves('X');
+    if(oppThreats.length)best=oppThreats[0].m;
+  }
+
+  // 6) Chỉ dùng khai cuộc chủ động khi bàn cờ thực sự chưa có đe dọa chiến thuật.
+  if(!best)best=aggressiveOpeningMove();
+
+  // 7) Iterative deepening alpha-beta là lớp cuối cùng.
+  if(!best)best=searchBestMove(cfg);
+
+  aiThinking=false;
+  if(best)play(best.r,best.c,'O');
+}
+window.addEventListener('resize',render);
+resetGame();
+document.addEventListener('DOMContentLoaded',()=>{if(window.MiniPi)window.MiniPi.init().catch(()=>{})});
+</script>
+<script type="module" src="../assets/core/game-bridge.js"></script>
+</body>
+</html>

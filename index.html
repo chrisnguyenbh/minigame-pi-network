@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080815">
+<title>MiniGame Hub — Pi Mainnet</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<link rel="stylesheet" href="assets/hub-v2.css">
+</head>
+<body>
+<main class="shell">
+  <nav class="topbar">
+    <div class="logo">🎮 MINI<b>GAME HUB</b></div>
+    <div class="spacer"></div>
+    <div class="status" id="piStatus">Pi SDK…</div>
+    <button class="top-btn" id="piLogin">Đăng nhập Pi</button>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">MINIGAME HUB · PI MAINNET</div>
+      <h1><span>CHỌN GAME</span><br>VÀ VÀO CHƠI</h1>
+      <p>Khám phá các trò chơi chiến thuật, giải trí và thử thách hấp dẫn trong một MiniGame Hub.</p>
+    </div>
+    <div class="dashboard">
+      <div class="metric"><strong id="totalOpens">0</strong><span>Lượt mở game</span></div>
+      <div class="metric"><strong id="totalPlay">0 phút</strong><span>Thời gian chơi</span></div>
+      <div class="metric"><strong id="mgBalance">0 MG</strong><span>Số dư MG Credits</span></div>
+      <div class="metric"><strong id="playerName">Pioneer</strong><span>Tài khoản</span></div>
+      <div class="resume" id="resumeBox" hidden>
+        <small>CHƠI GẦN ĐÂY</small>
+        <a id="resumeLink" href="#"><span id="resumeTitle">Game</span><span>Mở lại →</span></a>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-head"><h2>🔥 Game nổi bật</h2><span>Chọn trò chơi bạn yêu thích</span></div>
+  <div class="filters">
+    <button class="filter active" data-filter="Tất cả">Tất cả</button>
+    <button class="filter" data-filter="AI">Đấu AI</button>
+    <button class="filter" data-filter="Chiến thuật">Chiến thuật</button>
+    <button class="filter" data-filter="Puzzle">Puzzle</button>
+    <button class="filter" data-filter="2 người">2 người</button>
+  </div>
+  <section class="game-grid" id="featuredGrid"></section>
+
+  <div class="section-head"><h2>🎲 Trò chơi khác</h2><span>Khám phá thêm</span></div>
+  <section class="more-grid" id="otherGrid"></section>
+
+  <section class="pi-panel">
+    <h3>💜 Nạp MG Credits</h3>
+    <p>1 MG = 0.01 Pi. Các game hiện chơi miễn phí. Tính năng sử dụng MG sẽ được thông báo khi mở.</p>
+
+    <div class="mg-packages" id="mgPackages">
+      <button class="mg-pack" data-pi="0.01" data-mg="1"><b>1 MG</b><span>0.01 Pi</span></button>
+      <button class="mg-pack" data-pi="0.05" data-mg="5"><b>5 MG</b><span>0.05 Pi</span></button>
+      <button class="mg-pack" data-pi="0.10" data-mg="10"><b>10 MG</b><span>0.10 Pi</span></button>
+      <button class="mg-pack" data-pi="0.50" data-mg="50"><b>50 MG</b><span>0.50 Pi</span></button>
+      <button class="mg-pack" data-pi="1.00" data-mg="100"><b>100 MG</b><span>1 Pi</span></button>
+    </div>
+
+    <div class="mg-wallet-row">
+      <span id="mgWalletStatus">Đăng nhập Pi để xem số dư MG.</span>
+      <button class="btn secondary" id="refreshMgBtn" type="button">Làm mới số dư</button>
+    </div>
+
+    <div class="debug" id="paymentStatus" aria-live="polite"></div>
+  </section>
+
+  <footer class="footer">
+    <a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms</a><span>MiniGame Hub</span>
+  </footer>
+</main>
+<script src="assets/pi.js"></script>
+<script src="assets/mg.js"></script>
+<script type="module" src="assets/hub-v2.js"></script>
+</body>
+</html>

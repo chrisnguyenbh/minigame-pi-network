@@ -1,0 +1,191 @@
+{
+  "http_checks": [
+    {
+      "route": "/",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/games/caro.html",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/games/apps/game_viewer/gui/game/game_viewer.html",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/games/survivor.html",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/games/idle-defense-3d.html",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/games/monopoly.html",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/games/dungeon-battle.html",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/games/bbtan.html",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/games/find-difference.html",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/assets/vendor/three-r128.min.js",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/api/config",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/api/health",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/api/mg/balance",
+      "method": "GET",
+      "expected": 401,
+      "actual": 401
+    },
+    {
+      "route": "/api/approve",
+      "method": "POST",
+      "expected": 401,
+      "actual": 401
+    },
+    {
+      "route": "/api/complete",
+      "method": "POST",
+      "expected": 401,
+      "actual": 401
+    },
+    {
+      "route": "/api/cancel",
+      "method": "POST",
+      "expected": 401,
+      "actual": 401
+    },
+    {
+      "route": "/api/payment",
+      "method": "GET",
+      "expected": 401,
+      "actual": 401
+    },
+    {
+      "route": "/api/mg/spend",
+      "method": "POST",
+      "expected": 401,
+      "actual": 401
+    },
+    {
+      "route": "/api/mg/recover",
+      "method": "POST",
+      "expected": 401,
+      "actual": 401
+    },
+    {
+      "route": "/api/pi-key-test",
+      "method": "GET",
+      "expected": 410,
+      "actual": 410
+    },
+    {
+      "route": "/server/pi.js",
+      "method": "GET",
+      "expected": 404,
+      "actual": 404
+    },
+    {
+      "route": "/tests/helpers.js",
+      "method": "GET",
+      "expected": 404,
+      "actual": 404
+    },
+    {
+      "route": "/.env.example",
+      "method": "GET",
+      "expected": 404,
+      "actual": 404
+    },
+    {
+      "route": "/%2e%2e/package.json",
+      "method": "GET",
+      "expected": 404,
+      "actual": 404
+    },
+    {
+      "route": "/games/apps/game_viewer/gui/game_viewer.html",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/games/apps/game_viewer/engine/co_tuong.html",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/api/a2u-reward",
+      "method": "POST",
+      "expected": 410,
+      "actual": 410
+    },
+    {
+      "route": "/assets/games/idle-reference-art.js",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/assets/games/idle-reference/dark-mage-atlas.png",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/assets/games/idle-reference/wood-arcane-towers.png",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    },
+    {
+      "route": "/assets/games/idle-reference/slate-ground.png",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200
+    }
+  ],
+  "other_game_files_unchanged": 150
+}
